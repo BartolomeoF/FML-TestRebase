@@ -83,6 +83,8 @@ class Cosmology {
     //========================================================================
     virtual void init() { solve_for_neutrinos(); }
 
+    virtual void read_and_spline_expansion() {}; // For the HiCOLA cosmology, we read in and spline E and dlogHdlogx from a file rather than compute them in FML
+
     //========================================================================
     // Neutrino specific things. For exact treatment of neutrinos in the
     // background
