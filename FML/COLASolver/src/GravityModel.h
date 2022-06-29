@@ -255,6 +255,9 @@ class GravityModel {
     virtual double source_factor_2LPT([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
         return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
     };
+    virtual double source_factor_2LPT_noalpha([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
+        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
+    };
     virtual double source_factor_3LPTa([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
         return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
     };
@@ -324,6 +327,7 @@ class GravityModel {
                 const double rhs = 1.5 * OmegaM * GeffOverG(a, koverH0) / (H * H * a * a * a);
                 const double rhs_1LPT = rhs * source_factor_1LPT(a, koverH0);
                 const double rhs_2LPT = rhs * source_factor_2LPT(a, koverH0);
+                const double rhs_2LPT_noalpha = rhs * source_factor_2LPT_noalpha(a, koverH0);
                 const double rhs_3LPTa = rhs * source_factor_3LPTa(a, koverH0);
                 const double rhs_3LPTb = rhs * source_factor_3LPTb(a, koverH0);
 
@@ -340,7 +344,7 @@ class GravityModel {
                 dydx[0] = dD1dx;
                 dydx[1] = rhs_1LPT * D1 - (2.0 + dlogHdx) * dD1dx;
                 dydx[2] = dD2dx;
-                dydx[3] = rhs_2LPT * (D2 - D1 * D1) - (2.0 + dlogHdx) * dD2dx;
+                dydx[3] = (rhs_2LPT_noalpha *D2 - rhs_2LPT * D1 * D1) - (2.0 + dlogHdx) * dD2dx;
                 dydx[4] = dD3adx;
                 dydx[5] = rhs_3LPTa * (D3a - 2.0 * D1 * D1 * D1) - (2.0 + dlogHdx) * dD3adx;
                 dydx[6] = dD3bdx;

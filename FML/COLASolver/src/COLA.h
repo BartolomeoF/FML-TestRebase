@@ -357,7 +357,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
         double D_1LPT = grav->get_D_1LPT(aold, koverH0);
         double D_2LPT = grav->get_D_2LPT(aold, koverH0);
         double D_2LPT_ini = grav->get_D_2LPT(aini, koverH0);
-        return factor * grav->source_factor_2LPT(aold, koverH0) * (D_2LPT - D_1LPT * D_1LPT) / D_2LPT_ini;
+        return factor * (grav->source_factor_2LPT_noalpha(aold, koverH0) * D_2LPT - grav->source_factor_2LPT(aold, koverH0) *  D_1LPT * D_1LPT) / D_2LPT_ini;
     };
 
     // For 2LPT drift step: (D2 - D2old) / D2ini
