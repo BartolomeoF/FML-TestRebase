@@ -73,6 +73,13 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
     }
 
     //=============================================================
+    // Hi-COLA background model
+    //=============================================================
+    if (param.get<std::string>("cosmology_model") == "HiCOLA") {
+        param["HiCOLA_expansion_filename"] = lfp.read_string("HiCOLA_expansion_filename", "", OPTIONAL);
+    }
+
+    //=============================================================
     // Gravity model
     //=============================================================
     param["gravity_model"] = lfp.read_string("gravity_model", "GR", OPTIONAL);
@@ -163,6 +170,28 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
                 param["multigrid_solver_residual_convergence"] =
                     lfp.read_double("multigrid_solver_residual_convergence", 1e-6, OPTIONAL);
             }
+        }
+
+        //=============================================================
+        // Hi-COLA forces model
+        //=============================================================
+        if (param.get<std::string>("gravity_model") == "HiCOLA") {
+
+            param["HiCOLA_input_filename"] = lfp.read_string("HiCOLA_input_filename", "", OPTIONAL);
+
+            // Screening approximation
+            param["gravity_model_screening"] = lfp.read_bool("gravity_model_screening", true, OPTIONAL);
+            if (param.get<bool>("gravity_model_screening")) {
+                param["gravity_model_HiCOLA_smoothing_filter"] =
+                    lfp.read_string("gravity_model_HiCOLA_smoothing_filter", "tophat", OPTIONAL);
+                param["gravity_model_HiCOLA_smoothing_scale_over_boxsize"] =
+                    lfp.read_double("gravity_model_HiCOLA_smoothing_scale_over_boxsize", 1.0, OPTIONAL);
+                param["gravity_model_screening_enforce_largescale_linear"] =
+                    lfp.read_bool("gravity_model_screening_enforce_largescale_linear", false, OPTIONAL);
+                param["gravity_model_screening_linear_scale_hmpc"] =
+                    lfp.read_double("gravity_model_screening_linear_scale_hmpc", 0.05, OPTIONAL);
+            }
+
         }
     }
 
