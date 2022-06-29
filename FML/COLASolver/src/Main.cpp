@@ -15,6 +15,7 @@
 #include "Cosmology_LCDM.h"
 #include "Cosmology_w0wa.h"
 #include "Cosmology_JBD.h"
+#include "Cosmology_HiCOLA.h"
 
 //=============================================================
 // The availiable gravity models
@@ -25,6 +26,7 @@
 #include "GravityModel_fofr.h"
 #include "GravityModel_JBD.h"
 #include "GravityModel_symmetron.h"
+#include "GravityModel_HiCOLA.h"
 
 #include "Simulation.h"
 
@@ -130,9 +132,14 @@ int main(int argc, char ** argv) {
         cosmo = std::make_shared<CosmologyDGP>();
     else if (cosmology_model == "JBD")
         cosmo = std::make_shared<CosmologyJBD>();
+    else if (cosmology_model == "HiCOLA")
+        cosmo = std::make_shared<CosmologyHiCOLA>();
     else
         throw std::runtime_error("Unknown cosmology [" + cosmology_model + "]");
     cosmo->read_parameters(param);
+    if (cosmology_model == "HiCOLA") {
+        cosmo->read_and_spline_expansion();
+    }
     cosmo->init();
     cosmo->info();
 
@@ -151,9 +158,14 @@ int main(int argc, char ** argv) {
         grav = std::make_shared<GravityModelJBD<NDIM>>(cosmo);
     else if (gravity_model == "Symmetron")
         grav = std::make_shared<GravityModelSymmetron<NDIM>>(cosmo);
+    else if (gravity_model == "HiCOLA")
+        grav = std::make_shared<GravityModelHiCOLA<NDIM>>(cosmo);
     else
         throw std::runtime_error("Unknown gravitymodel [" + gravity_model + "]");
     grav->read_parameters(param);
+   if (gravity_model == "HiCOLA") {
+        grav->read_and_spline_chi_over_delta_chi();
+    }
     grav->init();
     grav->info();
 
