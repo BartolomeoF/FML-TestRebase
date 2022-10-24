@@ -150,44 +150,6 @@ def fried1(phi_prime, k1, g1, Omega_r, Omega_m, E, alpha_M, Ms_Mp, Meffsq_Mpsq):
     zer = zer0 + zer1 + zer2 - 1.
     return zer
 
-#this function is obtained by substituting eq. 90 (omegade function) in Ashim's overleaf into eq. 8
-def fried_closure(G3, G4,  K,
-        f='f',
-        E='E',
-        Eprime='Eprime',
-        M_pG4 = 'M_{pG4}',
-        M_KG4 = 'M_{KG4}',
-        M_G3s = 'M_{G3s}',
-        M_sG4 = 'M_{sG4}',
-        M_G3G4 = 'M_{G3G4}',
-        M_Ks = 'M_{Ks}',
-        phi='phi',
-        phiprime='phiprime',
-        phiprimeprime='phiprimeprime',
-        omegar='Omega_r',
-        omegam='Omega_m',
-        omegal='Omega_l',
-        X='X'):
-    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
-    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
-    Kx, Kxx, Kxphi, Kphi = K_func(K)
-    param = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f, X]
-    paramnum = len(param)
-    for i in np.arange(0,paramnum):
-            if isinstance(param[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
-                param[i] = sy(param[i])
-    [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f, X] = param
-    omega_field = omega_phi(G3,G4,K,M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4, M_Ks=M_Ks)
-    fried1_RHS = omega_field + omegam + omegar + omegal -1.
-    Xreal = (1./2.)*(E**2.)*(phiprime**2.)
-    fried1_RHS = fried1_RHS.subs(X,Xreal)
-    # print('fried1 SymPy is ')
-    # print(sym.latex(fried1_RHS))
-    # if (model=='cubic' or model=='cubic Galileon' or model=='cubic_Galileon' or model=='Cubic Galileon'):
-    #     fried1_RHS_lambda = sym.lambdify([phiprime,E,omegar,omegam,k1,g31],fried1_RHS)
-    # elif model=='Traykova':
-    #     fried1_RHS_lambda = sym.lambdify([phiprime,E,omegar,omegam,k1,k2, g31, g32],fried1_RHS)
-    return fried1_RHS
     
 def fried_RHS_wrapper(cl_variable, cl_declaration, fried_RHS_lambda, E, phi_prime, Omega_r, Omega_m, Omega_l, parameters):
     argument_no = 5 + len(parameters)
@@ -301,10 +263,10 @@ def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prim
         E_prime_E_evaluated = comp_E_prime_E_LCDM(x,Omega_r0,Omega_m0)
         E_prime_evaluated = E_prime_E_evaluated*EUY
         phi_primeprime_evaluated = 0.
-    if cl_declaration[0] == 'odeint_parameters': #this indicates dS approach
+    if cl_declaration[0] == 'odeint_parameters': #usually indicates dS approach, so we must convert U back to E, since this is what the Omega_prime functions use
         EY = EUY/E0
         EYprime = E_prime_evaluated/E0
-    if cl_declaration[0] == 'parameters':
+    if cl_declaration[0] == 'parameters': #usually indicates 'today' approach, no need to change the Hubble variable, it is already E
         EY = EUY
         EYprime = E_prime_evaluated
     Omega_r_prime = comp_Omega_r_prime(Omega_rY, EY, EYprime) 
@@ -312,8 +274,12 @@ def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prim
     Omega_l_prime = comp_Omega_l_prime(Omega_l0,EY, EYprime)
     return [phi_primeprime_evaluated, E_prime_evaluated, Omega_r_prime, Omega_m_prime, Omega_l_prime]
 
+def chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0): #the E_arr is actual E, not U! Convert U_arr to E_arr!
+    chioverdelta = np.array(calB_arr)*np.array(calC_arr)*Omega_m0/np.array(E_arr)/np.array(E_arr)/np.array(a_arr)/np.array(a_arr)/np.array(a_arr)
+    return chioverdelta
 
-def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, c_M, hmaxv, suppression_flag, threshold,GR_flag):
+
+def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
     Omega_DE_LCDM0 = 1.-Omega_r0-Omega_m0
 
     z_final = 0.
@@ -327,14 +293,14 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
     z_early = 10
     x_early = np.log(1./(1.+z_early))
     alpha_M0 =0.
-    Meffsq_Mpsq0 = comp_Meffsq_x2_x1_propto_Omega_DE_LCDM(x_early, 0., Omega_r0, Omega_m0, c_M)
+    
     phi_prime_guess = 0.9
     # print('phi_prime imminent')
     if GR_flag is True:
         phi_prime0 = 0.
     #print('phi prime0 is '+str(phi_prime0))
     cl_var = comp_param_close(fried_RHS_lambda, cl_declaration, E0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
-    print('Closure parameter is '+str(cl_var))
+    
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             E0_closed = cl_var
@@ -350,12 +316,11 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
         if cl_declaration[1] == 3:
             Omega_m0_closed = cl_var
             Y0 = [phi_prime0,E0,Omega_r0,Omega_m0_closed, Omega_l0]
-        # if cl_declaration[1] == 4: #seemsinvalid, omega_l0 is always set by choice of f
-        #     Omega_l0_closed = cl_var
-        #     Y0 = [phi_prime0,E0,Omega_r0,Omega_m0, Omega_l0_closed]
+        print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     if cl_declaration[0] == 'parameters':
         parameters[cl_declaration[1]] = cl_var
         Y0 = [phi_prime0,E0,Omega_r0,Omega_m0,Omega_l0]
+        print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     # print('Y0 is '+str(Y0))
 
     if suppression_flag is True:
@@ -382,18 +347,14 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
     E_prime_E_LCDM_arr = [comp_E_prime_E_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_LCDM_arr = [comp_Omega_DE_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_prime_LCDM_arr = [comp_Omega_DE_prime_LCDM(E_prime_E_LCDMv, Omega_DE_LCDMv) for E_prime_E_LCDMv, Omega_DE_LCDMv in zip(E_prime_E_LCDM_arr, Omega_DE_LCDM_arr)]
-    alpha_M_arr = [comp_alpha_M_propto_Omega_DE_LCDM(c_M, Omega_DE_LCDMv) for Omega_DE_LCDMv in Omega_DE_LCDM_arr]
-    alpha_M_prime_arr = [comp_alpha_M_prime_propto_Omega_DE_LCDM(c_M, Omega_DE_prime_LCDMv) for Omega_DE_prime_LCDMv in Omega_DE_prime_LCDM_arr]
-    Meffsq_Mpsq_arr = [comp_Meffsq_x2_x1_propto_Omega_DE_LCDM(x_early, xv, Omega_r0, Omega_m0, c_M) for xv in x_arr_inv]
-
     
-    E_prime_E_arr2 = []
-    phi_primeprime_arr2 = []
-    for Omega_rv, Omega_lv, Ev, phi_primev, alpha_Mv, alpha_M_primev, Meffsq_Mpsqv in zip(Omega_r_arr, Omega_l_arr, E_arr, phi_prime_arr, alpha_M_arr, alpha_M_prime_arr, Meffsq_Mpsq_arr):
-        E_prime_E_arr2.append(E_prime_E_lambda(Ev,phi_primev,Omega_rv, Omega_lv, *parameters))
-    E_prime_arr2 = [E_prime_Ev*Ev for E_prime_Ev, Ev in zip(E_prime_E_arr2, E_arr)]
-    for Omega_rv, Ev, E_primev, phi_primev, alpha_Mv, alpha_M_primev, Meffsq_Mpsqv in zip(Omega_r_arr, E_arr, E_prime_arr2, phi_prime_arr, alpha_M_arr, alpha_M_prime_arr, Meffsq_Mpsq_arr):
-        phi_primeprime_arr2.append(phi_primeprime_lambda(Ev,E_primev,phi_primev,*parameters))
+    E_prime_E_arr = []
+    phi_primeprime_arr = []
+    for Omega_rv, Omega_lv, Ev, phi_primev in zip(Omega_r_arr, Omega_l_arr, E_arr, phi_prime_arr):
+        E_prime_E_arr.append(E_prime_E_lambda(Ev,phi_primev,Omega_rv, Omega_lv, *parameters))
+    E_prime_arr = [E_prime_Ev*Ev for E_prime_Ev, Ev in zip(E_prime_E_arr, E_arr)]
+    for Omega_rv, Ev, E_primev, phi_primev in zip(Omega_r_arr, E_arr, E_prime_arr, phi_prime_arr):
+        phi_primeprime_arr.append(phi_primeprime_lambda(Ev,E_primev,phi_primev,*parameters))
     
     A_arr = []
     for Ev, phi_primev,  in zip(E_arr,phi_prime_arr):
@@ -409,7 +370,7 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
     Omega_r_prime_arr = []
     Omega_m_prime_arr= []
     Omega_l_prime_arr = []
-    for Ev, E_primev, Omega_rv, Omega_mv, Omega_lv in zip(E_arr, E_prime_arr2, Omega_r_arr,Omega_m_arr, Omega_l_arr):
+    for Ev, E_primev, Omega_rv, Omega_mv, Omega_lv in zip(E_arr, E_prime_arr, Omega_r_arr,Omega_m_arr, Omega_l_arr):
         Omega_DE_arr.append(1. - Omega_rv - Omega_mv)
         Omega_phi_diff_arr.append(1. - Omega_rv - Omega_mv - Omega_lv)
         Omega_r_prime_arr.append(comp_Omega_r_prime(Omega_rv, Ev, E_primev))
@@ -418,16 +379,24 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
     
 
     array_output = []
-    for i in [a_arr_inv, E_arr, E_prime_E_arr2, E_prime_arr2, phi_prime_arr,  phi_primeprime_arr2, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr]:
+    for i in [a_arr_inv, E_arr, E_prime_E_arr, E_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr]:
         i = np.array(i)
         array_output.append(i)
-    [a_arr_inv, E_arr, E_prime_E_arr2, E_prime_arr2, phi_prime_arr,  phi_primeprime_arr2, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr] = array_output
+    [a_arr_inv, E_arr, E_prime_E_arr, E_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr] = array_output
 
-    return a_arr_inv, E_arr, E_prime_E_arr2, E_prime_arr2, phi_prime_arr,  phi_primeprime_arr2, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr #phi_prime_check_arr
+    calB_arr = []
+    calC_arr = []
+    coupling_factor_arr = []
+    for UEv, UEprimev, phiprimev, phiprimeprimev, av in zip(E_arr, E_prime_arr, phi_prime_arr, phi_primeprime_arr,a_arr):
+        calB_arr.append(calB_lambda(UEv,UEprimev,phiprimev,phiprimeprimev, *parameters))
+        calC_arr.append(calC_lambda(UEv,UEprimev,phiprimev,phiprimeprimev, *parameters))
+        coupling_factor_arr.append(coupling_factor(UEv,UEprimev,phiprimev,phiprimeprimev,*parameters))
 
-def chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0): #the E_arr is actual E, not U! Convert U_arr to E_arr!
-    chioverdelta = np.array(calB_arr)*np.array(calC_arr)*Omega_m0/np.array(E_arr)/np.array(E_arr)/np.array(a_arr)/np.array(a_arr)/np.array(a_arr)
-    return chioverdelta
+    chioverdelta_arr = chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0)
+
+    return a_arr_inv, E_arr, E_prime_E_arr, E_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
+
+
 
 
 ###############################
