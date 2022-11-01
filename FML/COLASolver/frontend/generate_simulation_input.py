@@ -81,7 +81,7 @@ if not os.path.exists(directory):
 
 ##### SELECT MODEL #################
 model='ESS'
-case='C'
+case='A'
 ###################################
 
 
@@ -347,12 +347,16 @@ for UEv, UEprimev, phiprimev, phiprimeprimev, av in zip(UE_arr, UE_prime_arr2, p
     calC_arr.append(calC_lambda(UEv,UEprimev,phiprimev,phiprimeprimev, *parameters))
     coupling_factor_arr.append(coupling_factor(UEv,UEprimev,phiprimev,phiprimeprimev,*parameters))
 
+coupling_zero = np.zeros(len(coupling_factor_arr))
+filename_QCDM=filename_chicouple[:-4] + '_QCDM' + filename_chicouple[-4:]
 
 chioverdelta_arr = nta.chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0)
 
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_chicouple)
+sp.write_data_flex([a_arr,chioverdelta_arr,coupling_zero],filename_QCDM)
+
 print('Files generated. Saved in "'+directory+'".')
 
 
