@@ -16,7 +16,7 @@ odeint_parameter_symbols = [E, phiprime, omegar, omegam]
 
 
 start = time.time()
-N_proc = 1
+N_proc = 4
 ##############
 # dS testing #
 ##############

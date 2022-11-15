@@ -14,12 +14,13 @@ sym.init_printing()
 # make sure to define X = (M_s^2/2)(\partial_t \phi)^2, etc.
 
 #---Do not change, this remains the same for any model----
-a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta")
+#a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta")
 #------------------------
 
 def declare_symbols():
-    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta")'
+    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta, threshold, threshold_sign = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta threshold threshold_sign")'
     return to_be_executed
+exec(declare_symbols())
 
 def K_func(K,subscript='default',printswitch=0):
     if subscript=='X':
@@ -1037,4 +1038,15 @@ def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filena
     datafile_id.close()    #close the file
 
 
-E, Eprime, phi, phiprime, phiprimeprime, X, k1, g31, g32, k2, g4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegam0, Theta, Thetaprime, G4prime, a, threshold, threshold_sign = sym.symbols("E Eprime phi phiprime phiprimeprime X k_1 g_{31} g_{32} k_2 g_4 M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_{m0} Theta Theta_prime G4prime a threshold threshold_sign")
+
+#####################################
+# Horndeski function initialisations
+#####################################
+# These are the initial specifications of the Horndeski functions when this file
+# is imported into another script. It is expected that these initial specifications
+# will be overwritten. If not, these should then trigger an exception, to 
+# bring attention to the fact that no choices were made for the Horndeski functions.
+# TL;DR - this is just for debugging purposes!
+K = None
+G3 = None
+G4 = None
