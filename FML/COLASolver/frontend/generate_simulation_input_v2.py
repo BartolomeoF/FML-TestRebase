@@ -47,13 +47,22 @@ filenames = args.input_ini_filenames
 Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 
-model, K, G3, G4, parameters, mass_ratio_list, symbol_list, closure_declaration, cosmological_parameters, initial_conditions, sim_parameters, threshold_value, GR_flag = read_in_parameters(Horndeski_path, numerical_path)
+read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 
-[Omega_r0, Omega_m0, Omega_l0] = cosmological_parameters
-[U0, phi_prime0] = initial_conditions
-[Npoints, z_max, supp_flag] = sim_parameters
+model = read_out_dict['model_name']
+K = read_out_dict['K']
+G3 = read_out_dict['G3']
+G4 = read_out_dict['G4']
+cosmology_name = read_out_dict['cosmo_name']
+[Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
+[U0, phi_prime0] = read_out_dict['initial_conditions']
+[Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
+parameters = read_out_dict['Horndeski_parameters']
+mass_ratio_list = read_out_dict['mass_ratio_list']
+symbol_list = read_out_dict['symbol_list']
+closure_declaration = read_out_dict['closure_declaration']
 
-
+print('phiprime0 is '+str(phi_prime0))
 #---Create Horndeski functions---
 ###################COMMENT/UNCOMMENT
 E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
@@ -79,26 +88,30 @@ print(model+' model parameters, ' + str(symbol_list)+' = '+str(parameters))
 print('Cosmological parameters are:')
 print('Omega_m0 = '+str(Omega_m0))
 print('Omega_r0 = '+str(Omega_r0))
-a_arr,  UE_arr, UE_prime_UE_arr,UE_prime_arr2, phi_prime_arr, phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr = ns.run_solver_inv(Npoints, z_max, U0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, closure_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, symbol_list, odeint_parameter_symbols, supp_flag, threshold_value, GR_flag)
-closure_arr = Omega_m_arr + Omega_r_arr + Omega_l_arr + Omega_phi_arr
-Omega_DE_sum_arr = Omega_phi_arr + Omega_l_arr
+background_quantities = ns.run_solver(Npoints, z_max, U0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, closure_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, symbol_list, odeint_parameter_symbols, supp_flag, threshold_value, GR_flag)
+a_arr = background_quantities['a']
+UE_arr = background_quantities['Hubble']
+UE_prime_arr = background_quantities['Hubble_prime']
+UE_prime_UE_arr = background_quantities['E_prime_E']
+coupling_factor_arr = background_quantities['coupling_factor']
+chioverdelta_arr = background_quantities['chi_over_delta']
 
 print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
 E_arr = np.array(UE_arr)/U0 #check whether COLA requires intermediates constructed with E rather than U!
-E_prime_arr = np.array(UE_prime_arr2)/U0 #check whether COLA requires intermediates constructed with Eprime rather than Uprime!
+E_prime_arr = np.array(UE_prime_arr)/U0 #check whether COLA requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
 directory = '../input/Horndeski'
 
-filename_expansion = directory+'/%s_expansion.txt' %model
-filename_force = directory+'/%s_force.txt' %model
+filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
+filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
 
 print(filename_expansion)
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 abs_directory = os.path.abspath(directory)
-print('Files generated. Saved in "'+abs_directory+'".')
+print(f'Files generated. Saved in {abs_directory}')
 
 

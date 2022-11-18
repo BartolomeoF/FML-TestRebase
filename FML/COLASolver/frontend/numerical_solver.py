@@ -294,7 +294,7 @@ def ESS_dS_parameters(EdS, f, k1seed, g31seed,Omega_r0h2 = 4.28e-5, Omega_b0h2 =
     return parameters
 
 
-def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
+def run_solver(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
     Omega_DE_LCDM0 = 1.-Omega_r0-Omega_m0
 
     z_final = 0.
@@ -305,11 +305,7 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
     x_arr_inv = x_arr[::-1]
     a_arr_inv = a_arr[::-1]
 
-    z_early = 10
-    x_early = np.log(1./(1.+z_early))
-    alpha_M0 =0.
-    
-    phi_prime_guess = 0.9
+
     # print('phi_prime imminent')
     if GR_flag is True:
         phi_prime0 = 0.
@@ -408,8 +404,17 @@ def run_solver_inv(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_saf
         coupling_factor_arr.append(coupling_factor(UEv,UEprimev,phiprimev,phiprimeprimev,*parameters))
 
     chioverdelta_arr = chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0)
-
-    return a_arr_inv, E_arr, E_prime_E_arr, E_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
+    
+    solution_arrays = {'a':a_arr, 'Hubble':E_arr, 'Hubble_prime':E_prime_arr,'E_prime_E':E_prime_E_arr,'scalar_prime':phi_prime_arr,'scalar_primeprime':phi_primeprime_arr}
+    cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr,'omega_phi':Omega_phi_arr}
+    cosmo_density_prime_arrays = {'omega_m_prime':Omega_m_prime_arr,'omega_r_prime':Omega_r_prime_arr,'omega_l_prime':Omega_l_prime_arr}
+    force_quantities = {'A':A_arr, 'calB':calB_arr, 'calC':calC_arr, 'coupling_factor':coupling_factor_arr, 'chi_over_delta':chioverdelta_arr}
+    result = {}
+    
+    for i in [solution_arrays, cosmological_density_arrays, cosmo_density_prime_arrays,force_quantities]:
+        result.update(i)
+    
+    return result #a_arr_inv, E_arr, E_prime_E_arr, E_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
 
 
 
@@ -427,7 +432,6 @@ def comp_almost_track(E_dS_fac, Omega_r0, Omega_m0, f_value, almost, fried_RHS_l
     k1_dS, g31_dS = -6.*alpha_param, 2.*alpha_param
     parameters = [k1_dS, g31_dS]    
 
-    #y0 = comp_y_cuGal_dS(0.9, Omega_r0, Omega_m0, Omega_L0, E0, EdS)
     y0 = comp_param_close(fried_RHS_lambda, ['odeint_parameters',1], U0, 0.9, Omega_r0, Omega_m0, Omega_l0, parameters)
     track = (E0/EdS)**2.*y0-1.
     almost_track = track - almost
@@ -441,5 +445,3 @@ def comp_E_dS_max(E_dS_max_guess, Omr, Omm, f, almost, fried_RHS_lambda):
     #         f = almost
     E_dS_max = fsolve(comp_almost_track, E_dS_max_guess, args=(Omr, Omm, f, almost,fried_RHS_lambda))[0]
     return E_dS_max
-
-E, Eprime, phi, phiprime, phiprimeprime, X, k1, g31, g32, k2, g4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal = sym.symbols("E Eprime phi phiprime phiprimeprime X k_1 g_{31} g_{32} k_2 g_4 M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l")
