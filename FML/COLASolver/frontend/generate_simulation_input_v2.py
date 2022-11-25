@@ -36,7 +36,6 @@ from argparse import ArgumentParser
 
 to_exec = eb.declare_symbols()
 exec(to_exec)
-odeint_parameter_symbols = [E, phiprime, omegar, omegam]
  
 parser = ArgumentParser(prog='Generate_Simulation_Input')
 parser.add_argument('input_ini_filenames',nargs=2)
@@ -48,6 +47,8 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
+odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 model = read_out_dict['model_name']
 K = read_out_dict['K']
@@ -65,8 +66,8 @@ closure_declaration = read_out_dict['closure_declaration']
 print('phiprime0 is '+str(phi_prime0))
 #---Create Horndeski functions---
 ###################COMMENT/UNCOMMENT
-E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
-    coupling_factor, alpha0_lambda, alpha1_lambda, alpha2_lambda, beta0_lambda, calB_lambda, calC_lambda = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list)
+lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list)
+read_out_dict.update(lambdified_functions)
 ######################################
 
 
@@ -80,15 +81,13 @@ print(parameters)
 print('Symbol list-------')
 print(symbol_list)
 print(type(symbol_list[0]))
-print('Lambdified functions-----------')
-print(E_prime_E_lambda(1,1,1,1,1,1,1,1))
 
 # #---Run solver and save output---COMMENT/UNCOMMENT
 print(model+' model parameters, ' + str(symbol_list)+' = '+str(parameters))
 print('Cosmological parameters are:')
 print('Omega_m0 = '+str(Omega_m0))
 print('Omega_r0 = '+str(Omega_r0))
-background_quantities = ns.run_solver(Npoints, z_max, U0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, closure_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, symbol_list, odeint_parameter_symbols, supp_flag, threshold_value, GR_flag)
+background_quantities = ns.run_solver(read_out_dict)
 a_arr = background_quantities['a']
 UE_arr = background_quantities['Hubble']
 UE_prime_arr = background_quantities['Hubble_prime']

@@ -294,13 +294,36 @@ def ESS_dS_parameters(EdS, f, k1seed, g31seed,Omega_r0h2 = 4.28e-5, Omega_b0h2 =
     return parameters
 
 
-def run_solver(z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
-    Omega_DE_LCDM0 = 1.-Omega_r0-Omega_m0
+def run_solver(read_out_dict):
+# (z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, 
+#  omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters, 
+#  Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
+
+
+    [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
+    [E0, phi_prime0] = read_out_dict['initial_conditions']
+    [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
+    parameters = read_out_dict['Horndeski_parameters']
+
+    E_prime_E_lambda = read_out_dict['E_prime_E_lambda']
+    E_prime_E_safelambda = read_out_dict['E_prime_E_safelambda']
+    phi_primeprime_lambda = read_out_dict['phi_primeprime_lambda']
+    phi_primeprime_safelambda = read_out_dict['phi_primeprime_safelambda']
+    omega_phi_lambda = read_out_dict['omega_phi_lambda']
+    A_lambda = read_out_dict['A_lambda']
+    fried_RHS_lambda = read_out_dict['fried_RHS_lambda']
+    calB_lambda = read_out_dict['calB_lambda']
+    calC_lambda = read_out_dict['calC_lambda']
+    coupling_factor = read_out_dict['coupling_factor']
+
+    parameter_symbols = read_out_dict['symbol_list']
+    odeint_parameter_symbols = read_out_dict['odeint_parameter_symbols']
+    cl_declaration = read_out_dict['closure_declaration']
 
     z_final = 0.
-    x_ini = np.log(1./(1.+z_ini))
+    x_ini = np.log(1./(1.+z_max))
     x_final = np.log(1./(1.+z_final))
-    x_arr = np.linspace(x_ini, x_final, z_num)
+    x_arr = np.linspace(x_ini, x_final, Npoints)
     a_arr = [np.exp(x) for x in x_arr]
     x_arr_inv = x_arr[::-1]
     a_arr_inv = a_arr[::-1]
