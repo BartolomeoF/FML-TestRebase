@@ -429,7 +429,7 @@ def run_solver(read_out_dict):
     chioverdelta_arr = chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0)
     
     solution_arrays = {'a':a_arr, 'Hubble':E_arr, 'Hubble_prime':E_prime_arr,'E_prime_E':E_prime_E_arr,'scalar_prime':phi_prime_arr,'scalar_primeprime':phi_primeprime_arr}
-    cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr,'omega_phi':Omega_phi_arr}
+    cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr,'omega_phi':Omega_phi_arr, 'omega_DE':Omega_DE_arr}
     cosmo_density_prime_arrays = {'omega_m_prime':Omega_m_prime_arr,'omega_r_prime':Omega_r_prime_arr,'omega_l_prime':Omega_l_prime_arr}
     force_quantities = {'A':A_arr, 'calB':calB_arr, 'calC':calC_arr, 'coupling_factor':coupling_factor_arr, 'chi_over_delta':chioverdelta_arr}
     result = {}

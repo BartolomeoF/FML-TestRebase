@@ -44,6 +44,22 @@ def write_data_flex(data, output_filename_as_string):
     realdata = realdata.T     #here you transpose your data, so to have it in two columns
     np.savetxt(datafile_id, realdata, fmt=format_list)    #here the ascii file is populated.
     datafile_id.close()    #close the file
+
+def make_scan_array(minv, maxv, numv):
+    if minv == maxv:
+        numv = 1
+    return np.linspace(minv,maxv,numv,endpoint=True)
+
+def generate_scan_array(dictionary, quantity_string):
+    maxv_string = quantity_string+"_max"
+    minv_string = quantity_string+"_min"
+    numv_string = quantity_string+"_number"
+    maxv = dictionary.as_float(maxv_string)
+    minv = dictionary.as_float(minv_string)
+    numv = dictionary.as_int(numv_string)
     
+    return make_scan_array(minv,maxv,numv)
+
+
     
 ##############################################################################################
