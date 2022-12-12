@@ -177,7 +177,7 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
         //=============================================================
         if (param.get<std::string>("gravity_model") == "HiCOLA") {
 
-            param["HiCOLA_input_filename"] = lfp.read_string("HiCOLA_input_filename", "", OPTIONAL);
+            param["HiCOLA_preforce_filename"] = lfp.read_string("HiCOLA_preforce_filename", "", OPTIONAL);
 
             // Screening approximation
             param["gravity_model_screening"] = lfp.read_bool("gravity_model_screening", true, OPTIONAL);

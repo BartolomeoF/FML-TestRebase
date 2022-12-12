@@ -30,7 +30,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     void info() const override {
         GravityModel<NDIM>::info();
         if (FML::ThisTask == 0) {
-                std::cout << "# HiCOLA_input_filename : " << HiCOLA_input_filename << "\n";
+                std::cout << "# HiCOLA_preforce_filename : " << HiCOLA_preforce_filename << "\n";
                 std::cout << "# Screening method : " << use_screening_method << "\n";
             if (use_screening_method) {
                 std::cout << "# Enforce correct linear evolution : " << screening_enforce_largescale_linear << "\n";
@@ -58,7 +58,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
       std::vector<int> cols_to_keep{col_a, col_chi, col_coupl};
       const int nheaderlines = 0;
 
-      auto HiCOLAdata = FML::FILEUTILS::read_regular_ascii(HiCOLA_input_filename, ncols, cols_to_keep, nheaderlines);
+      auto HiCOLAdata = FML::FILEUTILS::read_regular_ascii(HiCOLA_preforce_filename, ncols, cols_to_keep, nheaderlines);
 
       HiCOLA_a_arr.resize(HiCOLAdata.size());
       chi_over_delta_arr.resize(HiCOLAdata.size());
@@ -209,7 +209,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     //========================================================================
     void read_parameters(ParameterMap & param) override {
         GravityModel<NDIM>::read_parameters(param);
-        HiCOLA_input_filename = param.get<std::string>("HiCOLA_input_filename");
+        HiCOLA_preforce_filename = param.get<std::string>("HiCOLA_preforce_filename");
         use_screening_method = param.get<bool>("gravity_model_screening");
         if (use_screening_method) {
             smoothing_scale_over_boxsize = param.get<double>("gravity_model_HiCOLA_smoothing_scale_over_boxsize"); // BILL: need to understand whether we want to do any smoothing for HiCOLA
@@ -223,7 +223,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
   protected:
     //double rcH0_DGP; //BILL: may need to define coupling/screening factor variables here?
 
-    std::string HiCOLA_input_filename; // The filename
+    std::string HiCOLA_preforce_filename; // The filename
     // For screening method
     bool use_screening_method{true};
     std::string smoothing_filter{"tophat"};
