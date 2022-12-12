@@ -119,14 +119,14 @@ endif
 VPATH := $(FML_INCLUDE)/FML/Global/:$(FML_INCLUDE)/FML/Spline/:$(FML_INCLUDE)/FML/ODESolver/:$(FML_INCLUDE)/FML/GadgetUtils/:$(FML_INCLUDE)/FML/ParameterMap/:$(FML_INCLUDE)/FML/FileUtils/:src/
 OBJS = Main.o Global.o Spline.o ODESolver.o GadgetUtils.o ParameterMap.o FileUtils.o
 
-TARGETS := nbody
+TARGETS := Hi-COLA
 all: $(TARGETS)
 .PHONY: all clean
 
 clean:
 	rm -rf $(TARGETS) *.o
 
-nbody: $(OBJS)
+Hi-COLA: $(OBJS)
 	${CC} -o $@ $^ $(OPTIONS) $(LIB) $(LINK)
 
 Main.o: Makefile src/Main.cpp src/Cosmology.h src/GravityModel.h src/ReadParameters.h src/AnalyzeOutput.h src/Simulation.h
