@@ -278,21 +278,6 @@ def chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0): #the E_arr is ac
     chioverdelta = np.array(calB_arr)*np.array(calC_arr)*Omega_m0/np.array(E_arr)/np.array(E_arr)/np.array(a_arr)/np.array(a_arr)/np.array(a_arr)
     return chioverdelta
 
-def ESS_dS_parameters(EdS, f, k1seed, g31seed,Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307):
-    Omega_r0 = Omega_r0h2/h/h
-    Omega_m0 = (Omega_b0h2 + Omega_c0h2)/h/h
-    Omega_DE0 = 1. - Omega_r0 - Omega_m0
-    Omega_l0 = (1.-f)*Omega_DE0
-    
-    alpha_expr = 1.-Omega_l0/EdS/EdS
-
-    k1_dS = k1seed*alpha_expr         #k1_dSv has been called k1(dS)-seed in my notes
-    k2_dS = -2.*k1_dS - 12.*alpha_expr
-    g31_dS = g31seed*alpha_expr#2.*alpha_expr                 #g31_dSv is g31(dS)-seed
-    g32_dS = 0.5*( 1.- ( Omega_l0/EdS/EdS + k1_dS/6. + k2_dS/4. + g31_dS) )
-    parameters = [k1_dS,k2_dS, g31_dS, g32_dS]
-    return parameters
-
 
 def run_solver(read_out_dict):
 # (z_num, z_ini, E0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, 
