@@ -91,7 +91,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
         return 1.0 + get_coupling(a);
     }
 
-    // For the LPT equations there is a modified >= 2LPT factor //BILL: for HiCOLA we don't want to modify the 2LPT for now (i.e. just use the GR 2LPT equation for D_2 but with modified D_1)
+    // For the LPT equations there is a modified >= 2LPT factor) // For HiCOLA, we do not modify the 2LPT factor in this way for now (i.e. we just use the GR 2LPT equation for D_2 but with modified D_1).
     //========================================================================
     //========================================================================
     //double source_factor_2LPT(double a, [[maybe_unused]] double koverH0 = 0.0) const override {
@@ -125,8 +125,8 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
             // Approximate screening method
             const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_HiCOLA = [=](double density_contrast) {
-                double fac = get_chi_over_delta(a) * pow(a, 3.) * (density_contrast); //BILL: need to re-write the equation and read the spline/file for chi_over_delta
-                return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac; //BILL: need to understand what this line does
+                double fac = get_chi_over_delta(a) * pow(a, 3.) * (density_contrast);
+                return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
             std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
             FML::NBODY::compute_delta_fifth_force_density_screening(density_fourier,
@@ -212,8 +212,8 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
         HiCOLA_preforce_filename = param.get<std::string>("HiCOLA_preforce_filename");
         use_screening_method = param.get<bool>("gravity_model_screening");
         if (use_screening_method) {
-            smoothing_scale_over_boxsize = param.get<double>("gravity_model_HiCOLA_smoothing_scale_over_boxsize"); // BILL: need to understand whether we want to do any smoothing for HiCOLA
-            smoothing_filter = param.get<std::string>("gravity_model_HiCOLA_smoothing_filter"); // BILL: need to understand whether we want to do any smoothing for HiCOLA
+            smoothing_scale_over_boxsize = param.get<double>("gravity_model_HiCOLA_smoothing_scale_over_boxsize");
+            smoothing_filter = param.get<std::string>("gravity_model_HiCOLA_smoothing_filter");
             screening_enforce_largescale_linear = param.get<bool>("gravity_model_screening_enforce_largescale_linear");
             screening_linear_scale_hmpc = param.get<double>("gravity_model_screening_linear_scale_hmpc");
         }
@@ -221,8 +221,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     }
 
   protected:
-    //double rcH0_DGP; //BILL: may need to define coupling/screening factor variables here?
-
+    
     std::string HiCOLA_preforce_filename; // The filename
     // For screening method
     bool use_screening_method{true};
@@ -231,7 +230,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     bool screening_enforce_largescale_linear{false};
     double screening_linear_scale_hmpc{0.0};
 
-    // For solving the exact equation //BILL: don't need for HiCOLA?
+    // For solving the exact equation // Don't need for HiCOLA
     bool solve_exact_equation{false};
     int multigrid_nsweeps_first_step{10};
     int multigrid_nsweeps{10};
