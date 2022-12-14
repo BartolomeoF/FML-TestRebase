@@ -125,7 +125,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
             // Approximate screening method
             const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_HiCOLA = [=](double density_contrast) {
-                double fac = get_chi_over_delta(a) * pow(a, 3.) * (density_contrast);
+                double fac = get_chi_over_delta(a) * (density_contrast - 1.0);
                 return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
             std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
