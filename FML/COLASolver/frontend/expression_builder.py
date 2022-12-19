@@ -6,7 +6,7 @@ sym.init_printing()
 
 
 #IMPORTANT: The dimensionless field, called \Tilde{\phi} in notes, is called
-# "phi" in this script, just like the original massive scalar field. Only the 
+# "phi" in this script, just like the original massive scalar field. Only the
 # SymPy definition carries any indication that it is really the dimensionless field!
 
 #Any new mass scales in other terms like the G-functions should be specified by the user
@@ -14,11 +14,11 @@ sym.init_printing()
 # make sure to define X = (M_s^2/2)(\partial_t \phi)^2, etc.
 
 #---Do not change, this remains the same for any model----
-#a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta")
+#a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta")
 #------------------------
 
 def declare_symbols():
-    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f, Theta, threshold, threshold_sign = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f Theta threshold threshold_sign")'
+    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign")'
     return to_be_executed
 exec(declare_symbols())
 
@@ -145,7 +145,7 @@ def sy(string):
 
 
 
-def Pde(G3, G4,  K, 
+def Pde(G3, G4,  K,
         H='H',
         Hprime = 'Hprime',
         Meff='M_eff',
@@ -178,7 +178,7 @@ def Pde(G3, G4,  K,
     Ms = parameters[-1]
     Mfrac = (Mp**2)/(Meff**2)
     term1 = 2*X* (G3phi + H*(Hprime*Ms*phiprime + H*Ms*phiprimeprime) *G3x)
-    term2 = 2* G4phi* (H*(Hprime*Ms*phiprime + H*Ms*phiprimeprime) + 2 *(H**2) *Ms*phiprime) 
+    term2 = 2* G4phi* (H*(Hprime*Ms*phiprime + H*Ms*phiprimeprime) + 2 *(H**2) *Ms*phiprime)
     term3 = 4 *X *G4phiphi
     P_DE = Mfrac*(K-term1 + term2 + term3) + ((H**2)*omegar*(Mp**2))* (Mfrac - 1)
     return P_DE
@@ -194,7 +194,7 @@ def rhode(G3, G4,  K,
         omegam='Omega_m',
         omegar='Omega_r',
         X='X'): #strings as inputs
-    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)    
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     parameters = [G3, G4, H, K, Meff, Mp, phi, phidot, phidotdot, omegar,X]
@@ -207,7 +207,7 @@ def rhode(G3, G4,  K,
     term2 = 2* X* G3phi + 6* (H**2) *Ms*phiprime* G4phi
     return (3*(H**2)*(Mp**2))(omegar + omegam) *( Mfrac - 1) + Mfrac* (term1 - term2)
 
-def omega_phi(G3, G4,  K, 
+def omega_phi(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -240,7 +240,7 @@ def omega_phi(G3, G4,  K,
     return omega_de
 
 
-def EprimeEODERHS(G3, G4,  K, 
+def EprimeEODERHS(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -292,11 +292,11 @@ def EprimeEODERHS(G3, G4,  K,
     RHS = term2 + term3 + term4
     # print('RHS is')
     # print(sym.latex(RHS))
-    EprimeE =  (term2 + term3 + term4)/term1 
+    EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
-def EprimeEODERHS_safe(G3, G4,  K,    
-        threshold='threshold', 
+def EprimeEODERHS_safe(G3, G4,  K,
+        threshold='threshold',
         threshold_sign='threshold_sign',
         E='E',
         Eprime='Eprime',
@@ -347,10 +347,10 @@ def EprimeEODERHS_safe(G3, G4,  K,
     RHS = term2 + term3 + term4
     # print('RHS is')
     # print(sym.latex(RHS))
-    EprimeE =  (term2 + term3 + term4)/term1 
+    EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
-def phiprimeprimeODERHS(G3, G4,  K, 
+def phiprimeprimeODERHS(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -388,7 +388,7 @@ def phiprimeprimeODERHS(G3, G4,  K,
 
 #this function is obtained by substituting eq. 90 (omegade function) in Ashim's overleaf into eq. 8
 def fried_closure(G3, G4,  K,
-        f='f',
+        f_phi='f_phi',
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -407,12 +407,12 @@ def fried_closure(G3, G4,  K,
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
-    param = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f, X]
+    param = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f_phi, X]
     paramnum = len(param)
     for i in np.arange(0,paramnum):
             if isinstance(param[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
                 param[i] = sy(param[i])
-    [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f, X] = param
+    [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f_phi, X] = param
     omega_field = omega_phi(G3,G4,K,M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4, M_Ks=M_Ks)
     fried1_RHS = omega_field + omegam + omegar + omegal -1.
     Xreal = (1./2.)*(E**2.)*(phiprime**2.)
@@ -425,8 +425,8 @@ def fried_closure(G3, G4,  K,
     #     fried1_RHS_lambda = sym.lambdify([phiprime,E,omegar,omegam,k1,k2, g31, g32],fried1_RHS)
     return fried1_RHS
 
-def phiprimeprimeODERHS_safe(G3, G4,  K,      
-        threshold='threshold', 
+def phiprimeprimeODERHS_safe(G3, G4,  K,
+        threshold='threshold',
         threshold_sign='threshold_sign',
         E='E',
         Eprime='Eprime',
@@ -461,7 +461,7 @@ def phiprimeprimeODERHS_safe(G3, G4,  K,
     phiprimeprime = -1.*(  (B/A)  + (Eprime/E)*phiprime )
     return phiprimeprime
 
-def A_func(G3, G4,  K, 
+def A_func(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -490,7 +490,7 @@ def A_func(G3, G4,  K,
     A = A1 + A2
     return A
 
-def B2_func(G3, G4,  K,    
+def B2_func(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -524,7 +524,7 @@ def B2_func(G3, G4,  K,
     return B2
 
 
-def theta(G3, G4,  K, 
+def theta(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -567,7 +567,7 @@ def theta(G3, G4,  K,
             print('-------------------')
     return theta
 
-def calE(G3, G4,  K, 
+def calE(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -611,7 +611,7 @@ def calE(G3, G4,  K,
             print('-------------------')
     return calE
 
-def calP(G3, G4,  K, 
+def calP(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -657,7 +657,7 @@ def calP(G3, G4,  K,
             print('-------------------')
     return calP
 
-def alpha0(G3, G4,  K, 
+def alpha0(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -712,7 +712,7 @@ def alpha0(G3, G4,  K,
             print('-------------------')
     return alpha0
 
-def alpha1(G3, G4,  K, 
+def alpha1(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -753,7 +753,7 @@ def alpha1(G3, G4,  K,
     return alpha1
 
 
-def alpha2(G3, G4,  K, 
+def alpha2(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -795,7 +795,7 @@ def alpha2(G3, G4,  K,
             print('-------------------')
     return alpha2
 
-def beta0(G3, G4,  K, 
+def beta0(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -834,7 +834,7 @@ def beta0(G3, G4,  K,
             print('-------------------')
     return beta0
 
-def calB(G3, G4,  K, 
+def calB(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -876,7 +876,7 @@ def calB(G3, G4,  K,
             print('-------------------')
     return calB #this will depend on E, Eprime, phiprime, phiprimeprime, Theta, Thetaprime, G4prime
 
-def calC(G3, G4,  K, 
+def calC(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -918,7 +918,7 @@ def calC(G3, G4,  K,
     return calC #this will depend on E, Eprime, phiprime, phiprimeprime, Theta, Thetaprime, G4prime
 
 
-def coupling_factor(G3, G4,  K, 
+def coupling_factor(G3, G4,  K,
         E='E',
         Eprime='Eprime',
         M_pG4 = 'M_{pG4}',
@@ -961,16 +961,16 @@ def coupling_factor(G3, G4,  K,
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     if np.any([K,G3,G4]) is None:
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
-    
+
     [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
     E_prime_E = EprimeEODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
     Xreal = 0.5*(E**2.)*phiprime**2.
-    
+
     E_prime_E = E_prime_E.subs(X,Xreal)
     E_prime_E_safe = EprimeEODERHS_safe(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     E_prime_E_safe = E_prime_E_safe.subs(X,Xreal)
-    
-    
+
+
     phi_primeprime = phiprimeprimeODERHS(G3, G4, K,M_pG4=M_pG4_test, M_KG4 =M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     phi_primeprime = phi_primeprime.subs(X,Xreal)
     phi_primeprime_safe = phiprimeprimeODERHS_safe(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
@@ -978,60 +978,60 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
     A_function = A_func(G3=G3, G4=G4, K=K,M_pG4=M_pG4_test, M_KG4 =M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     A_function = A_function.subs(X,Xreal)
-    
+
     B2_function = B2_func(G3=G3, G4=G4, K=K,M_pG4=M_pG4_test, M_KG4 =M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     B2_function = B2_function.subs(X,Xreal)
     B2_lambda = sym.lambdify([E,phiprime,*symbol_list],B2_function,"scipy")
-    
+
     omega_field = omega_phi(G3=G3,G4=G4,K=K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     omega_field = omega_field.subs(X,Xreal)
-    
+
     fried_RHS_lambda = fried_closure(G3, G4,  K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     fried_RHS_lambda = fried_RHS_lambda.subs(X,Xreal)
     fried_RHS_lambda = sym.lambdify([E, phiprime, omegar,omegam, omegal, *symbol_list],fried_RHS_lambda)
-    
+
     E_prime_E_lambda = sym.lambdify([E,phiprime,omegar,omegal,*symbol_list],E_prime_E, "scipy")
     E_prime_E_safelambda = sym.lambdify([E,phiprime,omegar, omegal, threshold,threshold_sign,*symbol_list],E_prime_E_safe, "scipy")
-    
+
     phi_primeprime_lambda = sym.lambdify([E,Eprime,phiprime,*symbol_list],phi_primeprime, "scipy")
     phi_primeprime_safelambda = sym.lambdify([E,Eprime,phiprime,threshold,threshold_sign,*symbol_list],phi_primeprime_safe, "scipy")
     omega_phi_lambda = sym.lambdify([E,phiprime,*symbol_list],omega_field)
     A_lambda = sym.lambdify([E,phiprime,*symbol_list],A_function,"scipy")
-    
-    
+
+
     alpha0_func = alpha0(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha0_func = alpha0_func.subs(X,Xreal)
     alpha0_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha0_func)
-    
+
     alpha1_func = alpha1(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha1_func = alpha1_func.subs(X,Xreal)
     alpha1_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha1_func)
-    
+
     alpha2_func = alpha2(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha2_func = alpha2_func.subs(X,Xreal)
     alpha2_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha2_func)
-    
+
     beta0_func = beta0(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     beta0_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],beta0_func)
-    
+
     calB_func = calB(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     calB_func = calB_func.subs(X,Xreal)
     calB_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],calB_func)
-    
+
     calC_func = calC(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     calC_func = calC_func.subs(X,Xreal)
     calC_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],calC_func)
-    
-    
+
+
     coupling_fac = coupling_factor(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     coupling_fac = coupling_fac.subs([(X,Xreal)])
     coupling_fac = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],coupling_fac)
-    
+
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb}
-    return lambda_functions_dict 
+    return lambda_functions_dict
 #E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
  #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
 
@@ -1050,7 +1050,7 @@ def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filena
 #####################################
 # These are the initial specifications of the Horndeski functions when this file
 # is imported into another script. It is expected that these initial specifications
-# will be overwritten. If not, these should then trigger an exception, to 
+# will be overwritten. If not, these should then trigger an exception, to
 # bring attention to the fact that no choices were made for the Horndeski functions.
 # TL;DR - this is just for debugging purposes!
 K = None

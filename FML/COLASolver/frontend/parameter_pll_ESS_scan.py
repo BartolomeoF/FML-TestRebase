@@ -25,10 +25,10 @@ z_num_test = 1000 # number of redshifts to output at
 z_ini_test = 9999. # early redshift to solve backwards to
 
 ####Number of points
-Npoints = 3 #the old parameter that determines how many values of EdS and f. I've kept it because I am still setting same no. for both, and naming files using it
+Npoints = 3 #the old parameter that determines how many values of EdS and f_phi. I've kept it because I am still setting same no. for both, and naming files using it
 
-Npoints_EdS = Npoints # how many EdS and f values to test for
-Npoints_f = Npoints
+Npoints_EdS = Npoints # how many EdS and f_phi values to test for
+Npoints_f_phi = Npoints
 Npoints_k1dS = 1
 Npoints_g31dS = Npoints_k1dS
 
@@ -36,8 +36,8 @@ Npoints_g31dS = Npoints_k1dS
 EdS_max = 0.94
 EdS_min = 0.5
 
-f_max = 1.0
-f_min = 0.0
+f_phi_max = 1.0
+f_phi_min = 0.0
 
 k1_dS_max = 6.
 k1_dS_min = -6.
@@ -51,7 +51,7 @@ Omega_b0h2 = 0.02196
 Omega_c0h2 = 0.1274
 h_test = 0.7307
 
-Omega_r0_test = Omega_r0h2/h_test/h_test 
+Omega_r0_test = Omega_r0h2/h_test/h_test
 Omega_m0_test = (Omega_b0h2 + Omega_c0h2)/h_test/h_test
 Omega_DE0_test = 1. - Omega_r0_test - Omega_m0_test
 Omega_m_crit = 0.99 # matter must pass this value to be viable
@@ -66,13 +66,13 @@ cl_declaration = ['odeint_parameters',1]
 
 
 early_DE_threshold=1.0
-yellow_switch=False 
-blue_switch=False 
+yellow_switch=False
+blue_switch=False
 red_switch=False
 
-# define ranges of f and E_dS to search over
+# define ranges of f_phi and E_dS to search over
 E_dS_fac_arr = np.linspace(EdS_min, EdS_max, Npoints_EdS)
-f_arr = np.linspace(f_min, f_max, Npoints_f)
+f_phi_arr = np.linspace(f_phi_min, f_phi_max, Npoints_f_phi)
 k1_dS_arr = np.linspace(k1_dS_min,k1_dS_max,Npoints_k1dS)
 g31_dS_arr = np.linspace(g31_dS_min,g31_dS_max,Npoints_g31dS)
 
@@ -98,19 +98,19 @@ description_string = 'Parallelised parameter scanner using pool.starmap on a fun
 
 
 
-                      
 
-                     
+
+
 
 # create lambdified functions for nta.run_solver_inv to use
 model = 'ESS'
 E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
     coupling_factor, alpha0_lambda, alpha1_lambda, alpha2_lambda, beta0_lambda, calB_lambda, calC_lambda = eb.create_Horndeski(K,G3,G4,parameter_symbols,mass_ratio_list)
-    
+
 lambda_functions = [E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda] #save into list for scanner
 
 
-scan_list = it.product(E_dS_fac_arr,f_arr,k1_dS_arr, g31_dS_arr,[cl_declaration],[early_DE_threshold],[yellow_switch],[blue_switch],[red_switch],
+scan_list = it.product(E_dS_fac_arr,f_phi_arr,k1_dS_arr, g31_dS_arr,[cl_declaration],[early_DE_threshold],[yellow_switch],[blue_switch],[red_switch],
                        [tolerance],[z_num_test],[z_ini_test],[Omega_r0h2],[Omega_b0h2],[Omega_c0h2],
                        [h_test],[phi_prime0],[Omega_m_crit],[GR_flag],[suppression_flag],[threshold])
 ##---Setting up log files---
@@ -146,22 +146,22 @@ path_to_txt_blues = saving_subdir+file_date+'_'+model+"_blues.txt"
 path_to_txt_yellows = saving_subdir+file_date+'_'+model+"_yellows.txt"
 
 # green_txt = open(path_to_txt_greens,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=green_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=green_txt)
 
 # black_txt = open(path_to_txt_blacks,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=black_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=black_txt)
 
 # magenta_txt = open(path_to_txt_magentas,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=magenta_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=magenta_txt)
 
 # red_txt = open(path_to_txt_reds,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=red_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=red_txt)
 
 # blue_txt = open(path_to_txt_blues,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=blue_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=blue_txt)
 
 # yellow_txt = open(path_to_txt_yellows,"w")
-# print('#'+str(['EdS','f','k1dS-seed','g31dS-seed']),file=yellow_txt)
+# print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=yellow_txt)
 
 ######################################
 
@@ -174,10 +174,10 @@ print('--- E_dS arguments ---',file=scan_metadata_file)
 print('EdS_max='+str(EdS_max),file=scan_metadata_file)
 print('EdS_min='+str(EdS_min),file=scan_metadata_file)
 print('no. of EdS points='+str(Npoints_EdS),file=scan_metadata_file)
-print('--- f arguments ---',file=scan_metadata_file)
-print('f_max='+str(f_max),file=scan_metadata_file)
-print('f_min='+str(f_min),file=scan_metadata_file)
-print('no. of f points='+str(Npoints_f),file=scan_metadata_file)
+print('--- f_phi arguments ---',file=scan_metadata_file)
+print('f_phi_max='+str(f_phi_max),file=scan_metadata_file)
+print('f_phi_min='+str(f_phi_min),file=scan_metadata_file)
+print('no. of f_phi points='+str(Npoints_f_phi),file=scan_metadata_file)
 print('--- k1_dS arguments ---',file=scan_metadata_file)
 print('k1dS_max='+str(k1_dS_max),file=scan_metadata_file)
 print('k1dS_min='+str(k1_dS_min),file=scan_metadata_file)
@@ -212,15 +212,15 @@ print('red_switch='+str(red_switch),file=scan_metadata_file)
 
 
 
-def parameter_scanner(EdS, f, k1seed, g31seed,cl_declaration = ['odeint_parameters',1],
+def parameter_scanner(EdS, f_phi, k1seed, g31seed,cl_declaration = ['odeint_parameters',1],
                       early_DE_threshold=1.0, yellow_switch=False, blue_switch=False, red_switch=False,tolerance=10e-6,
                       znum=1000,zmax=9999.,Omega_r0h2 = 4.28e-5,Omega_b0h2 = 0.02196,Omega_c0h2 = 0.1274,h_test = 0.7307,phi_prime0=0.9,Omega_m_crit=0.99,
                       GR_flag = False, suppression_flag = False, c_M_test = 0., hmaxvv = None, threshold = 0.):
-    Omega_r0 = Omega_r0h2/h_test/h_test 
+    Omega_r0 = Omega_r0h2/h_test/h_test
     Omega_m0 = (Omega_b0h2 + Omega_c0h2)/h_test/h_test
     Omega_DE0 = 1. - Omega_m0 - Omega_r0
-    Omega_l0 = (1.-f)*Omega_DE0
-    
+    Omega_l0 = (1.-f_phi)*Omega_DE0
+
     # U0 = 1./EdS
     # #[E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda] = [*lambda_functions]
     # alpha_expr = 1.-Omega_l0/EdS/EdS
@@ -242,15 +242,15 @@ def parameter_scanner(EdS, f, k1seed, g31seed,cl_declaration = ['odeint_paramete
     #     mindensity_list.append(np.min(density_arr))
     # Omega_m_max, Omega_r_max, Omega_L_max, Omega_phi_max, Omega_DE_max = maxdensity_list
     # Omega_m_min, Omega_r_min, Omega_L_min, Omega_phi_min, Omega_DE_min = mindensity_list
-    fv= f
+    fv = f_phi
     Ev = EdS
     U0v = 1./Ev
     k1_dSv = k1seed
     g31_dSv = g31seed
-    
+
     Omega_l0_test = Omega_l0
-    
-    
+
+
     Omega_l0_test = (1.-fv)*Omega_DE0_test
     alpha_expr = 1.-Omega_l0_test/Ev/Ev
 
@@ -272,44 +272,44 @@ def parameter_scanner(EdS, f, k1seed, g31seed,cl_declaration = ['odeint_paramete
         mindensity_list.append(np.min(density_arr))
     Omega_m_max, Omega_r_max, Omega_L_max, Omega_phi_max, Omega_DE_max = maxdensity_list
     Omega_m_min, Omega_r_min, Omega_L_min, Omega_phi_min, Omega_DE_min = mindensity_list
-    
+
     z_arr_inv = [(1-a)/a for a in a_arr_invA]
     early_DE_index = nta.nearest_index(z_arr_inv,early_DE_threshold)
     early_Omega_DE_arr = Omega_DE_arrA[early_DE_index:]
     early_Omega_DE_max = np.max(early_Omega_DE_arr)
-    
+
     if alpha_facA < 0 and yellow_switch==True:
         with open(path_to_txt_yellows,"a") as yellow_txt:
-            yellow_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
+            yellow_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
     elif trackA < 0 and blue_switch==True:
         with open(path_to_txt_blues,"a") as blue_txt:
-            blue_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
-    elif early_Omega_DE_max > Omega_DE_arrA[0]: #less harsh early DE criterion, only checks up until redshift = early_DE_threshold   
-        with open(path_to_txt_pinks,"a") as pink_txt:    
-            pink_txt.write(str([EdS,f,k1seed,g31seed, early_Omega_DE_max])+"\n")
-    elif Omega_DE_max > Omega_DE_arrA[0] and red_switch==True:    
-        with open(path_to_txt_reds,"a") as red_txt:    
-            red_txt.write(str([EdS,f,k1seed,g31seed,Omega_DE_max])+"\n")
-    elif Omega_m_max < Omega_m_crit: 
+            blue_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
+    elif early_Omega_DE_max > Omega_DE_arrA[0]: #less harsh early DE criterion, only checks up until redshift = early_DE_threshold
+        with open(path_to_txt_pinks,"a") as pink_txt:
+            pink_txt.write(str([EdS,f_phi,k1seed,g31seed, early_Omega_DE_max])+"\n")
+    elif Omega_DE_max > Omega_DE_arrA[0] and red_switch==True:
+        with open(path_to_txt_reds,"a") as red_txt:
+            red_txt.write(str([EdS,f_phi,k1seed,g31seed,Omega_DE_max])+"\n")
+    elif Omega_m_max < Omega_m_crit:
         with open(path_to_txt_magentas,"a") as magenta_txt:
-            magenta_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
-    elif ( (Omega_m_max > 1.0 + tolerance) or (Omega_m_min < 0.-tolerance) or 
-         (Omega_r_max > 1.0+ tolerance) or (Omega_r_min < 0.-tolerance) or 
-         (Omega_L_max > 1.0+ tolerance) or (Omega_L_min < 0.-tolerance) or 
-         (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or 
+            magenta_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
+    elif ( (Omega_m_max > 1.0 + tolerance) or (Omega_m_min < 0.-tolerance) or
+         (Omega_r_max > 1.0+ tolerance) or (Omega_r_min < 0.-tolerance) or
+         (Omega_L_max > 1.0+ tolerance) or (Omega_L_min < 0.-tolerance) or
+         (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or
          (Omega_DE_max > 1.0+ tolerance) or (Omega_DE_min < 0.-tolerance)  ):
         with open(path_to_txt_blacks,"a") as black_txt:
-            black_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
+            black_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
     elif ( (np.isnan(Omega_m_max)) or
          (np.isnan(Omega_r_max)) or
          (np.isnan(Omega_L_max)) or
          (np.isnan(Omega_phi_max)) or
          (np.isnan(Omega_DE_max))            ):
         with open(path_to_txt_greys,"a") as grey_txt:
-            grey_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
+            grey_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
     else:
         with open(path_to_txt_greens,"a") as green_txt:
-            green_txt.write(str([EdS,f,k1seed,g31seed])+"\n")
+            green_txt.write(str([EdS,f_phi,k1seed,g31seed])+"\n")
 
 # loop over search variables
 
@@ -322,7 +322,7 @@ def parameter_scanner(EdS, f, k1seed, g31seed,cl_declaration = ['odeint_paramete
 
 
 if __name__ == '__main__':
-    pool = Pool(processes=N_proc)              
+    pool = Pool(processes=N_proc)
     inputs = scan_list
     pool.starmap(parameter_scanner, inputs)
 
@@ -342,4 +342,3 @@ print('--- Runtime information ---',file=scan_metadata_file)
 print("Script duration: "+str(end-start),file=scan_metadata_file)
 
 scan_metadata_file.close()
-
