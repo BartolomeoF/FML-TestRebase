@@ -101,7 +101,7 @@ E_arr = np.array(UE_arr)/U0 #check whether COLA requires intermediates construct
 E_prime_arr = np.array(UE_prime_arr)/U0 #check whether COLA requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
-directory = '../input/Horndeski/tmp'
+directory = '../input/Horndeski'
 
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
