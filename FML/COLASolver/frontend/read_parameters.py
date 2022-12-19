@@ -41,12 +41,6 @@ def read_in_parameters(horndeski_path, numerical_path):
 
     Omega_DE0 = 1. - Omega_m0 - Omega_r0
 
-    f_phi = numerical_read.as_float("f_phi")
-    Omega_l0 = (1. - f_phi)*Omega_DE0
-
-    Hubble0 = numerical_read.as_float("Hubble0")
-    phiprime0 = numerical_read.as_float("phiprime0")
-
     if horndeski_read.as_bool("set_all_to_one") is True:
         M_pG4v, M_KG4v, M_G3sv, M_sG4v, M_G3G4v, M_Ksv, M_gpv = 1., 1., 1., 1., 1., 1., 1.
     else:
@@ -81,7 +75,11 @@ def read_in_parameters(horndeski_path, numerical_path):
     G4 = sym.sympify(horndeski_read['G4'])
     G4 = G4.subs( [ ('M_pG4', M_pG4v), ('M_KG4',M_KG4v), ('M_G3s', M_G3sv), ('M_sG4',M_sG4v), ('M_G3G4', M_G3G4v), ('M_Ks', M_Ksv)  ] )
 
+    f_phi = horndeski_read.as_float("f_phi")
+    Omega_l0 = (1. - f_phi)*Omega_DE0
 
+    Hubble0 = horndeski_read.as_float("Hubble0")
+    phiprime0 = horndeski_read.as_float("phiprime0")
 
     cosmological_parameters = [Omega_r0, Omega_m0, Omega_l0]
     initial_conditions = [Hubble0, phiprime0]
@@ -175,7 +173,7 @@ def read_in_scan_parameters(horndeski_scanning_path, numerical_scanning_path):
     # f_phi_max = numerical_read.as_float("f_phi_max")
     # f_phi_number = numerical_read.as_int("f_phi_number")
     # f_phi_array = msa(f_phi_min, f_phi_max, f_phi_number)
-    f_phi_array = gsa(numerical_read,"f_phi")
+    f_phi_array = gsa(horndeski_read,"f_phi")
 
 
 
@@ -184,8 +182,8 @@ def read_in_scan_parameters(horndeski_scanning_path, numerical_scanning_path):
         odeint_ICs = dict( np.load(path_to_odeint_ICs) )
         Hubble0_array, phiprime0_array, f_phi_array = odeint_ICs.values()
     else:
-        Hubble0_array = gsa(numerical_read,"Hubble0")
-        phiprime0_array = gsa(numerical_read, "phiprime0")
+        Hubble0_array = gsa(horndeski_read,"Hubble0")
+        phiprime0_array = gsa(horndeski_read, "phiprime0")
 
     Omega_l0_array = (1. - f_phi_array)*Omega_DE0_array
 
