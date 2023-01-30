@@ -118,8 +118,16 @@ if direct_scan_read_flag is True:
     read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
     print('testtsetsetse')
     print(read_out_dict)
+    print('individual arrays')
+    print(U0_array)
+    print(phiprime0_array)
+    print(Omega_r0_array)
+    print(Omega_m0_array)
+    print(Omega_l0_array)
+    print(parameter_arrays)
+    
     #parameter_cartesian_product = it.product(*parameter_arrays)
-    print(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
+    #print(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
     scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
 
 else:
