@@ -84,107 +84,168 @@ parser.add_argument('-d', '--direct',action='store_true')
 args = parser.parse_args()
 print(args)
 filenames = args.input_ini_filenames
-Horndeski_scanning_path = filenames[0]
-numerical_scanning_path = filenames[1]
+scan_settings_path = filenames[0]
+scan_values_path = filenames[1]
 direct_scan_read_flag = args.direct
 print(direct_scan_read_flag)
+print(scan_settings_path)
+print(type(scan_settings_path))
+print(scan_values_path)
+print(type(scan_values_path))
 
-if direct_scan_read_flag is True:
-    odeint_scan_dict = dict( np.load(numerical_scanning_path) )
-    # odeint_scan_lists = [i for i in odeint_scan_dict.values()]
-    # odeint_scan_arrays = np.array(odeint_scan_lists)
-    # odeint_scan_arraysT = odeint_scan_arrays.T
+scan_settings_dict = read_in_scan_settings(scan_settings_path)
+scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-    parameter_scan_dict = dict( np.load(Horndeski_scanning_path) )
-    # parameter_scan_lists = [i for i in parameter_scan_dict.values()]
-    # parameter_scan_arrays = np.array(parameter_scan_lists)
-    # parameter_scan_arraysT = parameter_scan_arrays.T
+read_scan_values_from_file = scan_settings_dict['scan_values_from_file']
 
-
-    U0_array = odeint_scan_dict['arr_0']
-    phiprime0_array = odeint_scan_dict['arr_1']
-    Omega_r0_array = odeint_scan_dict['arr_2']
-    Omega_m0_array = odeint_scan_dict['arr_3']
-    Omega_l0_array = odeint_scan_dict['arr_4']
-
-    parameter_arrays = []
-    for i in parameter_scan_dict.values():
-        parameter_arrays.append(i)
-    parameter_arrays = np.array(parameter_arrays)
-    parameter_arrays = parameter_arrays.T
-
-    read_out_dict = read_in_scan_settings('scan_settings.ini')
-    odeint_parameter_symbols = [E, phiprime, omegar, omegam]
-    read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
-    print('testtsetsetse')
-    print(read_out_dict)
-    print('individual arrays')
-    print(U0_array)
-    print(phiprime0_array)
-    print(Omega_r0_array)
-    print(Omega_m0_array)
-    print(Omega_l0_array)
-    print(parameter_arrays)
-    
-    #parameter_cartesian_product = it.product(*parameter_arrays)
-    #print(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
-    scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
-
+#[U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] ]
+if read_scan_values_from_file is True:
+     protoscan_list = np.load(scan_values_path, allow_pickle=True)
+     print('Printing scan_values_dict')
+     print(protoscan_list)
+     print(len(protoscan_list))
+     print('first entry')
+     print(protoscan_list[0])
+     print(type(protoscan_list[0]))
+     scan_list = []
+     for i in protoscan_list:
+         j = np.append(i,[scan_settings_dict])
+         scan_list.append(j)
+     print('scan_list')
+     print(scan_list)
+     print('scan list first  entry')
+     print(scan_list[0])
+    #[U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays] = scan_values_dict
 else:
-    read_out_dict = read_in_scan_parameters(Horndeski_scanning_path, numerical_scanning_path)
-    odeint_parameter_symbols = [E, phiprime, omegar, omegam]
-    read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
-
-
-    K = read_out_dict['K']
-    G3 = read_out_dict['G3']
-    G4 = read_out_dict['G4']
-    cosmology_name = read_out_dict['cosmo_name']
-
-    # [Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
-    # red_switch = read_out_dict['red_switch']
-    # blue_switch = read_out_dict['blue_switch']
-    # yellow_switch = read_out_dict['yellow_switch']
-    # tolerance = read_out_dict['tolerance']
-    # early_DE_threshold = read_out_dict['early_DE_threshold']
-    mass_ratio_list = read_out_dict['mass_ratio_list']
-    symbol_list = read_out_dict['symbol_list']
-    # closure_declaration = read_out_dict['closure_declaration']
-
-    [Omega_r0_array, Omega_m0_array, Omega_l0_array] = read_out_dict.pop('cosmological_parameter_arrays')
-    [U0_array, phi_prime0_array] = read_out_dict.pop('initial_condition_arrays')
-    parameter_arrays = read_out_dict.pop('Horndeski_parameter_arrays')
-
-    # define ranges of f_phi and E_dS to search over
-    # E_dS_fac_arr = np.linspace(EdS_min, EdS_max, Npoints_EdS)
-    # f_phi_arr = np.linspace(f_phi_min, f_phi_max, Npoints_f_phi)
-    # k1_dS_arr = np.linspace(k1_dS_min,k1_dS_max,Npoints_k1dS)
-    # g31_dS_arr = np.linspace(g31_dS_min,g31_dS_max,Npoints_g31dS)
-
-
-
-    ##Initialise scan lists
-
-    print(U0_array)
-    print(phi_prime0_array)
-    print(Omega_r0_array)
-    print(Omega_m0_array)
-    print(Omega_l0_array)
-    print(parameter_arrays)
-
-
-
-
-
+    scan_values_dict = read_in_scan_parameters(scan_values_path)
+    [U0_array, phiprime0_array] = scan_values_dict['initial_condition_arrays']
+    [Omega_r0_array, Omega_m0_array, Omega_l0_array] = scan_values_dict['cosmological_parameter_arrays']
+    parameter_arrays = scan_values_dict('Horndeski_parameter_arrays')
+    
+    scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
     parameter_cartesian_product = it.product(*parameter_arrays)
-
-
-    scan_list = it.product(U0_array, phi_prime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,list(parameter_cartesian_product), [read_out_dict])
-    parameter_cartesian_product = it.product(*parameter_arrays)
-    scan_list2 = it.product(U0_array, phi_prime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,list(parameter_cartesian_product), [read_out_dict])
+    scan_list2 = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
     print('scan_list2')
     scan_list_to_print = list(scan_list2)
     print(len(scan_list_to_print))
+    for i in scan_list_to_print:
+        print(i)
+
+# print('scanning arrays')
+# print(U0_array)
+# print(phiprime0_array)
+# print(Omega_r0_array)
+# print(Omega_m0_array)
+# print(Omega_l0_array)
+# print(parameter_arrays)
+
+
+# scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
+# parameter_cartesian_product = it.product(*parameter_arrays)
+# scan_list2 = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
+# print('scan_list2')
+# scan_list_to_print = list(scan_list2)
+# print(len(scan_list_to_print))
+# for i in scan_list_to_print:
+#     print(i)
+
+
+# if direct_scan_read_flag is True:
+#     odeint_scan_dict = dict( np.load(numerical_scanning_path) )
+#     # odeint_scan_lists = [i for i in odeint_scan_dict.values()]
+#     # odeint_scan_arrays = np.array(odeint_scan_lists)
+#     # odeint_scan_arraysT = odeint_scan_arrays.T
+
+#     parameter_scan_dict = dict( np.load(Horndeski_scanning_path) )
+#     # parameter_scan_lists = [i for i in parameter_scan_dict.values()]
+#     # parameter_scan_arrays = np.array(parameter_scan_lists)
+#     # parameter_scan_arraysT = parameter_scan_arrays.T
+
+
+#     U0_array = odeint_scan_dict['arr_0']
+#     phiprime0_array = odeint_scan_dict['arr_1']
+#     Omega_r0_array = odeint_scan_dict['arr_2']
+#     Omega_m0_array = odeint_scan_dict['arr_3']
+#     Omega_l0_array = odeint_scan_dict['arr_4']
+
+#     parameter_arrays = []
+#     for i in parameter_scan_dict.values():
+#         parameter_arrays.append(i)
+#     parameter_arrays = np.array(parameter_arrays)
+#     parameter_arrays = parameter_arrays.T
+
+#     read_out_dict = read_in_scan_settings('scan_settings.ini')
+#     odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+#     read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
+#     print('testtsetsetse')
+#     print(read_out_dict)
+#     print('individual arrays')
+#     print(U0_array)
+#     print(phiprime0_array)
+#     print(Omega_r0_array)
+#     print(Omega_m0_array)
+#     print(Omega_l0_array)
+#     print(parameter_arrays)
+    
+#     #parameter_cartesian_product = it.product(*parameter_arrays)
+#     #print(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
+#     scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays, [read_out_dict])
+
+# else:
+#     read_out_dict = read_in_scan_parameters(Horndeski_scanning_path, numerical_scanning_path)
+#     odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+#     read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
+
+
+#     K = read_out_dict['K']
+#     G3 = read_out_dict['G3']
+#     G4 = read_out_dict['G4']
+#     cosmology_name = read_out_dict['cosmo_name']
+
+#     # [Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
+#     # red_switch = read_out_dict['red_switch']
+#     # blue_switch = read_out_dict['blue_switch']
+#     # yellow_switch = read_out_dict['yellow_switch']
+#     # tolerance = read_out_dict['tolerance']
+#     # early_DE_threshold = read_out_dict['early_DE_threshold']
+#     mass_ratio_list = read_out_dict['mass_ratio_list']
+#     symbol_list = read_out_dict['symbol_list']
+#     # closure_declaration = read_out_dict['closure_declaration']
+
+#     [Omega_r0_array, Omega_m0_array, Omega_l0_array] = read_out_dict.pop('cosmological_parameter_arrays')
+#     [U0_array, phi_prime0_array] = read_out_dict.pop('initial_condition_arrays')
+#     parameter_arrays = read_out_dict.pop('Horndeski_parameter_arrays')
+
+#     # define ranges of f_phi and E_dS to search over
+#     # E_dS_fac_arr = np.linspace(EdS_min, EdS_max, Npoints_EdS)
+#     # f_phi_arr = np.linspace(f_phi_min, f_phi_max, Npoints_f_phi)
+#     # k1_dS_arr = np.linspace(k1_dS_min,k1_dS_max,Npoints_k1dS)
+#     # g31_dS_arr = np.linspace(g31_dS_min,g31_dS_max,Npoints_g31dS)
+
+
+
+#     ##Initialise scan lists
+
+#     print(U0_array)
+#     print(phi_prime0_array)
+#     print(Omega_r0_array)
+#     print(Omega_m0_array)
+#     print(Omega_l0_array)
+#     print(parameter_arrays)
+
+
+
+
+
+#     parameter_cartesian_product = it.product(*parameter_arrays)
+
+
+#     scan_list = it.product(U0_array, phi_prime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,list(parameter_cartesian_product), [read_out_dict])
+#     parameter_cartesian_product = it.product(*parameter_arrays)
+#     scan_list2 = it.product(U0_array, phi_prime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,list(parameter_cartesian_product), [read_out_dict])
+#     print('scan_list2')
+#     scan_list_to_print = list(scan_list2)
+#     print(len(scan_list_to_print))
 # for i in scan_list_to_print:
 #     print(i)
 ##---Setting up log files---
@@ -235,7 +296,7 @@ else:
 # figA, axA = plt.subplots()
 # axA.set_title('Ashim')
 
-model = read_out_dict['model_name']
+model = scan_settings_dict['model_name']
 
 ##################################################
 
@@ -296,14 +357,16 @@ path_to_txt_yellows = saving_subdir+file_date+'_'+model+"_yellows.txt"
 
 ###Metadata file
 path_to_metadata = saving_subdir+file_date+'_'+model+"_scan_metadata.txt"
-read_out_dict_copy = read_out_dict.copy()
-print(read_out_dict_copy)
-write_dict = ConfigObj(read_out_dict_copy)
+scan_settings_dict_copy = scan_settings_dict.copy()
+print(scan_settings_dict_copy)
+write_dict = ConfigObj(scan_settings_dict_copy)
 print(write_dict)
 write_dict.filename = path_to_metadata
 write_dict.write()
 
-def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, read_out_dict):
+def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, settings_dict):
+    
+    read_out_dict = {}
 
 # (EdS, f_phi, k1seed, g31seed,cl_declaration = ['odeint_parameters',1],
 #                       early_DE_threshold=1.0, yellow_switch=False, blue_switch=False, red_switch=False,tolerance=10e-6,
@@ -333,19 +396,19 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, r
     # cl_declaration = read_out_dict['closure_declaration']
 
 
+    read_out_dict = settings_dict.copy()
+    red_switch = settings_dict['red_switch']
+    blue_switch = settings_dict['blue_switch']
+    yellow_switch = settings_dict['yellow_switch']
+    tolerance = settings_dict['tolerance']
+    early_DE_threshold = settings_dict['early_DE_threshold']
+    Omega_m_crit = settings_dict['Omega_m_crit']
 
-    red_switch = read_out_dict['red_switch']
-    blue_switch = read_out_dict['blue_switch']
-    yellow_switch = read_out_dict['yellow_switch']
-    tolerance = read_out_dict['tolerance']
-    early_DE_threshold = read_out_dict['early_DE_threshold']
-    Omega_m_crit = read_out_dict['Omega_m_crit']
-
-    K = read_out_dict['K']
-    G3 = read_out_dict['G3']
-    G4 = read_out_dict['G4']
-    mass_ratio_list = read_out_dict['mass_ratio_list']
-    symbol_list = read_out_dict['symbol_list']
+    K = settings_dict['K']
+    G3 = settings_dict['G3']
+    G4 = settings_dict['G4']
+    mass_ratio_list = settings_dict['mass_ratio_list']
+    symbol_list = settings_dict['symbol_list']
 
     lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list)
     E_prime_E_lambda = lambdified_functions['E_prime_E_lambda']

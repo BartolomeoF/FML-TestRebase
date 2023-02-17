@@ -78,51 +78,45 @@ def ESS_dS_parameters(EdS, f_phi, k1seed, g31seed,Omega_r0h2 = 4.28e-5, Omega_b0
     parameters = [k1_dS,k2_dS, g31_dS, g32_dS]
     return U0, Omega_r0, Omega_m0, Omega_l0, parameters
 
-def ESS_seed_to_direct_scanning_values(odeint_values_scan_filename, parameter_values_scan_filename, EdS_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
+def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
 
 
     EdS_array = make_scan_array(*EdS_range)
+    phiprime_array = make_scan_array(*phiprime_range)
     f_phi_array = make_scan_array(*f_phi_range)
     k1seed_array = make_scan_array(*k1seed_range)
     g31seed_array = make_scan_array(*g31seed_range)
 
-    seed_cart_prod = it.product(EdS_array, f_phi_array, k1seed_array, g31seed_array)
-    seed_cart_prod2 = it.product(EdS_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod2 = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
     print(len(list(seed_cart_prod2)))
-    U0_list = []
-    phi_prime0_list = []
-    Omega_m0_list = []
-    Omega_r0_list = []
-    Omega_l0_list = []
-    k1_list = []
-    k2_list = []
-    g31_list = []
-    g32_list = []
+    scan_list = []
+    # U0_list = []
+    # phi_prime0_list = []
+    # Omega_m0_list = []
+    # Omega_r0_list = []
+    # Omega_l0_list = []
+    # k1_list = []
+    # k2_list = []
+    # g31_list = []
+    # g32_list = []
     for i in seed_cart_prod:
-        EdS, f_phi, k1seed, g31seed = i
+        EdS, phiprime0, f_phi, k1seed, g31seed = i
         U0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] = ESS_dS_parameters(EdS, f_phi, k1seed, g31seed, Omega_r0h2, Omega_b0h2, Omega_c0h2, h)
-        U0_list.append(U0)
-        phi_prime0_list.append(0.9)
-        Omega_m0_list.append(Omega_m0)
-        Omega_r0_list.append(Omega_r0)
-        Omega_l0_list.append(Omega_l0)
-        k1_list.append(k1dS)
-        k2_list.append(k2dS)
-        g31_list.append(g31dS)
-        g32_list.append(g32dS)
-
-    U0_array = np.array( [1/i for i in EdS_array]  )
-    np.savez(odeint_values_scan_filename, U0_array, [phiprime0], Omega_r0_list, Omega_m0_list, Omega_l0_list)
-
-    np.savez(parameter_values_scan_filename, k1_list, k2_list, g31_list, g32_list)
+        scan_list_entry = [U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] ]
+        scan_list.append(scan_list_entry)
+        scan_array = np.array(scan_list, dtype='object')
+    print(scan_list) 
+    print(len(scan_list))
+    np.save(scanning_parameters_filename, scan_array)
 
 
-odeint_values_scan_filename   = 'ESS-A_odeint_scanning_values'
-parameter_values_scan_filename = 'ESS-A_parameter_scanning_values'
-EdS_range = [0.8, 0.94, 2]
+ESS_A_scan_filename   = 'ESS-A_scanning_values2'
+EdS_range = [0.8, 0.94, 10]
+phiprime_range = [0.9,0.9,1]
 f_phi_range = [0.0,1.0,1]
 k1seed_range = [-5.7,-4.5,2]
 g31seed_range = [-46.0,-46.0,1]
-ESS_seed_to_direct_scanning_values(odeint_values_scan_filename, parameter_values_scan_filename, EdS_range, f_phi_range, k1seed_range, g31seed_range)
+ESS_seed_to_direct_scanning_values(ESS_A_scan_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range)
 
 ##############################################################################################
