@@ -166,16 +166,17 @@ class NBodySimulation {
     double timestep_spacing_power;            // For timestep_scalefactor_spacing = powerlaw
 
     // FoF halofinding
-    bool fof;                  // Locate halos when we output
-    int fof_nmin_per_halo;     // Minimum particles per halo
-    int fof_nmesh_max;         // For speeding it up: the maximum gridsize to bin particle to
-    double fof_linking_length; // The linking length in units of the boxsize (i.e. ~0.2 / Npart_1D for bFoF = 0.2)
+    bool fof;                      // Locate halos when we output
+    int fof_nmin_per_halo;         // Minimum particles per halo
+    int fof_nmesh_max;             // For speeding it up: the maximum gridsize to bin particle to
+    double fof_linking_length;     // The linking length in units of the mean partice separation (i.e. ~0.2)
+    double fof_buffer_length_mpch; // The buffer region (from nbor tasks) we use in the FoF finding
 
     // Power-spectrum
     bool pofk;                                  // Compute power-spectrum when we output
     int pofk_nmesh;                             // The grid size to use for this
     bool pofk_interlacing;                      // Use interlacing for alias reduction?
-    bool pofk_subtract_shotnoise;               // Subtract shotnoise?
+    bool pofk_subtract_shotnoise{true};         // Subtract shotnoise?
     std::string pofk_density_assignment_method; // Density assignment method (NGP, CIC, ...)
 
     // Power-spectrum multipoles
@@ -240,6 +241,7 @@ class NBodySimulation {
 
     /// This method simply read particles and uses them for the simulation
     void read_ic();
+    void read_phases(FFTWGrid<NDIM> & delta_fourier);
 
     /// Run simulation
     void run();
@@ -527,7 +529,7 @@ void NBodySimulation<NDIM, T>::read_parameters(ParameterMap & param) {
         ic_sigma8_redshift = param.get<double>("ic_sigma8_redshift");
         ic_sigma8 = param.get<double>("ic_sigma8");
     }
-    if (ic_random_field_type == "read_particles") {
+    if (ic_random_field_type == "read_particles" or ic_random_field_type == "read_phases") {
         ic_reconstruct_gadgetfilepath = param.get<std::string>("ic_reconstruct_gadgetfilepath");
         ic_reconstruct_assigment_method = param.get<std::string>("ic_reconstruct_assigment_method");
         ic_reconstruct_smoothing_filter = param.get<std::string>("ic_reconstruct_smoothing_filter");
@@ -554,7 +556,7 @@ void NBodySimulation<NDIM, T>::read_parameters(ParameterMap & param) {
             std::cout << "ic_sigma8                                : " << ic_sigma8 << "\n";
             std::cout << "ic_sigma8_redshift                       : " << ic_sigma8_redshift << "\n";
         }
-        if (ic_random_field_type == "read_particles") {
+        if (ic_random_field_type == "read_particles" or ic_random_field_type == "read_phases") {
             std::cout << "ic_reconstruct_gadgetfilepath            : " << ic_reconstruct_gadgetfilepath << "\n";
             std::cout << "ic_reconstruct_assigment_method          : " << ic_reconstruct_assigment_method << "\n";
             std::cout << "ic_reconstruct_smoothing_filter          : " << ic_reconstruct_smoothing_filter << "\n";
@@ -606,12 +608,14 @@ void NBodySimulation<NDIM, T>::read_parameters(ParameterMap & param) {
         fof_nmin_per_halo = param.get<int>("fof_nmin_per_halo");
         fof_linking_length = param.get<double>("fof_linking_length");
         fof_nmesh_max = param.get<int>("fof_nmesh_max");
+        fof_buffer_length_mpch = param.get<double>("fof_buffer_length_mpch");
 
         if (FML::ThisTask == 0) {
             std::cout << "fof                                      : " << fof << "\n";
             std::cout << "fof_nmin_per_halo                        : " << fof_nmin_per_halo << "\n";
             std::cout << "fof_linking_length                       : " << fof_linking_length << "\n";
             std::cout << "fof_nmesh_max                            : " << fof_nmesh_max << "\n";
+            std::cout << "fof_buffer_length_mpch                   : " << fof_buffer_length_mpch << "\n";
         }
     }
 
@@ -719,8 +723,8 @@ void NBodySimulation<NDIM, T>::init() {
         grav->output(gravprefix + "_k0.001.txt", 1e-3 / grav->H0_hmpc);
         grav->output(gravprefix + "_k0.01.txt", 1e-2 / grav->H0_hmpc);
         grav->output(gravprefix + "_k0.1.txt", 1e-1 / grav->H0_hmpc);
-        grav->output(gravprefix + "_k1.0.txt", 1.0 / grav->H0_hmpc);
-        grav->output(gravprefix + "_k10.0.txt", 1e1 / grav->H0_hmpc);
+        grav->output(gravprefix + "_k1.0.txt", 1e+0 / grav->H0_hmpc);
+        grav->output(gravprefix + "_k10.0.txt", 1e+1 / grav->H0_hmpc);
     }
 
     //=============================================================
@@ -793,7 +797,6 @@ void NBodySimulation<NDIM, T>::init() {
                 }
             }
         }
-
     } else if (ic_type_of_input == "transferfunction") {
 
         // Fileformat: [k (h/Mpc)  T(k)  (Mpc)^2] (change below)
@@ -1012,6 +1015,10 @@ void NBodySimulation<NDIM, T>::init() {
 
     // Make a grid for holding the initial density field
     auto nextra = FML::INTERPOLATION::get_extra_slices_needed_for_density_assignment("CIC");
+    if(ic_random_field_type == "read_phases") {
+        // If read_phases then delta_ini is computed from particles
+        nextra = FML::INTERPOLATION::get_extra_slices_needed_for_density_assignment(ic_reconstruct_assigment_method);
+    }
     FFTWGrid<NDIM> delta_ini_fourier(ic_nmesh, nextra.first, nextra.second);
     delta_ini_fourier.add_memory_label("delta_ini_fourier(k)");
     delta_ini_fourier.set_grid_status_real(false);
@@ -1053,11 +1060,49 @@ void NBodySimulation<NDIM, T>::init() {
             ic_fnl_type);
 
     } else if (ic_random_field_type == "read_particles") {
-        // Do nothing, we read in particles below this below
+        // Do nothing, we don't need delta_ini as we read in particles in read_ic 
+    } else if (ic_random_field_type == "read_phases") {
+        // Do nothing, we compute delta_ini in read_phases
     } else {
         throw std::runtime_error("Unknown ic_random_field_type [" + ic_random_field_type + "]");
     }
     timer.EndTiming("InitialDensityField");
+
+    // If we read phases we will make IC as usual so the only thing we need to change is the 
+    // initial density field in fourier space delta_ini_fourier
+    if (ic_random_field_type == "read_phases") {
+        read_phases(delta_ini_fourier);
+          
+        // The power-spectrum we are to multiply with below
+        auto sqrt_pofk = [&](double kBox) {
+          return std::sqrt( power_initial_spline(kBox / simulation_boxsize) / std::pow(simulation_boxsize, NDIM) );
+        };
+
+        // We now just need to whiten and multiply by P(k)
+        auto Local_nx = delta_ini_fourier.get_local_nx();
+#ifdef USE_OMP
+#pragma omp parallel for
+#endif
+        for (int islice = 0; islice < Local_nx; islice++) {
+            for (auto && fourier_index : delta_ini_fourier.get_fourier_range(islice, islice + 1)) {
+                [[maybe_unused]] double kmag;
+                [[maybe_unused]] std::array<double, NDIM> kvec;
+                delta_ini_fourier.get_fourier_wavevector_and_norm_by_index(fourier_index, kvec, kmag);
+                auto value = delta_ini_fourier.get_fourier_from_index(fourier_index);
+                
+                // Whiten the field
+                auto absvalue = std::abs(value);
+                if(absvalue > 0.0)
+                    value /= absvalue;
+                
+                // Multiply by power-spectrum
+                value *= sqrt_pofk(kmag);
+
+                // Set the value back in
+                delta_ini_fourier.set_fourier_from_index(fourier_index, value);
+            }
+        }
+    }
 
     // Reverse the phases? For doing pair-fixed simulations
     if (ic_reverse_phases) {
@@ -1067,8 +1112,9 @@ void NBodySimulation<NDIM, T>::init() {
 #endif
         for (int islice = 0; islice < Local_nx; islice++) {
             for (auto && fourier_index : delta_ini_fourier.get_fourier_range(islice, islice + 1)) {
-                delta_ini_fourier.set_fourier_from_index(
-                    fourier_index, FML::GRID::FloatType(-1.0) * delta_ini_fourier.get_fourier_from_index(fourier_index));
+                delta_ini_fourier.set_fourier_from_index(fourier_index,
+                                                         FML::GRID::FloatType(-1.0) *
+                                                             delta_ini_fourier.get_fourier_from_index(fourier_index));
             }
         }
     }
@@ -1125,7 +1171,8 @@ void NBodySimulation<NDIM, T>::init() {
                         if (Local_x_start == 0 and fourier_index == 0)
                             continue; // DC mode k = 0
                         phi_1LPT_ini_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
-                        auto value = phi_1LPT_ini_fourier.get_fourier_from_index(fourier_index) / FML::GRID::FloatType(kmag2);
+                        auto value =
+                            phi_1LPT_ini_fourier.get_fourier_from_index(fourier_index) / FML::GRID::FloatType(kmag2);
                         phi_1LPT_ini_fourier.set_fourier_from_index(fourier_index, value);
                     }
                 }
@@ -1156,16 +1203,7 @@ void NBodySimulation<NDIM, T>::init() {
     // In the COLA frame v=0 so reset velocities
     //============================================================
     if (simulation_use_cola) {
-        auto np = part.get_npart();
-#ifdef USE_OMP
-#pragma omp parallel for
-#endif
-        for (size_t i = 0; i < np; i++) {
-            auto * vel = FML::PARTICLE::GetVel(part[i]);
-            for (int idim = 0; idim < NDIM; idim++) {
-                vel[idim] = 0.0;
-            }
-        }
+        cola_initialize_velocities<NDIM, T>(part);
     }
 }
 
@@ -1396,10 +1434,11 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
 
     //=============================================================
     // Bin up power-spectrum (its basically free as we have the density field)
+    // NB: Subtracting shot-noise if the parameter is set
     //=============================================================
     const double redshift = 1.0 / a - 1.0;
     PowerSpectrumBinning<NDIM> pofk_particles(density_grid_fourier.get_nmesh() / 2);
-    pofk_particles.subtract_shotnoise = false;
+    pofk_particles.subtract_shotnoise = pofk_subtract_shotnoise;
     FML::CORRELATIONFUNCTIONS::bin_up_deconvolved_power_spectrum(
         density_grid_fourier, pofk_particles, force_density_assignment_method);
     pofk_particles.scale(simulation_boxsize);
@@ -1448,7 +1487,8 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
                 density_grid_fourier.get_fourier_wavevector_and_norm_by_index(fourier_index, kvec, kmag);
                 auto delta_ini = initial_density_field_fourier.get_fourier_from_index(fourier_index);
                 auto deltaCB = density_grid_fourier.get_fourier_from_index(fourier_index);
-                auto deltaM = deltaCB * FML::GRID::FloatType(1.0 - fMNu) + delta_ini * FML::GRID::FloatType(norm(kmag) * fMNu);
+                auto deltaM =
+                    deltaCB * FML::GRID::FloatType(1.0 - fMNu) + delta_ini * FML::GRID::FloatType(norm(kmag) * fMNu);
                 density_grid_fourier.set_fourier_from_index(fourier_index, deltaM);
             }
         }
@@ -1463,7 +1503,7 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
         // <(W*deltaCB) deltaNu> and deconvolve them seperately
         //=============================================================
         PowerSpectrumBinning<NDIM> pofk_total(density_grid_fourier.get_nmesh() / 2);
-        pofk_total.subtract_shotnoise = false;
+        pofk_total.subtract_shotnoise = pofk_subtract_shotnoise;
         FML::CORRELATIONFUNCTIONS::bin_up_deconvolved_power_spectrum(
             density_grid_fourier, pofk_total, force_density_assignment_method);
         pofk_total.scale(simulation_boxsize);
@@ -1605,6 +1645,53 @@ void NBodySimulation<NDIM, T>::free() {
 }
 
 template <int NDIM, class T>
+void NBodySimulation<NDIM, T>::read_phases(FFTWGrid<NDIM> & delta_fourier) {
+    if (FML::ThisTask == 0) {
+        std::cout << "\n";
+        std::cout << "#=====================================================\n";
+        std::cout << "# Reading phases from GADGET files [" + ic_reconstruct_gadgetfilepath + "]\n";
+        std::cout << "#=====================================================\n";
+    }
+
+    // Read in gadget files (all tasks reads the same files)
+    // Using FML::Vector in case we have memory logging on to allow us to
+    // move the data into mpiparticles
+    GadgetReader g;
+    FML::Vector<T> externalpart;
+    const std::string fileprefix = ic_reconstruct_gadgetfilepath;
+    const bool only_keep_part_in_domain = true;
+    const bool verbose = false;
+    g.read_gadget(fileprefix, externalpart, particle_allocation_factor, only_keep_part_in_domain, verbose);
+
+    auto header = g.get_header();
+    if(FML::ThisTask == 0)
+        FML::FILEUTILS::GADGET::print_header_info(header);
+    const double scale_factor = header.time;
+    
+    // Check that the redshift in the file matched the initial redshift
+    FML::assert_mpi(std::fabs(scale_factor - 1.0 / (1.0 + ic_initial_redshift)) < 1e-3,
+                    "[read_phases] The redshift in the gadgetfile we read does not match the initial redshift of "
+                    "the simulation");
+
+    // Move them into MPIParticles
+    MPIParticles<T> temppart;
+    temppart.move_from(std::move(externalpart));
+
+    FML::INTERPOLATION::particles_to_fourier_grid(temppart.get_particles_ptr(),
+                                                  temppart.get_npart(),
+                                                  temppart.get_npart_total(),
+                                                  delta_fourier,
+                                                  ic_reconstruct_assigment_method,
+                                                  ic_reconstruct_interlacing);
+    
+    // Smoothing (should just use a sharpk filter to set modes beyond used to generate the IC to zero)
+    // If we use a larger grid then the highest frequency modes, beyond kyquist of the grid used to
+    // generate the IC, will just be noise and will lead to problems so these modes needs to be killed
+    FML::GRID::smoothing_filter_fourier_space(
+        delta_fourier, ic_reconstruct_dimless_smoothing_scale, ic_reconstruct_smoothing_filter);
+}
+
+template <int NDIM, class T>
 void NBodySimulation<NDIM, T>::read_ic() {
 
     if (FML::ThisTask == 0) {
@@ -1625,7 +1712,8 @@ void NBodySimulation<NDIM, T>::read_ic() {
     g.read_gadget(fileprefix, externalpart, particle_allocation_factor, only_keep_part_in_domain, verbose);
 
     auto header = g.get_header();
-    FML::FILEUTILS::GADGET::print_header_info(header);
+    if(FML::ThisTask == 0)
+        FML::FILEUTILS::GADGET::print_header_info(header);
 
     const double scale_factor = header.time;
 
@@ -1697,7 +1785,7 @@ void NBodySimulation<NDIM, T>::read_ic() {
             }
             std::array<std::vector<FML::GRID::FloatType>, NDIM> displacements;
             FML::INTERPOLATION::interpolate_grid_vector_to_particle_positions<NDIM, T>(
-                psi_1LPT_vector, part.get_particles_ptr(), part.get_npart(), displacements, "CIC");
+                psi_1LPT_vector, part.get_particles_ptr(), part.get_npart(), displacements, ic_reconstruct_assigment_method);
 
             // Assign displacement field to particles
             auto * part_ptr = part.get_particles_ptr();
@@ -1716,6 +1804,8 @@ void NBodySimulation<NDIM, T>::read_ic() {
                     auto * q = FML::PARTICLE::GetLagrangianPos(part_ptr[ind]);
                     for (int idim = 0; idim < NDIM; idim++) {
                         q[idim] = pos[idim] - D[idim];
+                        if(q[idim] <  0.0) q[idim] += 1.0;
+                        if(q[idim] >= 1.0) q[idim] -= 1.0;
                     }
                 }
             }
@@ -1741,8 +1831,9 @@ void NBodySimulation<NDIM, T>::read_ic() {
                     psi_2LPT_vector[idim].communicate_boundaries();
                 }
                 std::array<std::vector<FML::GRID::FloatType>, NDIM> displacements;
+                // We should interpolate it to particle Lagrangian positions, but we interpolate to particles Eulerian position
                 FML::INTERPOLATION::interpolate_grid_vector_to_particle_positions<NDIM, T>(
-                    psi_2LPT_vector, part.get_particles_ptr(), part.get_npart(), displacements, "CIC");
+                    psi_2LPT_vector, part.get_particles_ptr(), part.get_npart(), displacements, ic_reconstruct_assigment_method);
 
                 // Assign displacement field to particles
                 auto * part_ptr = part.get_particles_ptr();
@@ -1753,6 +1844,16 @@ void NBodySimulation<NDIM, T>::read_ic() {
                     auto * D = FML::PARTICLE::GetD_2LPT(part_ptr[ind]);
                     for (int idim = 0; idim < NDIM; idim++) {
                         D[idim] = displacements[idim][ind];
+                    }
+
+                    // Set (approximate) Lagrangian position
+                    if constexpr (FML::PARTICLE::has_get_q<T>()) {
+                        auto * q = FML::PARTICLE::GetLagrangianPos(part_ptr[ind]);
+                        for (int idim = 0; idim < NDIM; idim++) {
+                            q[idim] -= displacements[idim][ind];
+                            if(q[idim] < 0.0) q[idim] += 1.0;
+                            if(q[idim] >= 1.0) q[idim] -= 1.0;
+                        }
                     }
                 }
             }

@@ -363,8 +363,8 @@ namespace FML {
 
                     // Compute force -ik/k^2 delta(k)
                     for (int idim = 0; idim < N; idim++) {
-                        force_real[idim].set_fourier_from_index(fourier_index,
-                                                                -I * value * FML::GRID::FloatType(kvec[idim] * norm_poisson_equation));
+                        force_real[idim].set_fourier_from_index(
+                            fourier_index, -I * value * FML::GRID::FloatType(kvec[idim] * norm_poisson_equation));
                     }
                 }
             }
@@ -399,8 +399,7 @@ namespace FML {
                 return;
 
             // Sanity check on particle
-            T tmp{};
-            assert_mpi(FML::PARTICLE::GetNDIM(tmp) == N,
+            assert_mpi(FML::PARTICLE::GetNDIM(T()) == N,
                        "[DriftParticles] NDIM of particles and of grid does not match");
 
             DriftParticles<N, T>(part.get_particles_ptr(), part.get_npart(), delta_time, periodic_box);
@@ -432,8 +431,7 @@ namespace FML {
                 return;
 
             // Sanity check on particle
-            T tmp{};
-            assert_mpi(FML::PARTICLE::GetNDIM(tmp) == N,
+            assert_mpi(FML::PARTICLE::GetNDIM(T()) == N,
                        "[DriftParticles] NDIM of particles and of grid does not match");
             static_assert(FML::PARTICLE::has_get_pos<T>(),
                           "[DriftParticles] Particle class must have a get_pos method to use this method");
@@ -523,8 +521,7 @@ namespace FML {
                 return;
 
             // Sanity check on particle
-            T tmp{};
-            assert_mpi(FML::PARTICLE::GetNDIM(tmp) == N, "[KickParticles] Dimension of particle and grid do not match");
+            assert_mpi(FML::PARTICLE::GetNDIM(T()) == N, "[KickParticles] Dimension of particle and grid do not match");
             static_assert(FML::PARTICLE::has_get_vel<T>(),
                           "[KickParticles] Particle must have velocity to use this method");
 
@@ -639,6 +636,8 @@ namespace FML {
             // Make a gaussian or non-local non-gaussian random field in fourier space
             if (type_of_random_field == "gaussian") {
                 auto Pofk_of_kBox_over_volume = [&](double kBox) {
+                    if (kBox == 0.0)
+                        return 0.0;
                     return Pofk_of_kBox_over_Pofk_primordal(kBox) * Pofk_of_kBox_over_volume_primordial(kBox);
                 };
                 FML::RANDOM::GAUSSIAN::generate_gaussian_random_field_fourier(
@@ -772,7 +771,7 @@ namespace FML {
                        "atleast one extra slice on the right");
 
             // Sanity check on particle
-            assert_mpi(FML::PARTICLE::GetNDIM(tmp) == N,
+            assert_mpi(FML::PARTICLE::GetNDIM(T()) == N,
                        "[NBodyInitialConditions] NDIM of particles and of grid does not match");
             assert_mpi(FML::PARTICLE::has_get_pos<T>(),
                        "[NBodyInitialConditions] Particle class must have a get_pos method");
@@ -1074,7 +1073,8 @@ namespace FML {
                                        FFTWGrid<N> & density_mg_fourier,
                                        std::function<double(double)> coupling_factor_of_kBox) {
 
-            auto coupling_factor_of_kBox_spline = density_fourier.make_fourier_spline(coupling_factor_of_kBox, "MG coupling(k)");
+            auto coupling_factor_of_kBox_spline =
+                density_fourier.make_fourier_spline(coupling_factor_of_kBox, "MG coupling(k)");
             const auto Local_nx = density_fourier.get_local_nx();
             density_mg_fourier = density_fourier;
 #ifdef USE_OMP

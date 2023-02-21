@@ -34,7 +34,11 @@ FML_INCLUDE    = $(HOME)/local/FML
 # CGAL : only needed if USE_CGAL = true
 CGAL_INCLUDE   = /opt/local/include
 CGAL_LIB       = /opt/local/lib
-CGAL_LINK      = -lCGAL -lgmp -lm 
+CGAL_LINK      =  -lgmp -lm 
+
+# For older version of CGAL when it was a shared library
+# instead of just headerfiles
+#CGAL_LINK      = -lCGAL -lgmp -lm 
 
 #===================================================
 # Compile up all library defines from options above
@@ -74,8 +78,8 @@ endif
 # Object files to be compiled
 #===================================================
 
-VPATH := $(FML_INCLUDE)/FML/Global/
-OBJS = Main.o Global.o
+VPATH := $(FML_INCLUDE)/FML/Global/:$(FML_INCLUDE)/FML/FileUtils/
+OBJS = Main.o Global.o FileUtils.o
 
 TARGETS := voronoi
 all: $(TARGETS)

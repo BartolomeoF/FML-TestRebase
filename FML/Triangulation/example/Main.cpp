@@ -1,5 +1,6 @@
 #include <FML/MPIParticles/MPIParticles.h>
 #include <FML/Triangulation/PeriodicDelaunay.h>
+#include <FML/FileUtils/FileUtils.h>
 
 //=======================================================================================
 // The simple particle in 3D with pos, mass and volume
@@ -9,8 +10,8 @@ struct Particle {
     double Pos[NDIM];
     double volume{0.0};
     Particle() = default;
-    int get_ndim() { return NDIM; }
-    double get_volume() { return volume; }
+    constexpr int get_ndim() const { return NDIM; }
+    double get_volume() const { return volume; }
     void set_volume(double _volume) { volume = _volume; }
     double * get_pos() { return Pos; }
 };
@@ -21,25 +22,24 @@ int main() {
     // Read particles from file
     //=======================================================================================
     FML::PARTICLE::MPIParticles<Particle> part;
-    std::ifstream fp("../../../TestData/particles_B1024.txt");
-    if (!fp)
-        exit(1);
-    const int ntot = 351265;
+    
     const double boxsize = 1024.0;
-    std::vector<Particle> partvec(ntot);
-    for (int i = 0; i < ntot; i++) {
-        auto * pos = partvec[i].get_pos();
-        fp >> pos[0];
-        fp >> pos[1];
-        fp >> pos[2];
-        pos[0] /= boxsize;
-        pos[1] /= boxsize;
-        pos[2] /= boxsize;
-        assert(pos[0] < 1.0 and pos[0] >= 0.0);
-        assert(pos[1] < 1.0 and pos[1] >= 0.0);
-        assert(pos[2] < 1.0 and pos[2] >= 0.0);
+    std::string filename = "../../../TestData/particles_B1024.txt";
+    auto data = FML::FILEUTILS::loadtxt(filename);
+    std::vector<Particle> partvec;
+    partvec.reserve(data.size());
+    for(auto & row : data){
+      Particle p;
+      auto * pos = p.get_pos();
+      pos[0] = row[0] / boxsize;
+      pos[1] = row[1] / boxsize;
+      pos[2] = row[2] / boxsize;
+      assert(pos[0] < 1.0 and pos[0] >= 0.0);
+      assert(pos[1] < 1.0 and pos[1] >= 0.0);
+      assert(pos[2] < 1.0 and pos[2] >= 0.0);
+      partvec.push_back(p);
     }
-    fp.close();
+
     part.create(partvec.data(), partvec.size(), partvec.size(), FML::xmin_domain, FML::xmax_domain, true);
 
     //=======================================================================================
@@ -63,8 +63,9 @@ int main() {
 
     // Output the resulting (what is here basically a zobov void) catalogue
     if (FML::ThisTask == 0) {
+        std::ofstream fp("groups.txt");
         for (size_t i = 0; i < watershed_groups.size(); i++) {
-            double mean_density = double(ntot);
+            double mean_density = double(partvec.size());
             double mass = watershed_groups[i].mass;
             double volume = watershed_groups[i].volume;
             // double volume_min = watershed_groups[i].volume_min;
@@ -73,12 +74,18 @@ int main() {
             double delta_avg = density_avg / mean_density - 1.0;
             double delta_min = density_min / mean_density - 1.0;
             double radius = std::pow(3.0 * volume / (4.0 * M_PI), 0.33333) * boxsize;
-            std::cout << i << " " << boxsize * watershed_groups[i].pos_barycenter[0] << " "
-                      << boxsize * watershed_groups[i].pos_barycenter[1] << " "
-                      << boxsize * watershed_groups[i].pos_barycenter[2] << " "
-                      << boxsize * watershed_groups[i].pos_min[0] << " " << boxsize * watershed_groups[i].pos_min[1]
-                      << " " << boxsize * watershed_groups[i].pos_min[2] << " " << volume << " " << radius << " "
-                      << delta_avg << " " << delta_min << " " << watershed_groups[i].ningroup << "\n";
+            fp << std::setw(6)  << i << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_barycenter[0] << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_barycenter[1] << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_barycenter[2] << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_min[0] << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_min[1] << " ";
+            fp << std::setw(10) << boxsize * watershed_groups[i].pos_min[2] << " ";
+            fp << std::setw(15) << volume << " ";
+            fp << std::setw(10) << radius << " ";
+            fp << std::setw(15) << delta_avg << " ";
+            fp << std::setw(15) << delta_min << " ";
+            fp << std::setw(10) << watershed_groups[i].ningroup << "\n";
         }
     }
 
