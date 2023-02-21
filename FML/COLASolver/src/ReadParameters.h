@@ -85,6 +85,13 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
     param["gravity_model"] = lfp.read_string("gravity_model", "GR", OPTIONAL);
 
     if (param.get<std::string>("gravity_model") != "GR") {
+        
+        //=============================================================
+        // Geff/G(a) model
+        //=============================================================
+        if (param.get<std::string>("gravity_model") == "Geff") {
+            param["gravity_model_geff_geffofa_filename"] = lfp.read_string("gravity_model_geff_geffofa_filename", "", REQUIRED);
+        }
 
         //=============================================================
         // f(R) model
@@ -248,7 +255,7 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
         param["ic_fnl_redshift"] = lfp.read_double("ic_fnl_redshift", 0.0, REQUIRED);
     }
 
-    if (param.get<std::string>("ic_random_field_type") == "read_particles") {
+    if (param.get<std::string>("ic_random_field_type") == "read_particles" or param.get<std::string>("ic_random_field_type") == "read_phases") {
         //=============================================================
         // Read particles from file and if COLA reconstruct LPT
         //=============================================================
@@ -285,6 +292,7 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
         param["fof_nmin_per_halo"] = lfp.read_int("fof_nmin_per_halo", 20, OPTIONAL);
         param["fof_linking_length"] = lfp.read_double("fof_linking_length", 0.2, OPTIONAL);
         param["fof_nmesh_max"] = lfp.read_int("fof_nmesh_max", 0, OPTIONAL);
+        param["fof_buffer_length_mpch"] = lfp.read_double("fof_buffer_length_mpch", 3.0, OPTIONAL);
     }
 
     //=============================================================

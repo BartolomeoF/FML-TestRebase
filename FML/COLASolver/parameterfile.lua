@@ -84,8 +84,14 @@ end
 ------------------------------------------------------------
 -- Choose the gravity model
 ------------------------------------------------------------
--- Gravity model: GR, DGP, f(R), JBD, Symmetron, ... add your own ...
+-- Gravity model: GR, DGP, f(R), JBD, Symmetron, Geff, ... add your own ...
 gravity_model = "GR"
+
+-- General Geff/G(a) models (mu-parametrization)
+if gravity_model == "Geff" then 
+  -- File with the format [a, Geff/G(a)]
+  gravity_model_geff_geffofa_filename = "GeffoverG_of_a.txt"
+end
 
 -- Hu-Sawicky f(R) model
 if gravity_model == "f(R)" then 
@@ -225,7 +231,9 @@ ic_random_generator = "GSL"
 ic_fix_amplitude = true
 -- Mirror the phases (for amplitude-fixed simulations)
 ic_reverse_phases = false
--- Type of IC: gaussian, nongaussian, reconstruct_from_particles, read_from_file
+-- Type of IC: gaussian, nongaussian, read_particles, read_phases
+-- read_particles   (read GADGET file and use that for sim - reconstruct LPT fields if COLA) 
+-- read_phases      (read GADGET file and use that to set the phases for the sim)
 ic_random_field_type = "gaussian"
 -- The grid-size used to generate the IC
 ic_nmesh = particle_Npart_1D
@@ -237,7 +245,6 @@ ic_LPT_order = 2
 -- powerspectrum    (file with [k (h/Mph) , P(k) (Mpc/h)^3)])
 -- transferfunction (file with [k (h/Mph) , T(k)  Mpc^2)]
 -- transferinfofile (file containing paths to a bunch of T(k,z) files from CAMB)
--- read_particles   (read GADGET file and use that for sim - reconstruct LPT fields if COLA) 
 ic_type_of_input = "transferinfofile"
 -- Path to the input (NB: for using the example files update the path at the top of the file below)
 ic_input_filename = "input/transfer_infofile_lcdm_nu0.2.txt"
@@ -264,19 +271,19 @@ end
 
 -- For reading IC from an external file
 -- If COLA then we reconstruct the LPT fields 
-if ic_random_field_type == "read_particles" then
+if ic_random_field_type == "read_particles" or ic_random_field_type == "read_phases" then
   -- Path to GADGET files
   ic_reconstruct_gadgetfilepath = "output/snapshot_TestSim_z20.000/gadget_z20.000"
   -- COLA settings to (naively) reconstruct the LPT fields:
   -- Density assignment method: NGP, CIC, TSC, PCS, PQS
   -- We use ic_nmesh to set the grid to compute the density field on
   -- NB: this should be equal to the nmesh used to generate the IC (i.e. NpartTot^1/3)
-  ic_reconstruct_assigment_method = "CIC"
-  ic_reconstruct_interlacing = false
+  ic_reconstruct_assigment_method = "PCS"
+  ic_reconstruct_interlacing = true
   -- Smoothing filter to remove small-scale modes (only relevant if for
   -- some reason you want ic_nmesh to be larger than the grid it was created on)
   ic_reconstruct_smoothing_filter = "sharpk"
-  ic_reconstruct_dimless_smoothing_scale = 0.0 /(2.0 * math.pi * 128 / 2)
+  ic_reconstruct_dimless_smoothing_scale = 1.0 /(2.0 * math.pi * ic_nmesh / 2)
 end
 
 ------------------------------------------------------------
@@ -301,14 +308,16 @@ force_linear_massive_neutrinos = true
 -- Halofinding
 ------------------------------------------------------------
 -- Do halofinding every output?
-fof = false
+fof = true
 -- Minimum number of particles per halo
 fof_nmin_per_halo = 20
--- The fof distance (rmin / boxsize) used when linking
-fof_linking_length = 0.2 / particle_Npart_1D
+-- The linking length (distance in units of mean particle separation)
+fof_linking_length = 0.2
 -- Limit the maximum grid to use to bin particles to
 -- to speed up the fof linking. 0 means we let the code choose this
 fof_nmesh_max = 0
+-- The size of the buffer region larger than largest halo, 2-3Mpc/h should be fine)
+fof_buffer_length_mpch = 3.0
 
 ------------------------------------------------------------
 -- Power-spectrum evaluation

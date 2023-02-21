@@ -19,8 +19,12 @@
 #include <FML/Spline/Spline.h>
 #endif
 
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (__cplusplus >= 201703L))
+#include <optional>
+#endif
+
 namespace FML {
-   
+
     //===================================================================================
     /// This namespace deals with special math functions and general math algorithms
     /// needed in the library
@@ -36,6 +40,9 @@ namespace FML {
 
         /// Python linspace. Generate a lineary spaced array
         DVector linspace(double xmin, double xmax, int num);
+        
+        /// Python logspace. Generate a log spaced array
+        DVector logspace(double xmin, double xmax, int num, double base = 10.0);
 
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (__cplusplus >= 201703L))
         /// Find roots \f$ f(x) = 0 \f$ using Newtons method. Requires C++17
@@ -66,6 +73,10 @@ namespace FML {
 
         /// Spherical bessel function \f$ j_\ell(x) \f$ from CXX or GSL with fix for very small or large arguments.
         double j_ell(const int ell, const double arg);
+
+        /// Legendre polynomials. Computes an array with \f$ P_0(\mu), P_1(\mu), ..., P_{ellmax}(\mu) \f$
+        /// using a recursion relation
+        std::vector<double> legendre_ell_of_mu_vector(double mu, int ell_max);
 
 #ifdef USE_GSL
         /// Airy function \f$ {\rm Ai}(x) \f$ (requires GSL). Found by solving and splining \f$ y'' - xy = 0 \f$.
