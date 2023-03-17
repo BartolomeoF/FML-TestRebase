@@ -13,7 +13,7 @@ import matplotlib.cm as cm
 from matplotlib.widgets import Slider, Button, RadioButtons
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import LogFormatterMathtext
-from expression_builder import *
+from HiCOLA.Frontend.expression_builder import *
 import sympy as sym
 import sys
 import itertools as it
@@ -335,11 +335,11 @@ def run_solver(read_out_dict):
         if cl_declaration[1] == 3:
             Omega_m0_closed = cl_var
             Y0 = [phi_prime0,Hubble0,Omega_r0,Omega_m0_closed, Omega_l0]
-        print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
+        #print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     if cl_declaration[0] == 'parameters':
         parameters[cl_declaration[1]] = cl_var
         Y0 = [phi_prime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
-        print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
+        #print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     # print('Y0 is '+str(Y0))
 
     if suppression_flag is True:
@@ -422,6 +422,7 @@ def run_solver(read_out_dict):
 
     for i in [solution_arrays, cosmological_density_arrays, cosmo_density_prime_arrays,force_quantities]:
         result.update(i)
+    result.update({'closure_value':cl_var})
 
     return result #a_arr_inv, Hubble_arr, E_prime_E_arr, Hubble_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
 

@@ -110,6 +110,17 @@ def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, 
     print(len(scan_list))
     np.save(scanning_parameters_filename, scan_array)
 
+def renamer(filename):
+    if filename[-6] == "_":
+        counter = eval(filename[-5]) + 1 #if you get NameError: name '_' is not defined, 
+                                         #easiest fix is to change name of expansion/force file
+                                         #this function expects names that look like 'abc.txt' or 'abc_1.txt'
+                                         #not 'abc_d.txt', where d is a non-integer character.
+        filename = filename[:-5] + f"{counter}.txt"
+    else:
+        filename = filename[:-4] + "_1.txt"
+    return filename
+
 
 # ESS_A_scan_filename   = 'ESS-A_scanning_values2'
 # EdS_range = [0.8, 0.94, 10]

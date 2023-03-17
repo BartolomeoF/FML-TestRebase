@@ -1,7 +1,7 @@
 from configobj import ConfigObj
 import sympy as sym
 import numpy as np
-import expression_builder as eb
+import HiCOLA.Frontend.expression_builder as eb
 from HiCOLA.Utilities.Other.support import generate_scan_array as gsa
 from HiCOLA.Utilities.Other.support import make_scan_array as msa
 
