@@ -288,7 +288,7 @@ def coupling_DGP(rcH0, E, Eprime):
 
 def chi_over_delta_DGP(rcH0, a, E, Eprime, Omega_m0):
     beta = beta_DGP(rcH0, E, Eprime)
-    chioverdelta = 8.*rcH0*rcH0*Omega_0/9./beta/beta/a/a/a
+    chioverdelta = 8.*rcH0*rcH0*Omega_m0/9./beta/beta/a/a/a
     return chioverdelta
 
 
@@ -383,7 +383,10 @@ def run_solver(read_out_dict):
     E_prime_E_arr = []
     phi_primeprime_arr = []
     for Omega_rv, Omega_lv, Ev, phi_primev in zip(Omega_r_arr, Omega_l_arr, Hubble_arr, phi_prime_arr):
-        E_prime_E_arr.append(E_prime_E_lambda(Ev,phi_primev,Omega_rv, Omega_lv, *parameters))
+        if GR_flag is True:
+            E_prime_E_arr = E_prime_E_LCDM_arr
+        else:
+            E_prime_E_arr.append(E_prime_E_lambda(Ev,phi_primev,Omega_rv, Omega_lv, *parameters))
     Hubble_prime_arr = [E_prime_Ev*Ev for E_prime_Ev, Ev in zip(E_prime_E_arr, Hubble_arr)]
     for Omega_rv, Ev, E_primev, phi_primev in zip(Omega_r_arr, Hubble_arr, Hubble_prime_arr, phi_prime_arr):
         phi_primeprime_arr.append(phi_primeprime_lambda(Ev,E_primev,phi_primev,*parameters))
