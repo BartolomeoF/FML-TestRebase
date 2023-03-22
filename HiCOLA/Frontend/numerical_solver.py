@@ -278,6 +278,19 @@ def chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0): #the E_arr is ac
     chioverdelta = np.array(calB_arr)*np.array(calC_arr)*Omega_m0/np.array(E_arr)/np.array(E_arr)/np.array(a_arr)/np.array(a_arr)/np.array(a_arr)
     return chioverdelta
 
+def beta_DGP(rcH0, E, Eprime):
+    beta = 1 - 2*E*rcH0*(1 + Eprime/3./E)
+    return beta
+
+def coupling_DGP(rcH0, E, Eprime):
+    beta = beta_DGP(rcH0, E, Eprime)
+    return 1./3./beta
+
+def chi_over_delta_DGP(rcH0, a, E, Eprime, Omega_m0):
+    beta = beta_DGP(rcH0, E, Eprime)
+    chioverdelta = 8.*rcH0*rcH0*Omega_0/9./beta/beta/a/a/a
+    return chioverdelta
+
 
 def run_solver(read_out_dict):
 # (z_num, z_ini, Hubble0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda,
