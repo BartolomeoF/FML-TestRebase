@@ -279,7 +279,7 @@ def chi_over_delta(a_arr, E_arr, calB_arr, calC_arr, Omega_m0): #the E_arr is ac
     return chioverdelta
 
 def beta_DGP(rcH0, E, Eprime):
-    beta = 1 - 2*E*rcH0*(1 + Eprime/3./E)
+    beta = 1 + 2*E*rcH0*(1 + Eprime/3./E)
     return beta
 
 def coupling_DGP(rcH0, E, Eprime):
