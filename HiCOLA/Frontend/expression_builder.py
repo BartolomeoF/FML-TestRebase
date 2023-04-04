@@ -163,7 +163,7 @@ def Pde(G3, G4,  K,
     for i in np.arange(0,paramnum):
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
-    H = parameters[2] #assuming non-default arguments will already be sympy symbols
+    H = parameters[2]
     Hprime = parameters[3]
     K = parameters[4]
     Meff = parameters[5]
@@ -171,8 +171,6 @@ def Pde(G3, G4,  K,
     phi = parameters[7]
     phiprime = parameters[8]
     phiprimeprime = parameters[9]
-    # phidot = phiprime*H
-    # phidotdot = H*(Hprime*phiprime + H*phiprimeprime)
     omegar = parameters[9]
     X = parameters[10]
     Ms = parameters[-1]
@@ -193,7 +191,7 @@ def rhode(G3, G4,  K,
         phidotdot='phidotdot',
         omegam='Omega_m',
         omegar='Omega_r',
-        X='X'): #strings as inputs
+        X='X'): 
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
@@ -229,7 +227,7 @@ def omega_phi(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, X] = parameters
     term1 = (omegam + omegar + omegal)*( (M_pG4**2.)/(2.*G4) - 1. )
@@ -261,37 +259,31 @@ def EprimeEODERHS(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X] = parameters
     M_G4s = 1./M_sG4
     A1 = (M_Ks**2.)*Kx - M_G3s*G3phi + 2.*X*M_G3s*G3phix
     A2 = 6*(E**2)*phiprime*(M_G3s*G3x + X*M_G3s*G3xx) + (E**2.)*(phiprime**2.)*( (M_Ks**2.)*Kxx - 2.*M_G3s*G3phix)
     A = A1 + A2
-    # print('A is')
-    # print(sym.latex(A))
+
     B1 = 6.*M_G3s*X*G3x - 6.*(M_G4s**2)*G4phi
-    # print('B1 is')
-    # print(sym.latex(B1))
+
     B21 = 3.*phiprime*((M_Ks**2.)*Kx - 2.*M_G3s*G3phi + 2.*M_G3s*X*G3phix)
     B22 = (phiprime**2.)*( (M_Ks**2.)*Kxphi - 2.*M_G3s*G3phiphi) - ((M_Ks**2.)/(E**2.))*Kphi
     B23 = -12.*(M_G4s**2.)*G4phi + 18.*M_G3s*X*G3x + 2.*M_G3s*X*G3phiphi*(1./E**2.)
     B2 = B21 + B22 + B23
-    # print('B2 is')
-    # print(sym.latex(B2))
+
     term1 = 1.+ (1./2.)*M_G3G4*M_sG4*X*G3x*(1./G4)*(B1/A) - (G4phi*B1)/(2*G4*A)
-    # print('term1 is')
-    # print(sym.latex(term1))
+
     term21 = (M_KG4**2.)*K*(1./(E**2.)) - 2.*M_sG4*M_G3G4*(1./(E**2.))*X*G3phi
     term22 = 4.*G4phi*phiprime + 4.*X*G4phiphi*(1./(E**2.))
     term2 = (-1./(4.*G4))*(term21 + term22)
-    # print('term2 is')
-    # print(sym.latex(term2))
-    term3 = (-1./2.)*( ( (omegar - 3.*omegal )/(2.*G4))*(M_pG4**2.)  + 3. ) #cosmological constant has been added!
+
+    term3 = (-1./2.)*( ( (omegar - 3.*omegal )/(2.*G4))*(M_pG4**2.)  + 3. ) 
     term4 = (-1./2.)*M_G3G4*M_sG4*X*G3x*(B2/(G4*A)) + (G4phi*B2)/(2*G4*A)
     RHS = term2 + term3 + term4
-    # print('RHS is')
-    # print(sym.latex(RHS))
+
     EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
@@ -318,35 +310,29 @@ def EprimeEODERHS_safe(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X, threshold, threshold_sign]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X, threshold, threshold_sign] = parameters
     M_G4s = 1./M_sG4
     A = threshold*threshold_sign
-    # print('A is')
-    # print(sym.latex(A))
+
     B1 = 6.*M_G3s*X*G3x - 6.*(M_G4s**2)*G4phi
-    # print('B1 is')
-    # print(sym.latex(B1))
+
     B21 = 3.*phiprime*((M_Ks**2.)*Kx - 2.*M_G3s*G3phi + 2.*M_G3s*X*G3phix)
     B22 = (phiprime**2.)*( (M_Ks**2.)*Kxphi - 2.*M_G3s*G3phiphi) - ((M_Ks**2.)/(E**2.))*Kphi
     B23 = -12.*(M_G4s**2.)*G4phi + 18.*M_G3s*X*G3x + 2.*M_G3s*X*G3phiphi*(1./E**2.)
     B2 = B21 + B22 + B23
-    # print('B2 is')
-    # print(sym.latex(B2))
+
     term1 = 1.+ (1./2.)*M_G3G4*M_sG4*X*G3x*(1./G4)*(B1/A) - (G4phi*B1)/(2*G4*A)
-    # print('term1 is')
-    # print(sym.latex(term1))
+
     term21 = (M_KG4**2.)*K*(1./(E**2.)) - 2.*M_sG4*M_G3G4*(1./(E**2.))*X*G3phi
     term22 = 4.*G4phi*phiprime + 4.*X*G4phiphi*(1./(E**2.))
     term2 = (-1./(4.*G4))*(term21 + term22)
-    # print('term2 is')
-    # print(sym.latex(term2))
+
     term3 = (-1./2.)*( (omegar/(2.*G4))*(M_pG4**2.) - 3.*omegal + 3. )
     term4 = (-1./2.)*M_G3G4*M_sG4*X*G3x*(B2/(G4*A)) + (G4phi*B2)/(2*G4*A)
     RHS = term2 + term3 + term4
-    # print('RHS is')
-    # print(sym.latex(RHS))
+
     EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
@@ -370,7 +356,7 @@ def phiprimeprimeODERHS(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     M_G4s = 1./M_sG4
@@ -386,7 +372,7 @@ def phiprimeprimeODERHS(G3, G4,  K,
     phiprimeprime = -1.*(  (B/A)  + (Eprime/E)*phiprime )
     return phiprimeprime
 
-#this function is obtained by substituting eq. 90 (omegade function) in Ashim's overleaf into eq. 8
+
 def fried_closure(G3, G4,  K,
         f_phi='f_phi',
         E='E',
@@ -410,19 +396,13 @@ def fried_closure(G3, G4,  K,
     param = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f_phi, X]
     paramnum = len(param)
     for i in np.arange(0,paramnum):
-            if isinstance(param[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(param[i],str): 
                 param[i] = sy(param[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f_phi, X] = param
     omega_field = omega_phi(G3,G4,K,M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4, M_Ks=M_Ks)
     fried1_RHS = omega_field + omegam + omegar + omegal -1.
     Xreal = (1./2.)*(E**2.)*(phiprime**2.)
     fried1_RHS = fried1_RHS.subs(X,Xreal)
-    # print('fried1 SymPy is ')
-    # print(sym.latex(fried1_RHS))
-    # if (model=='cubic' or model=='cubic Galileon' or model=='cubic_Galileon' or model=='Cubic Galileon'):
-    #     fried1_RHS_lambda = sym.lambdify([phiprime,E,omegar,omegam,k1,g31],fried1_RHS)
-    # elif model=='Traykova':
-    #     fried1_RHS_lambda = sym.lambdify([phiprime,E,omegar,omegam,k1,k2, g31, g32],fried1_RHS)
     return fried1_RHS
 
 def phiprimeprimeODERHS_safe(G3, G4,  K,
@@ -447,7 +427,7 @@ def phiprimeprimeODERHS_safe(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X, threshold, threshold_sign]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X, threshold, threshold_sign] = parameters
     M_G4s = 1./M_sG4
@@ -481,7 +461,7 @@ def A_func(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     M_G4s = 1./M_sG4
@@ -510,13 +490,12 @@ def B2_func(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     M_G4s = 1./M_sG4
     B1 = 6.*M_G3s*X*G3x - 6.*(M_G4s**2)*G4phi
-    # print('B1 is')
-    # print(sym.latex(B1))
+
     B21 = 3.*phiprime*((M_Ks**2.)*Kx - 2.*M_G3s*G3phi + 2.*M_G3s*X*G3phix)
     B22 = (phiprime**2.)*( (M_Ks**2.)*Kxphi - 2.*M_G3s*G3phiphi) - ((M_Ks**2.)/(E**2.))*Kphi
     B23 = -12.*(M_G4s**2.)*G4phi + 18.*M_G3s*X*G3x + 2.*M_G3s*X*G3phiphi*(1./E**2.)
@@ -546,7 +525,7 @@ def theta(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     term1 = M_sG4*M_G3G4*E*phiprime*X*G3x/M_pG4/M_pG4
@@ -589,7 +568,7 @@ def calE(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     term1 = 2.*M_KG4*M_KG4*X*Kx/M_pG4/M_pG4
@@ -633,7 +612,7 @@ def calP(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     term1 = M_KG4*M_KG4*K/M_pG4/M_pG4
@@ -674,30 +653,25 @@ def alpha0(G3, G4,  K,
         Thetaprime='Thetaprime',
         G4prime='G4prime',
         print_flag =0,
-        simplify_flag=0): #Thetaprime to be supplied numerically, possibly after interpolation
+        simplify_flag=0): 
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     calliE = calE(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
     calliP = calP(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
     Theta = theta(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
-    # Xreal = 0.5*(E**2.)*phiprime**2.
-    # Theta = Theta.subs(X,Xreal)
-    dTheta_dE = sym.diff(Theta,E)#-1.*M_sG4*M_G3G4*phiprime*X*G3x/M_pG4/M_pG4 - M_sG4*M_G3G4*E*E*phiprime*phiprime*phiprime*G3x/M_pG4/M_pG4 + 2.*G4/M_pG4/M_pG4 + phiprime*G4phi/M_pG4/M_pG4
-    # dTheta_dG3x = sym.diff(Theta,G3x)
-    # dTheta_dG4 = sym.diff(Theta,G4)
-    # dTheta_dG4phi = sym.diff(Theta,G4phi)
-    dTheta_dphiprime = sym.diff(Theta,phiprime)#-1.*M_sG4*M_G3G4*(X*G3x + phiprime*phiprime*E*E*G3x)/M_pG4/M_pG4 + E*G4phi/M_pG4/M_pG4 #This was added in meeting on 2Aug; to remove X so that total derivative makes sense
+
+    dTheta_dE = sym.diff(Theta,E)
+
+    dTheta_dphiprime = sym.diff(Theta,phiprime)
     Thetaprime = dTheta_dE*Eprime + dTheta_dphiprime*phiprimeprime
-    # Thetaprime2 = dTheta_dG3x*(G3xx*(E*Eprime*phiprime*phiprime + E*E*phiprime*phiprimeprime) + G3xphi*phiprime  )
-    # Thetaprime3 = dTheta_dG4*G4phi*phiprime + dTheta_dG4phi*G4phiphi*phiprime
-    # Thetaprime = Thetaprime1 + Thetaprime2 + Thetaprime3
+
     A0 = Thetaprime/E + Theta/E - 2.*G4/M_pG4/M_pG4 - 4.*G4phi*phiprime/M_pG4/M_pG4 - (calliE + calliP)/(2.*E*E)
     alpha0 = M_pG4*M_pG4*A0/2./G4
     if print_flag == 1:
@@ -728,14 +702,14 @@ def alpha1(G3, G4,  K,
         X='X',
         G4prime='G4prime',
         print_flag =0,
-        simplify_flag=0): #Thetaprime to be supplied numerically, possibly after interpolation
+        simplify_flag=0):
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     A1 = 2.*G4phi*phiprime/M_pG4/M_pG4
@@ -770,14 +744,14 @@ def alpha2(G3, G4,  K,
         Thetaprime='Thetaprime',
         G4prime='G4prime',
         print_flag =0,
-        simplify_flag=0): #Thetaprime to be supplied numerically, possibly after interpolation
+        simplify_flag=0): 
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     Theta = theta(G3,G4, K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
@@ -817,7 +791,7 @@ def beta0(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     B0 = M_sG4*M_G3G4*X*G3x*phiprime/M_pG4/M_pG4
@@ -856,7 +830,7 @@ def calB(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     alpha_0 = alpha0(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
@@ -874,7 +848,7 @@ def calB(G3, G4,  K,
             print('---- SIMPLIFIED calB --------')
             print(sym.latex(calB_simple))
             print('-------------------')
-    return calB #this will depend on E, Eprime, phiprime, phiprimeprime, Theta, Thetaprime, G4prime
+    return calB 
 
 def calC(G3, G4,  K,
         E='E',
@@ -898,7 +872,7 @@ def calC(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, X] = parameters
     alpha_0 = alpha0(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
@@ -915,7 +889,7 @@ def calC(G3, G4,  K,
             print('---- SIMPLIFIED calC --------')
             print(sym.latex(calC_simple))
             print('-------------------')
-    return calC #this will depend on E, Eprime, phiprime, phiprimeprime, Theta, Thetaprime, G4prime
+    return calC 
 
 
 def coupling_factor(G3, G4,  K,
@@ -939,7 +913,7 @@ def coupling_factor(G3, G4,  K,
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, X, a]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
-            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+            if isinstance(parameters[i],str): 
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, X, a] = parameters
     alpha_1 = alpha1(G3,G4,K, M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4,M_Ks=M_Ks,print_flag=print_flag,simplify_flag=simplify_flag)
@@ -1032,8 +1006,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb}
     return lambda_functions_dict
-#E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
- #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
+
 
 
 def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filename_as_string): #from Bill's Galileon coupling script
@@ -1042,17 +1015,3 @@ def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filena
     data = data.T     #here you transpose your data, so to have it in two columns
     np.savetxt(datafile_id, data, fmt=['%.4e','%.4e','%.4e'])    #here the ascii file is populated.
     datafile_id.close()    #close the file
-
-
-
-#####################################
-# Horndeski function initialisations
-#####################################
-# These are the initial specifications of the Horndeski functions when this file
-# is imported into another script. It is expected that these initial specifications
-# will be overwritten. If not, these should then trigger an exception, to
-# bring attention to the fact that no choices were made for the Horndeski functions.
-# TL;DR - this is just for debugging purposes!
-K = None
-G3 = None
-G4 = None

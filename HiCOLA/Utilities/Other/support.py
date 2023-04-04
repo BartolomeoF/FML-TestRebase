@@ -3,6 +3,7 @@ import numpy as np
 from scipy.integrate import odeint
 from scipy.optimize import fsolve
 import sys
+from HiCOLA.Frontend.numerical_solver import comp_E_LCDM, comp_param_close
 import matplotlib.pyplot as plt
 import itertools as it
 
@@ -91,15 +92,6 @@ def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, 
     seed_cart_prod2 = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
     print(len(list(seed_cart_prod2)))
     scan_list = []
-    # U0_list = []
-    # phi_prime0_list = []
-    # Omega_m0_list = []
-    # Omega_r0_list = []
-    # Omega_l0_list = []
-    # k1_list = []
-    # k2_list = []
-    # g31_list = []
-    # g32_list = []
     for i in seed_cart_prod:
         EdS, phiprime0, f_phi, k1seed, g31seed = i
         U0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] = ESS_dS_parameters(EdS, f_phi, k1seed, g31seed, Omega_r0h2, Omega_b0h2, Omega_c0h2, h)
@@ -121,13 +113,32 @@ def renamer(filename):
         filename = filename[:-4] + "_1.txt"
     return filename
 
+def nearest_index(arr, val):
+    '''
+    Finds index of entry in arr with the nearest value to val
 
-# ESS_A_scan_filename   = 'ESS-A_scanning_values2'
-# EdS_range = [0.8, 0.94, 10]
-# phiprime_range = [0.9,0.9,1]
-# f_phi_range = [0.0,1.0,1]
-# k1seed_range = [-5.7,-4.5,2]
-# g31seed_range = [-46.0,-46.0,1]
-# ESS_seed_to_direct_scanning_values(ESS_A_scan_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range)
+    '''
+    arr = np.asarray(arr)
+    index = (np.abs(arr - val)).argmin()
+    return index
 
-##############################################################################################
+
+def comp_almost_track(E_dS_fac, Omega_r0, Omega_m0, f_phi_value, almost, fried_RHS_lambda):
+    E0 = comp_E_LCDM(0., Omega_r0, Omega_m0)
+    EdS = E0*E_dS_fac 
+    U0=1./EdS
+
+    Omega_DE0 = 1. - Omega_r0 - Omega_m0
+    Omega_l0 = (1.-f_phi_value)*Omega_DE0
+    alpha_param = 1. - Omega_l0/EdS/EdS
+    k1_dS, g31_dS = -6.*alpha_param, 2.*alpha_param
+    parameters = [k1_dS, g31_dS]
+
+    y0 = comp_param_close(fried_RHS_lambda, ['odeint_parameters',1], U0, 0.9, Omega_r0, Omega_m0, Omega_l0, parameters)
+    track = (E0/EdS)**2.*y0-1.
+    almost_track = track - almost
+    return almost_track
+
+def comp_E_dS_max(E_dS_max_guess, Omr, Omm, f_phi, almost, fried_RHS_lambda):
+    E_dS_max = fsolve(comp_almost_track, E_dS_max_guess, args=(Omr, Omm, f_phi, almost,fried_RHS_lambda))[0]
+    return E_dS_max

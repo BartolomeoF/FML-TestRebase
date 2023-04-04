@@ -66,12 +66,8 @@ closure_declaration = read_out_dict['closure_declaration']
 
 closure_dictionary = {'odeint_parameters':odeint_parameter_symbols, 'parameters':symbol_list}
 
-print('phiprime0 is '+str(phi_prime0))
-#---Create Horndeski functions---
-###################COMMENT/UNCOMMENT
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list)
 read_out_dict.update(lambdified_functions)
-######################################
 
 
 print('Horndeski functions --------------')
@@ -107,7 +103,7 @@ print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
 ##Note: U = E/E_dS
 ## U0 = 1/E_dS
-E_arr = np.array(UE_arr)/U0 #check whether COLA requires intermediates constructed with E rather than U!
+E_arr = np.array(UE_arr)/U0 #check whether you require intermediates constructed with E rather than U!
 E_prime_arr = np.array(UE_prime_arr)/U0 #check whether backend requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
