@@ -4,4 +4,4 @@ Hi-COLA is a package that runs fast, approximate N-body simulations of non-linea
 
 See the Documentation folder for guidance on how to install and use Hi-COLA.
 
-Also see https://iopscience.iop.org/article/10.1088/1475-7516/2023/03/040 [(pre-print version)](https://arxiv.org/abs/2209.01666), where we detail the work gone into creating Hi-COLA, and the research we have done with it so far.
+Also see [our paper](https://iopscience.iop.org/article/10.1088/1475-7516/2023/03/040) [(pre-print version)](https://arxiv.org/abs/2209.01666), where we detail the work gone into creating Hi-COLA, and the research we have done with it so far.
