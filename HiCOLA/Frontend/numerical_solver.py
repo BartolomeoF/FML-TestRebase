@@ -152,6 +152,7 @@ def fried1(phi_prime, k1, g1, Omega_r, Omega_m, E, alpha_M, Ms_Mp, Meffsq_Mpsq):
 
 
 def fried_RHS_wrapper(cl_variable, cl_declaration, fried_RHS_lambda, E, phi_prime, Omega_r, Omega_m, Omega_l, parameters):
+    print('FRIED_RHS_WRAPPER')
     argument_no = 5 + len(parameters)
     if cl_declaration[1] > argument_no -1:
         raise Exception('Invalid declaration - there is no valid argument index for the declaration')
@@ -159,6 +160,12 @@ def fried_RHS_wrapper(cl_variable, cl_declaration, fried_RHS_lambda, E, phi_prim
         if cl_declaration[1] == 0:
             return fried_RHS_lambda(cl_variable,phi_prime,Omega_r,Omega_m,Omega_l, f_phi, *parameters) #Closure used to compute E0
         if cl_declaration[1] == 1:
+            print(f'Hubble0 = {E}')
+            print(f'phiprime0 = {phi_prime}')
+            print(f'Omega_r0 = {Omega_r}')
+            print(f'Omega_m0 = {Omega_m}')
+            print(f'Omega_l0 = {Omega_l}')
+            print(f'FRIED_RHS_WRAPPER Horndeski parameters are {parameters}')
             return fried_RHS_lambda(E,cl_variable,Omega_r,Omega_m,Omega_l,*parameters) #Closure used to compute phi0
         if cl_declaration[1] == 2:
             return fried_RHS_lambda(E,phi_prime,cl_variable,Omega_m,Omega_l,*parameters) #Closure used to compute Omega_r0
@@ -175,6 +182,7 @@ def fried_RHS_wrapper(cl_variable, cl_declaration, fried_RHS_lambda, E, phi_prim
 
 
 def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi_prime0, Omega_r0, Omega_m0, Omega_l0,parameters): #calling the closure-fixed parameter "k1" is arbitrary, the choice of which parameter to fix is determined by lambdification or fried_RHS
+    print('COMP_PARAM_CLOSE')
     cl_guess = 1.0 #this may need to be changed depending on what is being solved for through closure, if fsolve has trouble
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
@@ -189,11 +197,20 @@ def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi_prime0, Omega
             cl_guess = Omega_l0
     if cl_declaration[0] == 'parameters':
         cl_guess = parameters[cl_declaration[1]]
+    print('COMP_PARAM_CLOSE computing closure variable')
+    print(f'Hubble0 = {E0}')
+    print(f'phiprime0 = {phi_prime0}')
+    print(f'Omega_r0 = {Omega_r0}')
+    print(f'Omega_m0 = {Omega_m0}')
+    print(f'Omega_l0 = {Omega_l0}')
+    print(f'COMP_PARAM_CLOSE Horndeski parameters are {parameters}')
+
     cl_variable,fsolvedict,fsolveier,fsolvemsg = fsolve(fried_RHS_wrapper, cl_guess, args=(cl_declaration, fried_closure_lambda, E0, phi_prime0, Omega_r0,Omega_m0, Omega_l0,parameters), xtol=1e-6,full_output=True) #make sure arguments match lambdification line in run_builder.py
     # print('f solve integer is '+str(fsolveier))
     # print('f solve message is '+fsolvemsg)
     # print('f solve found '+str(cl_variable))
     cl_variable = cl_variable[0]
+    print('COMP_PARAM_CLOSE returning closure variable')
     return cl_variable
 
 def comp_E_prime_E(k1, g1, Omega_r, E, phi_prime, alpha_M, alpha_M_prime, Ms_Mp, Meffsq_Mpsq):
@@ -297,12 +314,13 @@ def run_solver(read_out_dict):
 #  omega_phi_lambda, A_lambda, fried_RHS_lambda, calB_lambda, calC_lambda, coupling_factor, cl_declaration, parameters,
 #  Omega_r0, Omega_m0, Omega_l0, parameter_symbols, odeint_parameter_symbols, suppression_flag, threshold,GR_flag):
 
-
+    print('RUN SOLVER')
     [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
     [Hubble0, phi_prime0] = read_out_dict['initial_conditions']
     [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
     parameters = read_out_dict['Horndeski_parameters']
-
+    print(f'RUN SOLVER Horndeski parameters are {parameters}')
+    
     E_prime_E_lambda = read_out_dict['E_prime_E_lambda']
     E_prime_E_safelambda = read_out_dict['E_prime_E_safelambda']
     phi_primeprime_lambda = read_out_dict['phi_primeprime_lambda']
@@ -331,8 +349,9 @@ def run_solver(read_out_dict):
     if GR_flag is True:
         phi_prime0 = 0.
     #print('phi prime0 is '+str(phi_prime0))
+    print('RUN SOLVER computing closure variable')
     cl_var = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
-
+    print('RUN SOLVER closure variable computed')
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0_closed = cl_var
@@ -368,6 +387,7 @@ def run_solver(read_out_dict):
     Omega_r_arr = ans[:,2]
     Omega_m_arr = ans[:,3]
     Omega_l_arr = ans[:,4]
+    print('RUN SOLER solution arrays computed')
     # phi_prime_arr = ans.y[0]
     # Hubble_arr = ans.y[1]
     # print('shape of Hubble_arr is '+str(np.shape(Hubble_arr)))
@@ -440,6 +460,7 @@ def run_solver(read_out_dict):
         result.update(i)
     result.update({'closure_value':cl_var})
 
+    print('RUN SOLVER returning results')
     return result #a_arr_inv, Hubble_arr, E_prime_E_arr, Hubble_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
 
 

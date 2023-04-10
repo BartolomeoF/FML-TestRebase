@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sym
-import numerical_solver as ns
-import expression_builder as eb
+import HiCOLA.Frontend.numerical_solver as ns
+import HiCOLA.Frontend.expression_builder as eb
 import os
 import time
 import itertools as it
 from multiprocessing import Pool
-from HiCOLA.Utilities.Other.read_parameters import read_in_scan_parameters, read_in_scan_settings
+from HiCOLA.Frontend.read_parameters import read_in_scan_parameters, read_in_scan_settings
 from argparse import ArgumentParser
 from configobj import ConfigObj
 
@@ -97,27 +97,33 @@ scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 N_proc = scan_settings_dict['processor_number']
 
-read_scan_values_from_file = scan_settings_dict['read_scan_parameters_from_file']
+read_scan_values_from_file = scan_settings_dict['scan_values_from_file']
 
 #[U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] ]
 if read_scan_values_from_file is True:
      protoscan_list = np.loadtxt(scan_values_path, unpack=True)
+     print(protoscan_list)
+     print(protoscan_list.shape)
      # print('Printing scan_values_dict')
      # print(protoscan_list)
      # print(len(protoscan_list))
      # print('first entry')
      # print(protoscan_list[0])
      # print(type(protoscan_list[0]))
-     zipped_protoscan = zip(protoscan_list)
+     zipped_protoscan = protoscan_list.transpose()
+     print(zipped_protoscan)
+     print(zipped_protoscan.shape)
      number_of_horndeski_parameters = len(zipped_protoscan[0][5:])
      scan_list = []
      for i in zipped_protoscan:
         U0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:5] 
-        horndeski_parameters = [i[5:]] #this packs parameters into a list
+        horndeski_parameters = i[5:] #this packs parameters into a list
         j = [U0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
         scan_list.append(j)
-     print('scan list first  entry')
-     print(scan_list[0])
+     print('scan list')
+     for l in scan_list:
+         print(l)
+         print('\n')
      scan_list_length = len(scan_list)
      print(f'scan list length = {scan_list_length}')
     #[U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays] = scan_values_dict
@@ -384,34 +390,6 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     
     read_out_dict = {}
 
-# (EdS, f_phi, k1seed, g31seed,cl_declaration = ['odeint_parameters',1],
-#                       early_DE_threshold=1.0, yellow_switch=False, blue_switch=False, red_switch=False,tolerance=10e-6,
-#                       znum=1000,zmax=9999.,Omega_r0h2 = 4.28e-5,Omega_b0h2 = 0.02196,Omega_c0h2 = 0.1274,h_test = 0.7307,phi_prime0=0.9,Omega_m_crit=0.99,
-#                       GR_flag = False, suppression_flag = False, c_M_test = 0., hmaxvv = None, threshold = 0.):
-#     Omega_r0 = Omega_r0h2/h_test/h_test
-
-
-    # [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
-    # [E0, phi_prime0] = read_out_dict['initial_conditions']
-    # [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
-    # parameters = read_out_dict['Horndeski_parameters']
-
-    # E_prime_E_lambda = read_out_dict['E_prime_E_lambda']
-    # E_prime_E_safelambda = read_out_dict['E_prime_E_safelambda']
-    # phi_primeprime_lambda = read_out_dict['phi_primeprime_lambda']
-    # phi_primeprime_safelambda = read_out_dict['phi_primeprime_safelambda']
-    # omega_phi_lambda = read_out_dict['omega_phi_lambda']
-    # A_lambda = read_out_dict['A_lambda']
-    # fried_RHS_lambda = read_out_dict['fried_RHS_lambda']
-    # calB_lambda = read_out_dict['calB_lambda']
-    # calC_lambda = read_out_dict['calC_lambda']
-    # coupling_factor = read_out_dict['coupling_factor']
-
-    # parameter_symbols = read_out_dict['symbol_list']
-    # odeint_parameter_symbols = read_out_dict['odeint_parameter_symbols']
-    # cl_declaration = read_out_dict['closure_declaration']
-
-
     read_out_dict = settings_dict.copy()
     red_switch = settings_dict['red_switch']
     blue_switch = settings_dict['blue_switch']
@@ -430,42 +408,24 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     E_prime_E_lambda = lambdified_functions['E_prime_E_lambda']
     B2_lambda = lambdified_functions['B2_lambda']
     E_prime_E_lambda(1,1,1,1,1,1,1,1)
+    fried_RHS_lambda = lambdified_functions['fried_RHS_lambda']
+    fried_RHS_lambda_result = fried_RHS_lambda(1,1,1,1,1,1,1,1,1)
+    print(f'fried_RHS_lambda(1,1,1,1,1,1,1,1,1 = {fried_RHS_lambda_result}')
     read_out_dict.update(lambdified_functions)
 
-    print(parameters)
+    print(f'parameters are {parameters}')
 
     cosmological_parameters = [Omega_r0, Omega_m0, Omega_l0]
     initial_conditions = [U0, phi_prime0]
     repack_dict = {'cosmological_parameters':cosmological_parameters, 'initial_conditions':initial_conditions, 'Horndeski_parameters':parameters}
     read_out_dict.update(repack_dict)
 
-
-
-    # U0 = 1./EdS
-    # #[E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda] = [*lambda_functions]
-    # alpha_expr = 1.-Omega_l0/EdS/EdS
-    # k1_dS = k1seed*alpha_expr         #k1_dSv has been called k1(dS)-seed in my notes
-    # k2_dS = -2.*k1_dS - 12.*(1. - Omega_l0/EdS/EdS)
-    # g31_dS = g31seed*alpha_expr             #g31_dSv is g31(dS)-seed
-    # g32_dS = 0.5*( 1.- ( Omega_l0/EdS/EdS + k1_dS/6. + k2_dS/4. + g31_dS) )
-    # parameters = [k1_dS,k2_dS, g31_dS, g32_dS]
-    # print(parameters)
-    # a_arr_invA, U_arrA, U_prime_U_arrA, U_prime_arrA , y_arrA, y_prime_arrA, Omega_r_arrA, Omega_m_arrA, Omega_DE_arrA, Omega_L_arrA, Omega_phi_arrA, Omega_phi_diff_arrA, Omega_r_prime_arrA,Omega_m_prime_arrA, Omega_L_prime_arrA,  A_arrA= nta.run_solver_inv(z_num_test, z_ini_test, U0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, A_lambda, fried_RHS_lambda, cl_declaration, parameters, Omega_r0, Omega_m0, Omega_l0, c_M_test, hmaxvv, suppression_flag, threshold,GR_flag)
-
-    # alpha_facA = 1.-Omega_L_arrA[0]/EdS/EdS
-
-    # trackA = B2_lambda(U_arrA[0],y_arrA[0],*parameters) #general version
-    # maxdensity_list = []
-    # mindensity_list = []
-    # for density_arr in [Omega_m_arrA, Omega_r_arrA, Omega_L_arrA, Omega_phi_arrA, Omega_DE_arrA]:
-    #     maxdensity_list.append(np.max(density_arr))
-    #     mindensity_list.append(np.min(density_arr))
-    # Omega_m_max, Omega_r_max, Omega_L_max, Omega_phi_max, Omega_DE_max = maxdensity_list
-    # Omega_m_min, Omega_r_min, Omega_L_min, Omega_phi_min, Omega_DE_min = mindensity_list
-
-
+    print('read out dict is')
+    print(read_out_dict)
+    
+    print('now starting background solver')
     background_quantities = ns.run_solver(read_out_dict)
-
+    print('background solver run complete')
     Omega_L_arrA = background_quantities['omega_l']
     Omega_r_arrA = background_quantities['omega_r']
     Omega_m_arrA = background_quantities['omega_m']
@@ -523,6 +483,8 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     else:
         with open(path_to_txt_greens,"a") as green_txt:
             green_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters])+"\n")
+    
+    print('ONE LOOP FINISHED')
 
 # loop over search variables
 
@@ -533,7 +495,7 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
 #     g31seedv = i[3]
 #     parameter_scanner(EdSv, fv, k1seedv, g31seedv)
 
-
+print(f'NUMBER OF PROCESSORS = {N_proc}')
 if __name__ == '__main__':
     pool = Pool(processes=N_proc)
     pool.starmap(parameter_scanner, scan_list)
