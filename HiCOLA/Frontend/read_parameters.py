@@ -292,13 +292,16 @@ def read_in_scan_settings(path_to_settings):
     model_name = numerical_read['model_name']
     cosmo_name = numerical_read['cosmo_name']
     
+    #output directory
+    output_directory = numerical_read['output_directory']
+    
     #processors
     N_proc = numerical_read.as_int('processor_number')
     
     #reading scan values from file
     scan_values_from_file = numerical_read.as_bool('read_scan_parameters_from_file')
     
-    read_out_dict.update({'scan_values_from_file':scan_values_from_file, 'processor_number':N_proc})
+    read_out_dict.update({'scan_values_from_file':scan_values_from_file, 'processor_number':N_proc, 'output_directory':output_directory})
     
     #integration settings
     suppression_flag = numerical_read.as_bool('suppression_flag')

@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name = 'HiCOLA',
+    name = 'Hi_COLA',
     packages = find_packages(
-    where='src'
     ),
 )
