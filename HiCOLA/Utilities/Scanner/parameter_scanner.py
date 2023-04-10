@@ -20,7 +20,6 @@ odeint_parameter_symbols = [E, phiprime, omegar, omegam]
 
 
 start = time.time()
-N_proc = 1
 ##############
 # dS testing #
 ##############
@@ -79,15 +78,15 @@ N_proc = 1
 parser = ArgumentParser(prog='Scanner')
 
 parser.add_argument('input_ini_filenames',nargs=2)
-parser.add_argument('-d', '--direct',action='store_true')
+# parser.add_argument('-d', '--direct',action='store_true')
 
 args = parser.parse_args()
 print(args)
 filenames = args.input_ini_filenames
 scan_settings_path = filenames[0]
 scan_values_path = filenames[1]
-direct_scan_read_flag = args.direct
-print(direct_scan_read_flag)
+# direct_scan_read_flag = args.direct
+# print(direct_scan_read_flag)
 print(scan_settings_path)
 print(type(scan_settings_path))
 print(scan_values_path)
@@ -96,40 +95,46 @@ print(type(scan_values_path))
 scan_settings_dict = read_in_scan_settings(scan_settings_path)
 scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-read_scan_values_from_file = scan_settings_dict['scan_values_from_file']
+N_proc = scan_settings_dict['processor_number']
+
+read_scan_values_from_file = scan_settings_dict['read_scan_parameters_from_file']
 
 #[U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] ]
 if read_scan_values_from_file is True:
-     protoscan_list = np.load(scan_values_path, allow_pickle=True)
-     print('Printing scan_values_dict')
-     print(protoscan_list)
-     print(len(protoscan_list))
-     print('first entry')
-     print(protoscan_list[0])
-     print(type(protoscan_list[0]))
+     protoscan_list = np.loadtxt(scan_values_path, unpack=True)
+     # print('Printing scan_values_dict')
+     # print(protoscan_list)
+     # print(len(protoscan_list))
+     # print('first entry')
+     # print(protoscan_list[0])
+     # print(type(protoscan_list[0]))
+     zipped_protoscan = zip(protoscan_list)
+     number_of_horndeski_parameters = len(zipped_protoscan[0][5:])
      scan_list = []
-     for i in protoscan_list:
-         j = np.append(i,[scan_settings_dict])
-         scan_list.append(j)
-     print('scan_list')
-     print(scan_list)
+     for i in zipped_protoscan:
+        U0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:5] 
+        horndeski_parameters = [i[5:]] #this packs parameters into a list
+        j = [U0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
+        scan_list.append(j)
      print('scan list first  entry')
      print(scan_list[0])
+     scan_list_length = len(scan_list)
+     print(f'scan list length = {scan_list_length}')
     #[U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays] = scan_values_dict
 else:
     scan_values_dict = read_in_scan_parameters(scan_values_path)
     [U0_array, phiprime0_array] = scan_values_dict['initial_condition_arrays']
     [Omega_r0_array, Omega_m0_array, Omega_l0_array] = scan_values_dict['cosmological_parameter_arrays']
     parameter_arrays = scan_values_dict('Horndeski_parameter_arrays')
+    number_of_horndeski_parameters = len(parameter_arrays)
     
     scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
-    parameter_cartesian_product = it.product(*parameter_arrays)
+    # parameter_cartesian_product = it.product(*parameter_arrays)
     scan_list2 = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
-    print('scan_list2')
     scan_list_to_print = list(scan_list2)
     print(len(scan_list_to_print))
-    for i in scan_list_to_print:
-        print(i)
+    # for i in scan_list_to_print:
+    #     print(i)
 
 # print('scanning arrays')
 # print(U0_array)
@@ -334,6 +339,17 @@ path_to_txt_reds = saving_subdir+file_date+'_'+model+"_reds.txt"
 path_to_txt_blues = saving_subdir+file_date+'_'+model+"_blues.txt"
 path_to_txt_yellows = saving_subdir+file_date+'_'+model+"_yellows.txt"
 
+horndeski_parameter_symbols = scan_settings_dict['symbol_list']
+for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt_magentas, 
+          path_to_txt_pinks, path_to_txt_reds, path_to_txt_blues, path_to_txt_yellows]:
+    scan_file = open(i,"a")
+    spaces = '          '
+    print('# Hubble0'+spaces+'Scalarprime0'+spaces+'Omega_r0'+spaces+'Omega_m0'+spaces+'Omega_l0',end=spaces,file=scan_file)
+    for j in np.arange(number_of_horndeski_parameters):
+        print(horndeski_parameter_symbols[j],end=spaces, file=scan_file)
+    print('\n',file=scan_file)
+
+#U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays
 # green_txt = open(path_to_txt_greens,"w")
 # print('#'+str(['EdS','f_phi','k1dS-seed','g31dS-seed']),file=green_txt)
 
@@ -520,8 +536,7 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
 
 if __name__ == '__main__':
     pool = Pool(processes=N_proc)
-    inputs = scan_list
-    pool.starmap(parameter_scanner, inputs)
+    pool.starmap(parameter_scanner, scan_list)
 
 ## save and close scan files
 # scan_lists = [green_arr,black_arr,magenta_arr,red_arr,blue_arr,yellow_arr]
