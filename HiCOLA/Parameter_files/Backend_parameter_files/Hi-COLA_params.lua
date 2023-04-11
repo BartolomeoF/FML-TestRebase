@@ -41,7 +41,7 @@ cosmology_OmegaCDM = 0.238
 cosmology_Omegab = 0.041
 -- Massive neutrino density
 cosmology_OmegaMNu = 0.0
--- Dark energy density (a CC)
+-- Total dark energy density
 cosmology_OmegaLambda = 0.721
 -- Effective number of relativistic species
 cosmology_Neffective = 3.046
