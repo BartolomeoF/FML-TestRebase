@@ -5,19 +5,12 @@ import sympy as sym
 sym.init_printing()
 
 
-#IMPORTANT: The dimensionless field, called \Tilde{\phi} in notes, is called
-# "phi" in this script, just like the original massive scalar field. Only the
-# SymPy definition carries any indication that it is really the dimensionless field!
-
-#Any new mass scales in other terms like the G-functions should be specified by the user
-# when defining them. That is, rather than hard-coding M_s^2 wherever there is an X,
-# make sure to define X = (M_s^2/2)(\partial_t \phi)^2, etc.
-
-#---Do not change, this remains the same for any model----
-#a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta")
-#------------------------
-
 def declare_symbols():
+    '''
+    Creates a number of standard SymPy variables for use in constructing the equations of motion.
+    It is normal to see "undefined quantities" throughout this script and others in Hi-COLA. When
+    this function is executed, the 'erroneous' quantities become defined at runtime.
+    '''
     to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X,  M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign")'
     return to_be_executed
 exec(declare_symbols())
@@ -221,6 +214,9 @@ def omega_phi(G3, G4,  K,
         omegam='Omega_m',
         omegal = 'Omega_l',
         X='X'):
+    '''
+    Code analogue of equation 2.4 in https://arxiv.org/pdf/2209.01666.pdf
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -253,6 +249,15 @@ def EprimeEODERHS(G3, G4,  K,
         omegar='Omega_r',
         omegal='Omega_l',
         X='X'):
+    '''
+    Code analogue of equation 2.5 in https://arxiv.org/pdf/2209.01666.pdf
+    G3, G4 and K are the Horndeski Lagrangian functions that need to be defined
+    in order to construct the RHS of this equation. The rest of the arguments are
+    the display names for the SymPy variables. For example, the mass scale variable
+    M_pG4 = M_Planck / M_G4 is displayed as "M_{pG4}" in the terminal if printed.
+    
+    Other construction equations that follow in this script follow the same structure.
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -304,6 +309,12 @@ def EprimeEODERHS_safe(G3, G4,  K,
         omegar='Omega_r',
         omegal ='Omega_l',
         X='X'):
+    '''
+    This is identical to EprimeEODERHS, except the variable "A" is replaced by a 
+    constant, "threshold". This function is used if a given model has a tendency to send
+    A close to 0, and computational errors take it over 0. By replacing A with "threshold"
+    this behaviour is (artificially) avoided.
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -350,6 +361,9 @@ def phiprimeprimeODERHS(G3, G4,  K,
         phiprimeprime='phiprimeprime',
         omegar='Omega_r',
         X='X'):
+    '''
+    Code equivalent of equation 2.6 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -390,6 +404,9 @@ def fried_closure(G3, G4,  K,
         omegam='Omega_m',
         omegal='Omega_l',
         X='X'):
+    '''
+    Code equivalent of the RHS of equation 2.3 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -421,6 +438,9 @@ def phiprimeprimeODERHS_safe(G3, G4,  K,
         phiprimeprime='phiprimeprime',
         omegar='Omega_r',
         X='X'):
+    '''
+    phi_prime_prime ODE RHS analogue of EprimeEODERHS_safe
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -455,6 +475,9 @@ def A_func(G3, G4,  K,
         phiprimeprime='phiprimeprime',
         omegar='Omega_r',
         X='X'):
+    '''
+    Code analogue of equation 2.7 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -484,6 +507,9 @@ def B2_func(G3, G4,  K,
         phiprimeprime='phiprimeprime',
         omegar='Omega_r',
         X='X'):
+    '''
+    Code equivalent of equation 2.10 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -519,6 +545,9 @@ def theta(G3, G4,  K,
         X='X',
         print_flag=0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 2.15 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -562,6 +591,9 @@ def calE(G3, G4,  K,
         X='X',
         print_flag=0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 5 in https://arxiv.org/abs/1111.6749
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -606,6 +638,9 @@ def calP(G3, G4,  K,
         X='X',
         print_flag =0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 6 in https://arxiv.org/abs/1111.6749
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -654,6 +689,9 @@ def alpha0(G3, G4,  K,
         G4prime='G4prime',
         print_flag =0,
         simplify_flag=0): 
+    '''
+    Code equivalent of equation 3.5 (see 2.16-2.19) in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -703,6 +741,9 @@ def alpha1(G3, G4,  K,
         G4prime='G4prime',
         print_flag =0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 3.5 (see 2.16-2.19) in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -745,6 +786,9 @@ def alpha2(G3, G4,  K,
         G4prime='G4prime',
         print_flag =0,
         simplify_flag=0): 
+    '''
+    Code equivalent of equation 3.5 (see 2.16-2.19) in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -785,6 +829,9 @@ def beta0(G3, G4,  K,
         X='X',
         print_flag =0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 3.5 (see 2.16-2.19) in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -824,6 +871,9 @@ def calB(G3, G4,  K,
         X='X',
         print_flag =0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 3.7 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -866,6 +916,9 @@ def calC(G3, G4,  K,
         X='X',
         print_flag =0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 3.7 in https://arxiv.org/abs/2209.01666
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -910,6 +963,9 @@ def coupling_factor(G3, G4,  K,
         a='a',
         print_flag=0,
         simplify_flag=0):
+    '''
+    Code equivalent of equation 3.13 in https://arxiv.org/abs/2209.01666
+    '''
     parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, X, a]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
@@ -1006,12 +1062,3 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb}
     return lambda_functions_dict
-
-
-
-def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filename_as_string): #from Bill's Galileon coupling script
-    datafile_id = open(output_filename_as_string, 'wb')    #here you open the ascii file
-    data = np.array([np.array(a_arr_inv[::-1]), np.array(chioverdelta_arr[::-1]), np.array(Coupl_arr[::-1])])
-    data = data.T     #here you transpose your data, so to have it in two columns
-    np.savetxt(datafile_id, data, fmt=['%.4e','%.4e','%.4e'])    #here the ascii file is populated.
-    datafile_id.close()    #close the file

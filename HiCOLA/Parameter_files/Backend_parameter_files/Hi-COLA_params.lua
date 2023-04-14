@@ -59,7 +59,7 @@ cosmology_kpivot_mpc = 0.05
 -- HiCOLA model, read background from file
 if cosmology_model == "HiCOLA" then
   -- Name of file that contains [k, E, dlogH/dloga]
-  HiCOLA_expansion_filename = "<root>/FML_Hi-COLA/FML/COLASolver/input/Horndeski/my_new_Horndeski_model_expansion.txt"
+  HiCOLA_expansion_filename = "<install_dir>/Hi-COLA/Output/my_new_Horndeski_model_expansion.txt"
 end
 
 -- The w0wa parametrization
@@ -96,7 +96,7 @@ gravity_model = "HiCOLA"
 -- HiCOLA model
 if gravity_model == "HiCOLA" then
   -- Name of file that contains [k, chi/delta, coupling]
-  HiCOLA_input_filename = "<root>/FML_Hi-COLA/FML/COLASolver/input/Horndeski/my_new_Horndeski_model_force.txt"
+  HiCOLA_input_filename = "<install_dir>/Hi-COLA/Output/my_new_Horndeski_model_force.txt"
   -- Approximate screening model (otherwise linear)
   gravity_model_screening = true
   -- For screening approx: smoothing filter for density (tophat, gaussian, sharpk)
@@ -218,7 +218,7 @@ output_particles = true
 -- Fileformat: GADGET, FML
 output_fileformat = "GADGET"
 -- Output folder
-output_folder = "<root>/FML_Hi-COLA/FML/COLASolver/output"
+output_folder = "<install_dir>/Hi-COLA/Output/COLA"
 
 ------------------------------------------------------------
 -- Time-stepping
@@ -264,8 +264,8 @@ ic_LPT_order = 2
 -- transferinfofile (file containing paths to a bunch of T(k,z) files from CAMB)
 -- read_particles   (read GADGET file and use that for sim - reconstruct LPT fields if COLA)
 ic_type_of_input = "powerspectrum"
--- Path to the input (NB: for using the example files update the path at the top of the file below)
-ic_input_filename = "<root>/FML_Hi-COLA/FML/COLASovler/input/Boltzmann/my_Horndeski_input_powerspectrum.dat"
+-- Path to the input (NB: the LCDM spectrum below is an example that comes with Hi-COLA)
+ic_input_filename = "<install_dir>/Hi-COLA/HiCOLA/Parameter_files/Backend_parameter_files/LCDM_1306dot3219_matterpower_z0.000.dat"
 -- The redshift of the P(k), T(k) we give as input
 ic_input_redshift = 0.0
 -- The initial redshift of the simulation
@@ -296,12 +296,12 @@ if ic_random_field_type == "read_particles" then
   -- Density assignment method: NGP, CIC, TSC, PCS, PQS
   -- We use ic_nmesh to set the grid to compute the density field on
   -- NB: this should be equal to the nmesh used to generate the IC (i.e. NpartTot^1/3)
-  ic_reconstruct_assigment_method = "CIC"
+  ic_reconstruct_assigment_method = "PQS"
   ic_reconstruct_interlacing = false
   -- Smoothing filter to remove small-scale modes (only relevant if for
   -- some reason you want ic_nmesh to be larger than the grid it was created on)
   ic_reconstruct_smoothing_filter = "sharpk"
-  ic_reconstruct_dimless_smoothing_scale = 0.0 /(2.0 * math.pi * 128 / 2)
+  ic_reconstruct_dimless_smoothing_scale = 1.0 /(2.0 * math.pi * ic_nmesh / 2)
 end
 
 ------------------------------------------------------------
