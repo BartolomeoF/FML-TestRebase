@@ -32,27 +32,29 @@ simulation_use_scaledependent_cola = true
 
 ------------------------------------------------------------
 -- Choose the cosmology
+-- In this example file, the cosmology is from the Planck 2018 release
+-- see Table 7 in https://arxiv.org/abs/1807.06205
 ------------------------------------------------------------
 -- Cosmology: LCDM, w0waCDM, DGP, JBD, ... add your own ...
 cosmology_model = "HiCOLA"
 --- CDM density
-cosmology_OmegaCDM = 0.238
+cosmology_OmegaCDM = 0.26067
 --- Baryon density
-cosmology_Omegab = 0.041
+cosmology_Omegab = 0.04897
 -- Massive neutrino density
 cosmology_OmegaMNu = 0.0
 -- Total dark energy density
-cosmology_OmegaLambda = 0.721
+cosmology_OmegaLambda = 0.69036
 -- Effective number of relativistic species
 cosmology_Neffective = 3.046
 -- Temperature of CMB today
-cosmology_TCMB_kelvin = 2.72548
--- Hubble paramster
-cosmology_h = 0.731
+cosmology_TCMB_kelvin = 2.7260
+-- Hubble parameter
+cosmology_h = 0.6766
 -- Primodial amplitude
-cosmology_As = 2.34296e-9
+cosmology_As = 2.10521e-9
 -- Spectral index
-cosmology_ns = 0.9532369
+cosmology_ns = 0.9665
 -- Pivot scale in 1/Mpc
 cosmology_kpivot_mpc = 0.05
 
