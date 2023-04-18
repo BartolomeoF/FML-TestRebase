@@ -1,3 +1,5 @@
+**Note: this README is from the original FML package**
+
 # About the code
 
 This is a simple Particle-Mesh (PM) N-body code for a wide range of model that is fast and very flexible. For models with complex dynamics (screened models) we provide several options from doing it exactly, to approximate but fast to just simulating linear theory equations. Every time-consuming operation is parallelized over MPI and OpenMP. It uses a slab-based parallelization so its not good for high resolution simulations, but perfect for fast approximate (COLA) simulations. Its also useful for testing different things or to simply use it as an analysis code to compute stuff from other simulations. This is part of a bigger library that can be found in the folder above.
@@ -35,6 +37,8 @@ The models that are currently implemented are
 * JBD : Jordan-Brans-Dicke model. The gravity model corresponding to the cosmology with the same name (and currently requires this cosmology to work).
 
 * Symmetron : The symmetron model. A f(R)-like modified gravity model - just to have a bit of variety.
+
+* HiCOLA : This option is relevant for performing simulations of reduced Horndeski theories as part of the Hi-COLA process. This is not present in the original FML package. Please refer to the Hi-COLA documentation (top-level folder).
 
 # Forces
 
