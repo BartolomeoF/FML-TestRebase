@@ -46,12 +46,17 @@ plt.rcParams["lines.markeredgewidth"] = 1
 
 def nearest_index(arr, val):
     '''
-   Finds index of entry in arr with the nearest value to val
+   Finds index of entry in arr with the nearest value *above* val
 
     '''
     arr = np.asarray(arr)
-    index = (np.abs(arr - val)).argmin()
-    return index
+    subtracted_arr = arr - val
+    for index,val in enumerate(subtracted_arr):
+        newval=1000.
+    	if val < 0:
+    	    subtracted_arr[index] = newval	
+    near_index = subtracted_arr.argmin()
+    return near_index
 
 
 
