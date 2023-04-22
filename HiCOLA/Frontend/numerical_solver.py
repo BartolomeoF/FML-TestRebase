@@ -53,8 +53,8 @@ def nearest_index(arr, val):
     subtracted_arr = arr - val
     for index,val in enumerate(subtracted_arr):
         newval=1000.
-    	if val < 0:
-    	    subtracted_arr[index] = newval	
+        if val < 0:
+	        subtracted_arr[index] = newval	
     near_index = subtracted_arr.argmin()
     return near_index
 

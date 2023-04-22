@@ -127,7 +127,7 @@ path_to_txt_blues = saving_subdir+file_date+'_'+model+"_blues.txt"
 path_to_txt_yellows = saving_subdir+file_date+'_'+model+"_yellows.txt"
 
 
-early_DE_z = settings_dict['early_DE_threshold']
+early_DE_z = scan_settings_dict['early_DE_threshold']
 horndeski_parameter_symbols = scan_settings_dict['symbol_list']
 for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt_magentas, 
           path_to_txt_pinks, path_to_txt_reds, path_to_txt_blues, path_to_txt_yellows]:
