@@ -137,9 +137,9 @@ for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt
     for j in np.arange(number_of_horndeski_parameters):
         print(horndeski_parameter_symbols[j],end=spaces, file=scan_file)
     if 'red' in i:
-    	print('max[Omega_DE]', end=spaces)
+        print('max[Omega_DE]', end=spaces, file=scan_file)
     if 'pink' in i:
-    	print(f'max[Omega_DE(z>{early_DE_z})]', end=spaces)
+    	    print(f'max[Omega_DE(z>{early_DE_z})]', end=spaces, file=scan_file)
     print('\n',file=scan_file)
 
 
