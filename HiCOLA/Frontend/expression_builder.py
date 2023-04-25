@@ -981,51 +981,51 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
     B2_function = B2_func(G3=G3, G4=G4, K=K,M_pG4=M_pG4_test, M_KG4 =M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     B2_function = B2_function.subs(X,Xreal)
-    B2_lambda = sym.lambdify([E,phiprime,*symbol_list],B2_function,"scipy")
+    B2_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],B2_function,"scipy")
 
     omega_field = omega_phi(G3=G3,G4=G4,K=K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     omega_field = omega_field.subs(X,Xreal)
 
     fried_RHS_lambda = fried_closure(G3, G4,  K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     fried_RHS_lambda = fried_RHS_lambda.subs(X,Xreal)
-    fried_RHS_lambda = sym.lambdify([E, phiprime, omegar,omegam, omegal, *symbol_list],fried_RHS_lambda)
+    fried_RHS_lambda = sym.lambdify([E, phi, phiprime, omegar,omegam, omegal, *symbol_list],fried_RHS_lambda)
 
-    E_prime_E_lambda = sym.lambdify([E,phiprime,omegar,omegal,*symbol_list],E_prime_E, "scipy")
-    E_prime_E_safelambda = sym.lambdify([E,phiprime,omegar, omegal, threshold,threshold_sign,*symbol_list],E_prime_E_safe, "scipy")
+    E_prime_E_lambda = sym.lambdify([E,phi, phiprime,omegar,omegal,*symbol_list],E_prime_E, "scipy")
+    E_prime_E_safelambda = sym.lambdify([E,phi, phiprime,omegar, omegal, threshold,threshold_sign,*symbol_list],E_prime_E_safe, "scipy")
 
-    phi_primeprime_lambda = sym.lambdify([E,Eprime,phiprime,*symbol_list],phi_primeprime, "scipy")
-    phi_primeprime_safelambda = sym.lambdify([E,Eprime,phiprime,threshold,threshold_sign,*symbol_list],phi_primeprime_safe, "scipy")
-    omega_phi_lambda = sym.lambdify([E,phiprime,*symbol_list],omega_field)
-    A_lambda = sym.lambdify([E,phiprime,*symbol_list],A_function,"scipy")
+    phi_primeprime_lambda = sym.lambdify([E,Eprime, phi, phiprime,*symbol_list],phi_primeprime, "scipy")
+    phi_primeprime_safelambda = sym.lambdify([E,Eprime, phi, phiprime,threshold,threshold_sign,*symbol_list],phi_primeprime_safe, "scipy")
+    omega_phi_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],omega_field)
+    A_lambda = sym.lambdify([E, phi, phiprime,*symbol_list],A_function,"scipy")
 
 
     alpha0_func = alpha0(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha0_func = alpha0_func.subs(X,Xreal)
-    alpha0_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha0_func)
+    alpha0_lamb = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],alpha0_func)
 
     alpha1_func = alpha1(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha1_func = alpha1_func.subs(X,Xreal)
-    alpha1_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha1_func)
+    alpha1_lamb = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],alpha1_func)
 
     alpha2_func = alpha2(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     alpha2_func = alpha2_func.subs(X,Xreal)
-    alpha2_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],alpha2_func)
+    alpha2_lamb = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],alpha2_func)
 
     beta0_func = beta0(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
-    beta0_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],beta0_func)
+    beta0_lamb = sym.lambdify([E,Eprime,phi, phiprime,phiprimeprime, *symbol_list],beta0_func)
 
     calB_func = calB(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     calB_func = calB_func.subs(X,Xreal)
-    calB_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],calB_func)
+    calB_lamb = sym.lambdify([E,Eprime,phi, phiprime,phiprimeprime, *symbol_list],calB_func)
 
     calC_func = calC(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     calC_func = calC_func.subs(X,Xreal)
-    calC_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],calC_func)
+    calC_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list],calC_func)
 
 
     coupling_fac = coupling_factor(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     coupling_fac = coupling_fac.subs([(X,Xreal)])
-    coupling_fac = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],coupling_fac)
+    coupling_fac = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],coupling_fac)
 
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,

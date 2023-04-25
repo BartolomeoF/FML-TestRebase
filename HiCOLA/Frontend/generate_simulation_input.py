@@ -46,7 +46,7 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
-odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 
@@ -57,7 +57,7 @@ G3 = read_out_dict['G3']
 G4 = read_out_dict['G4']
 cosmology_name = read_out_dict['cosmo_name']
 [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
-[U0, phi_prime0] = read_out_dict['initial_conditions']
+[U0, phi0, phi_prime0] = read_out_dict['initial_conditions']
 [Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
 parameters = read_out_dict['Horndeski_parameters']
 mass_ratio_list = read_out_dict['mass_ratio_list']
