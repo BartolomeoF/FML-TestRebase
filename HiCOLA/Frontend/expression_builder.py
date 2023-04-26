@@ -995,7 +995,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
     phi_primeprime_lambda = sym.lambdify([E,Eprime, phi, phiprime,*symbol_list],phi_primeprime, "scipy")
     phi_primeprime_safelambda = sym.lambdify([E,Eprime, phi, phiprime,threshold,threshold_sign,*symbol_list],phi_primeprime_safe, "scipy")
-    omega_phi_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],omega_field)
+    omega_phi_lambda = sym.lambdify([E,phi, phiprime, omegal, omegam, omegar, *symbol_list],omega_field)
     A_lambda = sym.lambdify([E, phi, phiprime,*symbol_list],A_function,"scipy")
 
 

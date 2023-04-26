@@ -93,11 +93,37 @@ print(f'scalar_prime0 = {phi_prime0}')
 background_quantities = ns.run_solver(read_out_dict)
 a_arr = background_quantities['a']
 UE_arr = background_quantities['Hubble']
+phi_arr = background_quantities['scalar']
+phi_prime_arr = background_quantities['scalar_prime']
+omega_m_arr = background_quantities['omega_m']
+omega_r_arr = background_quantities['omega_r']
+omega_phi_arr = background_quantities['omega_phi']
+omega_lambda_arr = background_quantities['omega_l']
 UE_prime_arr = background_quantities['Hubble_prime']
 UE_prime_UE_arr = background_quantities['E_prime_E']
 coupling_factor_arr = background_quantities['coupling_factor']
 chioverdelta_arr = background_quantities['chi_over_delta']
 
+print('--- DEBUG ----')
+print(phi_arr)
+print(type(phi_arr))
+print('phi_arr-------')
+print(phi_prime_arr)
+print(type(phi_prime_arr))
+print('phi_prime_arr-----')
+print(omega_m_arr)
+print(type(omega_m_arr))
+print('omega_m_arr -----')
+print(omega_r_arr)
+print(type(omega_r_arr))
+print('omega_r_arr -----')
+print(omega_phi_arr)
+print(type(omega_phi_arr))
+print('omega_phi_arr ----')
+print(omega_lambda_arr)
+print(type(omega_lambda_arr))
+print('omega_lambda_arr -----')
+print('===END DEBUG====')
 closure_variable = str(closure_dictionary[closure_declaration[0]][closure_declaration[1]])
 closure_value = str(background_quantities['closure_value'])
 print(f'Closure parameter is {closure_variable} = {closure_value}' )
@@ -118,6 +144,7 @@ if not os.path.exists(directory):
 
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
+filename_full = directory+f'/{model}_{cosmology_name}_full.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
@@ -132,6 +159,7 @@ if loop_counter != 0:
 
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
+sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    

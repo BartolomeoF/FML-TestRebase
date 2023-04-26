@@ -416,8 +416,8 @@ def run_solver(read_out_dict):
         A_arr.append(A_lambda(Ev, phiv, phi_primev, *parameters))
 
     Omega_phi_arr = []
-    for Ev, phiv, phiprimev in zip(Hubble_arr,phi_arr,phi_prime_arr):
-        Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,*parameters))
+    for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(Hubble_arr,phi_arr,phi_prime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr):
+        Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
     #######
 
     Omega_DE_arr = []
