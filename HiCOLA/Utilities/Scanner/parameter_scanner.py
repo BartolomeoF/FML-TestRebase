@@ -10,7 +10,8 @@ from multiprocessing import Pool
 from HiCOLA.Frontend.read_parameters import read_in_scan_parameters, read_in_scan_settings
 from argparse import ArgumentParser
 from configobj import ConfigObj
-
+from pathlib import Path
+import shutil
 
 ##############
 symbol_decl = eb.declare_symbols()
@@ -34,6 +35,9 @@ scan_settings_path = filenames[0]
 scan_values_path = filenames[1]
 
 
+scan_ini_path = Path(scan_settings_path).resolve()
+scan_param_path = Path(scan_values_path)
+
 scan_settings_dict = read_in_scan_settings(scan_settings_path)
 scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
@@ -55,30 +59,30 @@ if read_scan_values_from_file is True:
      zipped_protoscan = protoscan_list.transpose()
      #print(zipped_protoscan)
      # print(zipped_protoscan.shape)
-     number_of_horndeski_parameters = len(zipped_protoscan[0][5:])
+     number_of_horndeski_parameters = len(zipped_protoscan[0][6:])
      scan_list = []
      for i in zipped_protoscan:
-        U0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:5] 
-        horndeski_parameters = i[5:] #this packs parameters into a list
-        j = [U0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
+        U0, phi0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:6] 
+        horndeski_parameters = i[6:] #this packs parameters into a list
+        j = [U0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
         scan_list.append(j)
-     #print('scan list')
-     # for l in scan_list:
-     #     print(l)
-     #     print('\n')
-     # scan_list_length = len(scan_list)
-     # print(f'scan list length = {scan_list_length}')
+     print('scan list')
+     for l in scan_list:
+        print(l)
+        print('\n')
+     scan_list_length = len(scan_list)
+     print(f'scan list length = {scan_list_length}')
     #[U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays] = scan_values_dict
 else:
     scan_values_dict = read_in_scan_parameters(scan_values_path)
-    [U0_array, phiprime0_array] = scan_values_dict['initial_condition_arrays']
+    [U0_array, phi0_array, phiprime0_array] = scan_values_dict['initial_condition_arrays']
     [Omega_r0_array, Omega_m0_array, Omega_l0_array] = scan_values_dict['cosmological_parameter_arrays']
     parameter_arrays = scan_values_dict('Horndeski_parameter_arrays')
     number_of_horndeski_parameters = len(parameter_arrays)
     
-    scan_list = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
+    scan_list = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
     # parameter_cartesian_product = it.product(*parameter_arrays)
-    scan_list2 = it.product(U0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
+    scan_list2 = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
     scan_list_to_print = list(scan_list2)
     print(len(scan_list_to_print))
     # for i in scan_list_to_print:
@@ -116,6 +120,10 @@ if not os.path.exists(saving_directory):
 if not os.path.exists(saving_subdir):
     os.makedirs(saving_subdir)
 
+# copy the .ini files used for the run into the output directory (can  be  re-used  as input files for subsequent run)
+shutil.copy2(scan_ini_path, saving_subdir+file_date+'_'+model+'_scan_settings.ini')
+if read_scan_values_from_file is False:
+    shutil.copy2(scan_param_path, saving_subdir+file_date+'_'+model+'_scan_values.ini')
 
 path_to_txt_greens = saving_subdir+file_date+'_'+model+"_greens.txt"
 path_to_txt_greys = saving_subdir+file_date+'_'+model+"_greys.txt"
@@ -144,15 +152,16 @@ for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt
 
 
 ###Metadata file
+#potential redundancy with .ini files that are now copied over into output directory
 path_to_metadata = saving_subdir+file_date+'_'+model+"_scan_metadata.txt"
 scan_settings_dict_copy = scan_settings_dict.copy()
-print(scan_settings_dict_copy)
+#print(scan_settings_dict_copy)
 write_dict = ConfigObj(scan_settings_dict_copy)
-print(write_dict)
+#print(write_dict)
 write_dict.filename = path_to_metadata
 write_dict.write()
 
-def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, settings_dict):
+def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, settings_dict):
     
     read_out_dict = {}
 
@@ -179,7 +188,7 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
 
 
     cosmological_parameters = [Omega_r0, Omega_m0, Omega_l0]
-    initial_conditions = [U0, phi_prime0]
+    initial_conditions = [U0, phi0, phi_prime0]
     repack_dict = {'cosmological_parameters':cosmological_parameters, 'initial_conditions':initial_conditions, 'Horndeski_parameters':parameters}
     read_out_dict.update(repack_dict)
 
@@ -196,10 +205,11 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     a_arr_invA = background_quantities['a']
     U_arrA = background_quantities['Hubble']
     y_arrA = background_quantities['scalar_prime']
+    Iy_arrA = background_quantities['scalar']
 
     alpha_facA = 1.-Omega_L_arrA[0]*U0*U0
 
-    trackA = B2_lambda(U_arrA[0],y_arrA[0],*parameters) #general version
+    trackA = B2_lambda(U_arrA[0],Iy_arrA[0], y_arrA[0],*parameters) #general version
     maxdensity_list = []
     mindensity_list = []
     for density_arr in [Omega_m_arrA, Omega_r_arrA, Omega_L_arrA, Omega_phi_arrA, Omega_DE_arrA]:

@@ -78,17 +78,18 @@ def ESS_dS_parameters(EdS, f_phi, k1seed, g31seed,Omega_r0h2 = 4.28e-5, Omega_b0
     parameters = [k1_dS,k2_dS, g31_dS, g32_dS]
     return U0, Omega_r0, Omega_m0, Omega_l0, parameters
 
-def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
+def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, phi_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
 
 
     EdS_array = make_scan_array(*EdS_range)
+    phi_array = make_scan_array(*phi_range)
     phiprime_array = make_scan_array(*phiprime_range)
     f_phi_array = make_scan_array(*f_phi_range)
     k1seed_array = make_scan_array(*k1seed_range)
     g31seed_array = make_scan_array(*g31seed_range)
 
-    seed_cart_prod = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
-    seed_cart_prod2 = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod2 = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
     # print(len(list(seed_cart_prod2)))
     scan_list = []
     # U0_list = []
@@ -101,26 +102,27 @@ def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, 
     # g31_list = []
     # g32_list = []
     for i in seed_cart_prod:
-        EdS, phiprime0, f_phi, k1seed, g31seed = i
+        EdS, phi0, phiprime0, f_phi, k1seed, g31seed = i
         U0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] = ESS_dS_parameters(EdS, f_phi, k1seed, g31seed, Omega_r0h2, Omega_b0h2, Omega_c0h2, h)
-        scan_list_entry = [U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, k1dS, k2dS, g31dS, g32dS ] #scan_list_entry[5:] = parameters
+        scan_list_entry = [U0, phi0, phiprime0, Omega_r0, Omega_m0, Omega_l0, k1dS, k2dS, g31dS, g32dS ] #scan_list_entry[5:] = parameters
         scan_list.append(scan_list_entry)
         scan_array = np.array(scan_list)
     # print(scan_list) 
     # print(len(scan_list))
     np.save(scanning_parameters_filename, scan_array)
     
-def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
+def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, phi_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
 
 
     EdS_array = make_scan_array(*EdS_range)
+    phi_array = make_scan_array(*phi_range)
     phiprime_array = make_scan_array(*phiprime_range)
     f_phi_array = make_scan_array(*f_phi_range)
     k1seed_array = make_scan_array(*k1seed_range)
     g31seed_array = make_scan_array(*g31seed_range)
 
-    seed_cart_prod = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
-    seed_cart_prod2 = it.product(EdS_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod2 = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
     # print(len(list(seed_cart_prod2)))
     scan_list = []
     # U0_list = []
@@ -133,7 +135,8 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
     # g31_list = []
     # g32_list = []
     U0_column = []
-    phiprime_column = []
+    phi0_column = []
+    phiprime0_column = []
     k1_column = []
     k2_column = []
     g31_column = []
@@ -142,13 +145,14 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
     Omega_m0_column = []
     Omega_l0_column = []
     for i in seed_cart_prod:
-        EdS, phiprime0, f_phi, k1seed, g31seed = i
+        EdS, phi0, phiprime0, f_phi, k1seed, g31seed = i
         U0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] = ESS_dS_parameters(EdS, f_phi, k1seed, g31seed, Omega_r0h2, Omega_b0h2, Omega_c0h2, h)
         # scan_list_entry = [U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, k1dS, k2dS, g31dS, g32dS ] #scan_list_entry[5:] = parameters
         # scan_list.append(scan_list_entry)
         # scan_array = np.array(scan_list)
         U0_column.append(U0)
-        phiprime_column.append(phiprime0)
+        phi0_column.append(phi0)
+        phiprime0_column.append(phiprime0)
         k1_column.append(k1dS)
         k2_column.append(k2dS)
         g31_column.append(g31dS)
@@ -158,7 +162,7 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
         Omega_l0_column.append(Omega_l0)
     # print(scan_list) 
     # print(len(scan_list))
-    np.savetxt(scanning_parameters_filename, np.transpose([U0_column, phiprime_column, Omega_r0_column, Omega_m0_column, Omega_l0_column, k1_column, k2_column, g31_column, g32_column]))
+    np.savetxt(scanning_parameters_filename, np.transpose([U0_column, phi0_column, phiprime0_column, Omega_r0_column, Omega_m0_column, Omega_l0_column, k1_column, k2_column, g31_column, g32_column]))
 
 def renamer(filename):
     if filename[-6] == "_":
@@ -172,12 +176,7 @@ def renamer(filename):
     return filename
 
 
-# ESS_A_scan_filename   = 'ESS-A_scanning_values2'
-# EdS_range = [0.8, 0.94, 10]
-# phiprime_range = [0.9,0.9,1]
-# f_phi_range = [0.0,1.0,1]
-# k1seed_range = [-5.7,-4.5,2]
-# g31seed_range = [-46.0,-46.0,1]
-# ESS_seed_to_direct_scanning_values(ESS_A_scan_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range)
-
-##############################################################################################
+def compute_fphi(omega_l, omega_m, omega_r):
+    omega_DE = 1. - omega_m - omega_r
+    f_phi = 1. - omega_l/omega_DE
+    return f_phi
