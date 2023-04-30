@@ -459,8 +459,9 @@ def read_in_scan_parameters(path_to_scan_parameters):
     return read_out_dict
 
 
-def read_scan_file(filename):
+def read_scan_result(filename):
     U0_arr = []
+    phi0_arr = []
     phiprime0_arr = []
     Or0_arr = []
     Om0_arr = []
@@ -485,18 +486,19 @@ def read_scan_file(filename):
                 #print(data_string_list)
                 # Save the number at each position in the appropriate array
                 U0_arr.append(float(data_string_list[0]))
-                phiprime0_arr.append(float(data_string_list[1]))
-                Or0_arr.append(float(data_string_list[2]))
-                Om0_arr.append(float(data_string_list[3]))
-                Ol0_arr.append(float(data_string_list[4]))
-                k1_arr.append(float(data_string_list[5]))
-                k2_arr.append(float(data_string_list[6]))
-                g31_arr.append(float(data_string_list[7]))
-                g32_arr.append(float(data_string_list[8]))
+                phi0_arr.append(float(data_string_list[1]))
+                phiprime0_arr.append(float(data_string_list[2]))
+                Or0_arr.append(float(data_string_list[3]))
+                Om0_arr.append(float(data_string_list[4]))
+                Ol0_arr.append(float(data_string_list[5]))
+                k1_arr.append(float(data_string_list[6]))
+                k2_arr.append(float(data_string_list[7]))
+                g31_arr.append(float(data_string_list[8]))
+                g32_arr.append(float(data_string_list[9]))
             
             counter += 1
     
-    dictionary = {'U0_arr':U0_arr, 'phiprime0_arr':phiprime0_arr, 'Omega_m0_arr':Om0_arr,
+    dictionary = {'U0_arr':U0_arr, 'phi0_arr':phi0_arr, 'phiprime0_arr':phiprime0_arr, 'Omega_m0_arr':Om0_arr,
                   'Omega_r0_arr':Or0_arr, 'Omega_l0_arr':Ol0_arr, 'k1_arr':k1_arr,
                   'k2_arr':k2_arr, 'g31_arr':g31_arr, 'g32_arr':g32_arr}
     return dictionary
