@@ -10,7 +10,8 @@ from multiprocessing import Pool
 from HiCOLA.Frontend.read_parameters import read_in_scan_parameters, read_in_scan_settings
 from argparse import ArgumentParser
 from configobj import ConfigObj
-
+from pathlib import Path
+import shutil
 
 ##############
 symbol_decl = eb.declare_symbols()
@@ -33,6 +34,9 @@ filenames = args.input_ini_filenames
 scan_settings_path = filenames[0]
 scan_values_path = filenames[1]
 
+
+scan_ini_path = Path(scan_settings_path).resolve()
+scan_param_path = Path(scan_values_path).resolve()
 
 scan_settings_dict = read_in_scan_settings(scan_settings_path)
 scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
@@ -116,6 +120,10 @@ if not os.path.exists(saving_directory):
 if not os.path.exists(saving_subdir):
     os.makedirs(saving_subdir)
 
+# copy the .ini files used for the run into the output directory (can  be  re-used  as input files for subsequent run)
+shutil.copy2(scan_ini_path, saving_subdir+file_date+'_'+model+'_scan_settings.ini')
+if read_scan_values_from_file is False:
+    shutil.copy2(scan_param_path, saving_subdir+file_date+'_'+model+'_scan_values.ini')
 
 path_to_txt_greens = saving_subdir+file_date+'_'+model+"_greens.txt"
 path_to_txt_greys = saving_subdir+file_date+'_'+model+"_greys.txt"
