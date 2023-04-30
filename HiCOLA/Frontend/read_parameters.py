@@ -472,14 +472,11 @@ def read_scan_file(filename):
     
     with open(filename, 'r') as file:
         counter = 0 #to skip first 2 lines in scan files
-        # should replace with a method that just skips lines with a preceding "#" after fixing 
+        # should replace with a method that just skips lines with a preceding "#" or empty line ("\n") after fixing 
         # new line that is getting printed unintentionally
         
         # Iterate over each line in the file
         for line in file:
-            
-            if line.startswith('#'):
-                continue
             if counter > 1: #this if block only triggers when past line 2 in file
                 
                 nowhitespace = line.strip()
