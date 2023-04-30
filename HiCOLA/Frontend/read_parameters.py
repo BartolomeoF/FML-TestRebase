@@ -457,13 +457,44 @@ def read_in_scan_parameters(path_to_scan_parameters):
 
     return read_out_dict
 
-
-#####
-# float_vars = ['a','b1','Om','Ol','Or']
-# integer_vars = ['integer constant']
-
-# params = params_read.copy()
-# for key in float_vars:
-#     params[key] = params_read.as_float(key)
-# for key in integer_vars:
-#     params[key] = params_read.as_int(key)
+def read_scan_result(filename):
+    U0_arr = []
+    phiprime0_arr = []
+    Or0_arr = []
+    Om0_arr = []
+    Ol0_arr= []
+    k1_arr = []
+    k2_arr = []
+    g31_arr = []
+    g32_arr = []
+    
+    with open(filename, 'r') as file:
+        counter = 0 #to skip first 2 lines in scan files
+        # should replace with a method that just skips lines with a preceding "#" after fixing 
+        # new line that is getting printed unintentionally
+        
+        # Iterate over each line in the file
+        for line in file:
+            if counter > 1: #this if block only triggers when past line 2 in file
+                
+                nowhitespace = line.strip()
+                nosqbrackets = nowhitespace[1:-1]
+                data_string_list = nosqbrackets.split(', ')
+                #print(data_string_list)
+                # Save the number at each position in the appropriate array
+                U0_arr.append(float(data_string_list[0]))
+                phiprime0_arr.append(float(data_string_list[1]))
+                Or0_arr.append(float(data_string_list[2]))
+                Om0_arr.append(float(data_string_list[3]))
+                Ol0_arr.append(float(data_string_list[4]))
+                k1_arr.append(float(data_string_list[5]))
+                k2_arr.append(float(data_string_list[6]))
+                g31_arr.append(float(data_string_list[7]))
+                g32_arr.append(float(data_string_list[8]))
+            
+            counter += 1
+    
+    dictionary = {'U0_arr':U0_arr, 'phiprime0_arr':phiprime0_arr, 'Omega_m0_arr':Om0_arr,
+                  'Omega_r0_arr':Or0_arr, 'Omega_l0_arr':Ol0_arr, 'k1_arr':k1_arr,
+                  'k2_arr':k2_arr, 'g31_arr':g31_arr, 'g32_arr':g32_arr}
+    return dictionary

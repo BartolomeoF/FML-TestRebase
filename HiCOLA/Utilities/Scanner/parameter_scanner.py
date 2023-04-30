@@ -213,7 +213,21 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     early_Omega_DE_arr = Omega_DE_arrA[early_DE_index:]
     early_Omega_DE_max = np.max(early_Omega_DE_arr)
 
-    if alpha_facA < 0 and yellow_switch==True:
+    if ( (Omega_m_max > 1.0 + tolerance) or (Omega_m_min < 0.-tolerance) or
+          (Omega_r_max > 1.0+ tolerance) or (Omega_r_min < 0.-tolerance) or
+          (Omega_L_max > 1.0+ tolerance) or (Omega_L_min < 0.-tolerance) or
+          (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or
+          (Omega_DE_max > 1.0+ tolerance) or (Omega_DE_min < 0.-tolerance)  ):
+        with open(path_to_txt_blacks,"a") as black_txt:
+            black_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+    elif ( (np.isnan(Omega_m_max)) or
+          (np.isnan(Omega_r_max)) or
+          (np.isnan(Omega_L_max)) or
+          (np.isnan(Omega_phi_max)) or
+          (np.isnan(Omega_DE_max))            ):
+        with open(path_to_txt_greys,"a") as grey_txt:
+            grey_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+    elif alpha_facA < 0 and yellow_switch==True:
         with open(path_to_txt_yellows,"a") as yellow_txt:
             yellow_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
     elif trackA < 0 and blue_switch==True:
@@ -228,20 +242,7 @@ def parameter_scanner(U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, s
     elif Omega_m_max < Omega_m_crit:
         with open(path_to_txt_magentas,"a") as magenta_txt:
             magenta_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
-    elif ( (Omega_m_max > 1.0 + tolerance) or (Omega_m_min < 0.-tolerance) or
-          (Omega_r_max > 1.0+ tolerance) or (Omega_r_min < 0.-tolerance) or
-          (Omega_L_max > 1.0+ tolerance) or (Omega_L_min < 0.-tolerance) or
-          (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or
-          (Omega_DE_max > 1.0+ tolerance) or (Omega_DE_min < 0.-tolerance)  ):
-        with open(path_to_txt_blacks,"a") as black_txt:
-            black_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
-    elif ( (np.isnan(Omega_m_max)) or
-          (np.isnan(Omega_r_max)) or
-          (np.isnan(Omega_L_max)) or
-          (np.isnan(Omega_phi_max)) or
-          (np.isnan(Omega_DE_max))            ):
-        with open(path_to_txt_greys,"a") as grey_txt:
-            grey_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+
     else:
         with open(path_to_txt_greens,"a") as green_txt:
             green_txt.write(str([U0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
