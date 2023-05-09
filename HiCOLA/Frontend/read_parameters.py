@@ -448,10 +448,10 @@ def read_in_scan_parameters(path_to_scan_parameters):
     
     #initial conditions
     Hubble0_array = gsa(scan_read,"Hubble0")
+    phi0_array = gsa(scan_read, "phi0")
     phiprime0_array = gsa(scan_read, "phiprime0")
     
-    initial_condition_arrays = [Hubble0_array, phiprime0_array]
-    
+    initial_condition_arrays = [Hubble0_array, phi0_array, phiprime0_array]
     
     parameters_dict = {'cosmological_parameter_arrays':cosmological_parameter_arrays, 'Horndeski_parameter_arrays':parameter_arrays,'initial_condition_arrays':initial_condition_arrays}
     read_out_dict.update(parameters_dict)

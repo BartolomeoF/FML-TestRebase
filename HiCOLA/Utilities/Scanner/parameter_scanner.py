@@ -36,7 +36,7 @@ scan_values_path = filenames[1]
 
 
 scan_ini_path = Path(scan_settings_path).resolve()
-scan_param_path = Path(scan_values_path)
+scan_param_path = Path(scan_values_path).resolve()
 
 scan_settings_dict = read_in_scan_settings(scan_settings_path)
 scan_settings_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
@@ -62,9 +62,9 @@ if read_scan_values_from_file is True:
      number_of_horndeski_parameters = len(zipped_protoscan[0][6:])
      scan_list = []
      for i in zipped_protoscan:
-        U0, phi0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:6] 
+        Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:6] 
         horndeski_parameters = i[6:] #this packs parameters into a list
-        j = [U0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
+        j = [Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
         scan_list.append(j)
      print('scan list')
      for l in scan_list:
@@ -77,14 +77,22 @@ else:
     scan_values_dict = read_in_scan_parameters(scan_values_path)
     [U0_array, phi0_array, phiprime0_array] = scan_values_dict['initial_condition_arrays']
     [Omega_r0_array, Omega_m0_array, Omega_l0_array] = scan_values_dict['cosmological_parameter_arrays']
-    parameter_arrays = scan_values_dict('Horndeski_parameter_arrays')
+    parameter_arrays = scan_values_dict['Horndeski_parameter_arrays']
     number_of_horndeski_parameters = len(parameter_arrays)
+    print(f'number of horndeski parameters = {number_of_horndeski_parameters}')
+    print(parameter_arrays)
     
-    scan_list = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
-    # parameter_cartesian_product = it.product(*parameter_arrays)
-    scan_list2 = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays, [scan_settings_dict])
-    scan_list_to_print = list(scan_list2)
-    print(len(scan_list_to_print))
+    proto_scan_list = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays)
+    scan_list = []
+    for i in list(proto_scan_list):
+        Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0 = i[:6]
+        horndeski_parameters = i[6:]
+        j = [Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
+        scan_list.append(j)
+
+    print(len(scan_list))
+    print('scan_list is:')
+    print(scan_list)
     # for i in scan_list_to_print:
     #     print(i)
 
@@ -104,16 +112,16 @@ folder_time = time.strftime("%H-%M_%S", time_snap)
 file_date = time.strftime("%Y-%m-%d_%H-%M-%S",time_snap)
 
 ##To create a directory to store logs if needed
-outputdir = scan_settings_dict['output_directory']
+outputdir = Path(scan_settings_dict['output_directory'])
 if not os.path.exists(outputdir):
     os.makedirs(outputdir)
 
 ##Sub-directory to organise files by date of creation
 
-saving_directory =outputdir+folder_date+"/"
+saving_directory =outputdir.joinpath(folder_date)
 
 ##Sub-directory to organise multiple runs performed on the same day by time of creation
-saving_subdir = saving_directory+"/"+folder_time+"/"
+saving_subdir = saving_directory.joinpath(folder_time)
 
 if not os.path.exists(saving_directory):
     os.makedirs(saving_directory)
@@ -121,18 +129,18 @@ if not os.path.exists(saving_subdir):
     os.makedirs(saving_subdir)
 
 # copy the .ini files used for the run into the output directory (can  be  re-used  as input files for subsequent run)
-shutil.copy2(scan_ini_path, saving_subdir+file_date+'_'+model+'_scan_settings.ini')
+shutil.copy2(scan_ini_path, saving_subdir.joinpath(file_date+'_'+model+'_scan_settings.ini'))
 if read_scan_values_from_file is False:
-    shutil.copy2(scan_param_path, saving_subdir+file_date+'_'+model+'_scan_values.ini')
+    shutil.copy2(scan_param_path, saving_subdir.joinpath(file_date+'_'+model+'_scan_values.ini'))
 
-path_to_txt_greens = saving_subdir+file_date+'_'+model+"_greens.txt"
-path_to_txt_greys = saving_subdir+file_date+'_'+model+"_greys.txt"
-path_to_txt_blacks = saving_subdir+file_date+'_'+model+"_blacks.txt"
-path_to_txt_magentas = saving_subdir+file_date+'_'+model+"_magentas.txt"
-path_to_txt_pinks = saving_subdir+file_date+'_'+model+"_pinks.txt"
-path_to_txt_reds = saving_subdir+file_date+'_'+model+"_reds.txt"
-path_to_txt_blues = saving_subdir+file_date+'_'+model+"_blues.txt"
-path_to_txt_yellows = saving_subdir+file_date+'_'+model+"_yellows.txt"
+path_to_txt_greens = saving_subdir.joinpath(file_date+'_'+model+"_greens.txt")
+path_to_txt_greys = saving_subdir.joinpath(file_date+'_'+model+"_greys.txt")
+path_to_txt_blacks = saving_subdir.joinpath(file_date+'_'+model+"_blacks.txt")
+path_to_txt_magentas = saving_subdir.joinpath(file_date+'_'+model+"_magentas.txt")
+path_to_txt_pinks = saving_subdir.joinpath(file_date+'_'+model+"_pinks.txt")
+path_to_txt_reds = saving_subdir.joinpath(file_date+'_'+model+"_reds.txt")
+path_to_txt_blues = saving_subdir.joinpath(file_date+'_'+model+"_blues.txt")
+path_to_txt_yellows = saving_subdir.joinpath(file_date+'_'+model+"_yellows.txt")
 
 
 early_DE_z = scan_settings_dict['early_DE_threshold']
@@ -144,16 +152,16 @@ for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt
     print('# Hubble0'+spaces+'Scalar0'+spaces+'Scalarprime0'+spaces+'Omega_r0'+spaces+'Omega_m0'+spaces+'Omega_l0',end=spaces,file=scan_file)
     for j in np.arange(number_of_horndeski_parameters):
         print(horndeski_parameter_symbols[j],end=spaces, file=scan_file)
-    if 'red' in i:
+    if 'red' in str(i.resolve()):
         print('max[Omega_DE]', end=spaces, file=scan_file)
-    if 'pink' in i:
+    if 'pink' in str(i.resolve()):
     	    print(f'max[Omega_DE(z>{early_DE_z})]', end=spaces, file=scan_file)
     print('\n',file=scan_file)
 
 
 ###Metadata file
 #potential redundancy with .ini files that are now copied over into output directory
-path_to_metadata = saving_subdir+file_date+'_'+model+"_scan_metadata.txt"
+path_to_metadata = saving_subdir.joinpath(file_date+'_'+model+"_scan_metadata.txt")
 scan_settings_dict_copy = scan_settings_dict.copy()
 #print(scan_settings_dict_copy)
 write_dict = ConfigObj(scan_settings_dict_copy)
