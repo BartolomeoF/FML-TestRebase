@@ -172,12 +172,7 @@ def renamer(filename):
     return filename
 
 
-# ESS_A_scan_filename   = 'ESS-A_scanning_values2'
-# EdS_range = [0.8, 0.94, 10]
-# phiprime_range = [0.9,0.9,1]
-# f_phi_range = [0.0,1.0,1]
-# k1seed_range = [-5.7,-4.5,2]
-# g31seed_range = [-46.0,-46.0,1]
-# ESS_seed_to_direct_scanning_values(ESS_A_scan_filename, EdS_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range)
-
-##############################################################################################
+def compute_fphi(omega_l, omega_m, omega_r):
+    omega_DE = 1. - omega_m - omega_r
+    f_phi = 1. - omega_l/omega_DE
+    return f_phi
