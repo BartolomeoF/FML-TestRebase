@@ -169,7 +169,7 @@ write_dict = ConfigObj(scan_settings_dict_copy)
 write_dict.filename = path_to_metadata
 write_dict.write()
 
-def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, settings_dict):
+def parameter_scanner(Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, parameters, settings_dict):
     
     read_out_dict = {}
 
@@ -196,7 +196,7 @@ def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, paramet
 
 
     cosmological_parameters = [Omega_r0, Omega_m0, Omega_l0]
-    initial_conditions = [U0, phi0, phi_prime0]
+    initial_conditions = [Hubble0, phi0, phi_prime0]
     repack_dict = {'cosmological_parameters':cosmological_parameters, 'initial_conditions':initial_conditions, 'Horndeski_parameters':parameters}
     read_out_dict.update(repack_dict)
 
@@ -204,6 +204,25 @@ def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, paramet
     
 
     background_quantities = ns.run_solver(read_out_dict)
+    
+    cl_declaration = background_quantities['closure_declaration']
+    cl_var = background_quantities['closure_value']
+    
+    if cl_declaration[0] == 'odeint_parameters':
+        if cl_declaration[1] == 0:
+            Hubble0 = cl_var
+        if cl_declaration[1] == 1:
+            phi0 = cl_var
+        if cl_declaration[1] == 2:
+            phi_prime0 = cl_var
+            if 1.-Omega_r0 - Omega_m0 == Omega_l0:
+                    phi_prime0 = 0.
+        if cl_declaration[1] == 3:
+            Omega_r0 = cl_var
+        if cl_declaration[1] == 4:
+            Omega_m0 = cl_var
+    if cl_declaration[0] == 'parameters':
+        parameters[cl_declaration[1]] = cl_var
 
     Omega_L_arrA = background_quantities['omega_l']
     Omega_r_arrA = background_quantities['omega_r']
@@ -211,13 +230,13 @@ def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, paramet
     Omega_phi_arrA = background_quantities['omega_phi']
     Omega_DE_arrA = background_quantities['omega_DE']
     a_arr_invA = background_quantities['a']
-    U_arrA = background_quantities['Hubble']
+    Hubble_arrA = background_quantities['Hubble']
     y_arrA = background_quantities['scalar_prime']
     Iy_arrA = background_quantities['scalar']
 
-    alpha_facA = 1.-Omega_L_arrA[0]*U0*U0
+    alpha_facA = 1.-Omega_L_arrA[0]*Hubble0*Hubble0
 
-    trackA = B2_lambda(U_arrA[0],Iy_arrA[0], y_arrA[0],*parameters) #general version
+    trackA = B2_lambda(Hubble_arrA[0],Iy_arrA[0], y_arrA[0],*parameters) #general version
     maxdensity_list = []
     mindensity_list = []
     for density_arr in [Omega_m_arrA, Omega_r_arrA, Omega_L_arrA, Omega_phi_arrA, Omega_DE_arrA]:
@@ -238,34 +257,34 @@ def parameter_scanner(U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, paramet
           (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or
           (Omega_DE_max > 1.0+ tolerance) or (Omega_DE_min < 0.-tolerance)  ):
         with open(path_to_txt_blacks,"a") as black_txt:
-            black_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            black_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
     elif ( (np.isnan(Omega_m_max)) or
           (np.isnan(Omega_r_max)) or
           (np.isnan(Omega_L_max)) or
           (np.isnan(Omega_phi_max)) or
           (np.isnan(Omega_DE_max))            ):
         with open(path_to_txt_greys,"a") as grey_txt:
-            grey_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")            
+            grey_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")            
     elif alpha_facA < 0 and yellow_switch==True:
         with open(path_to_txt_yellows,"a") as yellow_txt:
-            yellow_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            yellow_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
     elif trackA < 0 and blue_switch==True:
         with open(path_to_txt_blues,"a") as blue_txt:
-            blue_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            blue_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
     elif early_Omega_DE_max > Omega_DE_arrA[0]: #less harsh early DE criterion, only checks up until redshift = early_DE_threshold
         with open(path_to_txt_pinks,"a") as pink_txt:
-            pink_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, early_Omega_DE_max])+"\n")
+            pink_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, early_Omega_DE_max])+"\n")
     elif Omega_DE_max > Omega_DE_arrA[0] and red_switch==True:
         with open(path_to_txt_reds,"a") as red_txt:
-            red_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, Omega_DE_max])+"\n")
+            red_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, Omega_DE_max])+"\n")
     elif Omega_m_max < Omega_m_crit:
         with open(path_to_txt_magentas,"a") as magenta_txt:
-            magenta_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            magenta_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
 
 
     else:
         with open(path_to_txt_greens,"a") as green_txt:
-            green_txt.write(str([U0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            green_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
     
 
 if __name__ == '__main__':

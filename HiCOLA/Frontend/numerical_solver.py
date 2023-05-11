@@ -458,7 +458,7 @@ def run_solver(read_out_dict):
 
     for i in [solution_arrays, cosmological_density_arrays, cosmo_density_prime_arrays,force_quantities]:
         result.update(i)
-    result.update({'closure_value':cl_var})
+    result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration})
 
 
     return result #a_arr_inv, Hubble_arr, E_prime_E_arr, Hubble_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr

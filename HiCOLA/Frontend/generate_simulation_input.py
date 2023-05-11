@@ -152,6 +152,7 @@ while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) ) a
     loop_counter += 1
     filename_expansion = sp.renamer(filename_expansion)
     filename_force = sp.renamer(filename_force)
+    filename_full = sp.renamer(filename_full)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing expansion and force output file names.")
 if loop_counter != 0:
