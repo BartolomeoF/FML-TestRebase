@@ -164,6 +164,13 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
     # print(len(scan_list))
     np.savetxt(scanning_parameters_filename, np.transpose([U0_column, phi0_column, phiprime0_column, Omega_r0_column, Omega_m0_column, Omega_l0_column, k1_column, k2_column, g31_column, g32_column]))
 
+def ESS_direct_to_seed(k1, g31, omega_l0, f_phi, EdS):
+    alpha = 1. - omega_l0/EdS/EdS
+    k1seed = k1/alpha
+    g31seed = g31/alpha
+    return k1seed, g31seed
+
+
 def renamer(filename):
     if filename[-6] == "_":
         counter = eval(filename[-5]) + 1 #if you get NameError: name '_' is not defined, 
