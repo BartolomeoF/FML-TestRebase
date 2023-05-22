@@ -30,7 +30,7 @@ def read_in_parameters(horndeski_path, numerical_path):
 
         Omega_m0 = Omega_b0h2/h/h + Omega_c0h2/h/h
     else:
-        Omega_m0 = numerical_read.as_float("Omega_r0")
+        Omega_m0 = numerical_read.as_float("Omega_m0")
 
     if numerical_read["Omega_r0"] == "None":
         Omega_r0h2 = numerical_read.as_float("Omega_r0h2")
