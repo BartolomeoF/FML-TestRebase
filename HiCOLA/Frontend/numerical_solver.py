@@ -201,13 +201,13 @@ def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0,
         cl_guess = parameters[cl_declaration[1]]
 
 
-    cl_variable,fsolvedict,fsolveier,fsolvemsg = fsolve(fried_RHS_wrapper, cl_guess, args=(cl_declaration, fried_closure_lambda, E0, phi0, phi_prime0, Omega_r0,Omega_m0, Omega_l0,parameters), xtol=1e-6,full_output=True) #make sure arguments match lambdification line in run_builder.py
+    cl_variable = fsolve(fried_RHS_wrapper, cl_guess, args=(cl_declaration, fried_closure_lambda, E0, phi0, phi_prime0, Omega_r0,Omega_m0, Omega_l0,parameters), xtol=1e-6,full_output=True) #make sure arguments match lambdification line in run_builder.py
     # print('f solve integer is '+str(fsolveier))
     # print('f solve message is '+fsolvemsg)
     # print('f solve found '+str(cl_variable))
-    cl_variable = cl_variable[0]
+    cl_variable0 = cl_variable[0]
 
-    return cl_variable
+    return cl_variable0, cl_variable
 
 def comp_E_prime_E(k1, g1, Omega_r, E, phi_prime, alpha_M, alpha_M_prime, Ms_Mp, Meffsq_Mpsq):
     denom1 = g1*Ms_Mp**3.*E**2.*phi_prime**3./Meffsq_Mpsq - 2. - alpha_M
@@ -346,7 +346,7 @@ def run_solver(read_out_dict):
         phi_prime0 = 0.
     #print('phi prime0 is '+str(phi_prime0))
 
-    cl_var = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
+    cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
 
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
@@ -458,7 +458,7 @@ def run_solver(read_out_dict):
 
     for i in [solution_arrays, cosmological_density_arrays, cosmo_density_prime_arrays,force_quantities]:
         result.update(i)
-    result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration})
+    result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration, 'closure_full':cl_var_full})
 
 
     return result #a_arr_inv, Hubble_arr, E_prime_E_arr, Hubble_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr

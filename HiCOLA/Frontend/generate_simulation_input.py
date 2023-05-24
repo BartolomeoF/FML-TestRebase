@@ -103,6 +103,10 @@ UE_prime_arr = background_quantities['Hubble_prime']
 UE_prime_UE_arr = background_quantities['E_prime_E']
 coupling_factor_arr = background_quantities['coupling_factor']
 chioverdelta_arr = background_quantities['chi_over_delta']
+cl_full = background_quantities['closure_full']
+cl_full0 = cl_full[0]
+cl_full3 = cl_full[2]
+cl_message = cl_full[3]
 
 print('--- DEBUG ----')
 print(UE_arr)
@@ -127,9 +131,12 @@ print('omega_phi_arr ----^')
 print(omega_lambda_arr)
 print(type(omega_lambda_arr))
 print('omega_lambda_arr -----^')
+print(f'fsolve debug integer is {cl_full3}')
+print(f'fsolve message is {cl_message}')
 print('===END DEBUG====')
 closure_variable = str(closure_dictionary[closure_declaration[0]][closure_declaration[1]])
 closure_value = str(background_quantities['closure_value'])
+print(f'fsolve roots are {cl_full0}')
 print(f'Closure parameter is {closure_variable} = {closure_value}' )
 print('(note: therefore one of the initial conditions or Horndeski model parameters printed above was the guess value)')
 
