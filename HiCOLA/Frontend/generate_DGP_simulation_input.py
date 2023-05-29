@@ -93,6 +93,12 @@ print(f'scalar_prime0 = {phi_prime0}')
 background_quantities = ns.run_solver(read_out_dict)
 a_arr = background_quantities['a']
 UE_arr = background_quantities['Hubble']
+phi_arr = background_quantities['scalar']
+phi_prime_arr = background_quantities['scalar_prime']
+omega_m_arr = background_quantities['omega_m']
+omega_r_arr = background_quantities['omega_r']
+omega_phi_arr = background_quantities['omega_phi']
+omega_lambda_arr = background_quantities['omega_l']
 UE_prime_arr = background_quantities['Hubble_prime']
 UE_prime_UE_arr = background_quantities['E_prime_E']
 coupling_factor_arr = background_quantities['coupling_factor']
@@ -128,6 +134,7 @@ if not os.path.exists(directory):
 
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
+filename_full = directory+f'/{model}_{cosmology_name}_full.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
@@ -135,6 +142,7 @@ while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) ) a
     loop_counter += 1
     filename_expansion = sp.renamer(filename_expansion)
     filename_force = sp.renamer(filename_force)
+    filename_full = sp.renamer(filename_full)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing expansion and force output file names.")
 if loop_counter != 0:
@@ -142,7 +150,8 @@ if loop_counter != 0:
 
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
-sp.write_data_flex([a_arr,DGP_chioverdelta_arr,DGP_coupling_arr],filename_force)
+sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full)
+sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    
 print(f'Files generated. Saved in {abs_directory}')
