@@ -151,7 +151,7 @@ if loop_counter != 0:
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
 sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full)
-sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
+sp.write_data_flex([a_arr,DGP_chioverdelta_arr,DGP_coupling_arr],filename_force)
 
    
 print(f'Files generated. Saved in {abs_directory}')
