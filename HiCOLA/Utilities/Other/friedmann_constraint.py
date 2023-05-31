@@ -71,4 +71,9 @@ Omega_m_arr = np.ones(len(E_arr))*0.3
 Omega_l_arr = np.zeros(len(E_arr))
 Omega_r_arr = Omega_l_arr
 
-quad_arr = coefflambdict[phiprime**2.0](E_arr, phiprime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr, k1, k2, g31, g32)
+k1_arr  = np.ones(len(phiprime_arr))*-0.11442716734931437
+k2_arr = np.ones(len(phiprime_arr))*-0.29293354841424546
+g31_arr = np.ones(len(phiprime_arr))*-1.9452618449383468
+g32_arr = np.ones(len(phiprime_arr))*1.0405243750964335
+
+cubic_arr = coefflambdict[phiprime**3.0](E_arr, phiprime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr, k1_arr, k2_arr, g31_arr, g32_arr)
