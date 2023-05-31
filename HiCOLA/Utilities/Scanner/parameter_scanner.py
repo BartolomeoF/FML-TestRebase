@@ -149,7 +149,7 @@ for i in [path_to_txt_greens, path_to_txt_greys, path_to_txt_blacks, path_to_txt
           path_to_txt_pinks, path_to_txt_reds, path_to_txt_blues, path_to_txt_yellows]:
     scan_file = open(i,"a")
     spaces = '          '
-    print('# Hubble0'+spaces+'Scalar0'+spaces+'Scalarprime0'+spaces+'Omega_r0'+spaces+'Omega_m0'+spaces+'Omega_l0',end=spaces,file=scan_file)
+    print('# Hubble0'+spaces+'Scalar0'+spaces+'Scalarprime0'+spaces+'Omega_r0'+spaces+'Omega_m0'+spaces+'Omega_l0'+spaces+'fsolve_ier',end=spaces,file=scan_file)
     for j in np.arange(number_of_horndeski_parameters):
         print(horndeski_parameter_symbols[j],end=spaces, file=scan_file)
     if 'red' in str(i.resolve()):
@@ -208,6 +208,9 @@ def parameter_scanner(Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, pa
     cl_declaration = background_quantities['closure_declaration']
     cl_var = background_quantities['closure_value']
     
+    cl_full = background_quantities['closure_full']
+    fsolve_ier = cl_full[2]
+    
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0 = cl_var
@@ -257,34 +260,34 @@ def parameter_scanner(Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, pa
           (Omega_phi_max > 1.0+ tolerance) or (Omega_phi_min < 0.-tolerance) or
           (Omega_DE_max > 1.0+ tolerance) or (Omega_DE_min < 0.-tolerance)  ):
         with open(path_to_txt_blacks,"a") as black_txt:
-            black_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            black_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")
     elif ( (np.isnan(Omega_m_max)) or
           (np.isnan(Omega_r_max)) or
           (np.isnan(Omega_L_max)) or
           (np.isnan(Omega_phi_max)) or
           (np.isnan(Omega_DE_max))            ):
         with open(path_to_txt_greys,"a") as grey_txt:
-            grey_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")            
+            grey_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")            
     elif alpha_facA < 0 and yellow_switch==True:
         with open(path_to_txt_yellows,"a") as yellow_txt:
-            yellow_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            yellow_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")
     elif trackA < 0 and blue_switch==True:
         with open(path_to_txt_blues,"a") as blue_txt:
-            blue_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            blue_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")
     elif early_Omega_DE_max > Omega_DE_arrA[0]: #less harsh early DE criterion, only checks up until redshift = early_DE_threshold
         with open(path_to_txt_pinks,"a") as pink_txt:
-            pink_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, early_Omega_DE_max])+"\n")
+            pink_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters, early_Omega_DE_max])+"\n")
     elif Omega_DE_max > Omega_DE_arrA[0] and red_switch==True:
         with open(path_to_txt_reds,"a") as red_txt:
-            red_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters, Omega_DE_max])+"\n")
+            red_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters, Omega_DE_max])+"\n")
     elif Omega_m_max < Omega_m_crit:
         with open(path_to_txt_magentas,"a") as magenta_txt:
-            magenta_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            magenta_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")
 
 
     else:
         with open(path_to_txt_greens,"a") as green_txt:
-            green_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, *parameters])+"\n")
+            green_txt.write(str([Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0,Omega_l0, fsolve_ier, *parameters])+"\n")
     
 
 if __name__ == '__main__':
