@@ -12,7 +12,7 @@ import glob
 from HiCOLA.Utilities.Other.support import compute_fphi, ESS_direct_to_seed
 from HiCOLA.Frontend.read_parameters import read_scan_result
 
-directory = '/home/gupta/Documents/Hi-COLA_Project/Hi-COLA_code/Hi-COLA/Output/scans/from_apocrita/2023-05-15/23-06_43/'
+directory = '/home/ashimsg/Documents/QMUL_Desktop/Horndeski_COLA/Hi-COLA/Output/Scanner/from_apocrita/2023-06-02/14-42_05/'
 
 colours = ['green', 'grey', 'black', 'magenta', 'pink', 'red', 'blue', 'yellow']
 
@@ -115,11 +115,14 @@ fig, ax = plt.subplots(figsize=(20,11))
 # ax.scatter(pink_EdS, pink_k1seed, color='pink')
 EdS_points = np.concatenate((green_EdS, pink_EdS))
 k1seed_points = np.concatenate((green_k1seed, pink_k1seed))
-phiprime0_vals = np.concatenate((green_results['phiprime0_arr'], pink_results['phiprime0_arr']))
+#phiprime0_vals = np.concatenate((green_results['phiprime0_arr'], pink_results['phiprime0_arr']))
+f_phi_vals = np.concatenate((green_f, pink_f))
 #scatter = ax.scatter(green_EdS, green_k1seed, c=green_results['phiprime0_arr'], cmap='viridis',s=1)
 #scatter_pink = ax.scatter(pink_EdS, pink_k1seed, c=pink_results['phiptime0_arr'], cmap='viridis', marker='v', s=1)
-scatter = ax.scatter(EdS_points, k1seed_points, c=list(phiprime0_vals), cmap='viridis',vmax = np.max(green_results['phiprime0_arr']), vmin = np.min(green_results['phiprime0_arr']),s=8)
-cbar = plt.colorbar(scatter, label=r'$\phi^{\prime}_{0}$')
+#scatter = ax.scatter(EdS_points, k1seed_points, c=list(f_phi_vals), cmap='viridis',vmax = np.max(green_results['phiprime0_arr']), vmin = np.min(green_results['phiprime0_arr']),s=8)
+scatter = ax.scatter(EdS_points, k1seed_points, c=list(f_phi_vals), cmap='viridis',vmax = np.max(green_f), vmin = np.min(green_f),s=8)
+#cbar = plt.colorbar(scatter, label=r'$\phi^{\prime}_{0}$')
+cbar = plt.colorbar(scatter, label=r'$f_{\phi}$')
 
 ax.set_xlabel('$E_{dS}$')
 ax.set_ylabel('$k_{1-seed}$')

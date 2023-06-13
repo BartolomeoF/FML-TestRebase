@@ -205,7 +205,7 @@ def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0,
     # print('f solve integer is '+str(fsolveier))
     # print('f solve message is '+fsolvemsg)
     # print('f solve found '+str(cl_variable))
-    cl_variable0 = cl_variable[0]
+    cl_variable0 = cl_variable[0][0] #to unpack the fsolve solution/iteration
 
     return cl_variable0, cl_variable
 
