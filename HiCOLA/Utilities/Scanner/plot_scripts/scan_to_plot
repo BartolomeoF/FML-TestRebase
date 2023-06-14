@@ -41,7 +41,7 @@ def scan_to_background(G3, G4, K,  symbol_list, mass_ratio_list, Hubble0, Scalar
     read_out_dict.update(repack_dict)
 
     background_quantities = ns.run_solver(read_out_dict)
-    return background_quantities
+    return background_quantities, lambdified_functions
 
 M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test = 1., 1., 1., 1., 1., 1., 1. #maybe scale everything to M_p instead   
 mass_ratio_list =[M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test]
@@ -50,14 +50,31 @@ Kt = k1*X + k2*X*X
 G3t = g31*X + g32*X*X
 G4t = 0.5
 
-bg_quant = scan_to_background(G3t, G4t,Kt,symbol_list, mass_ratio_list,
-                                    1.5580736543909348, 1.0, 0.89859472, 8.016144815327033e-05, 0.2797409788825341, 0.17460662965043744, 1, [-2.8439678244598756, -1.2255772945186205, -26.501799616513757, 13.929157328086628])
+# bg_quant = scan_to_background(G3t, G4t,Kt,symbol_list, mass_ratio_list,
+#                                     1.5580736543909348, 1.0, 0.89859472, 8.016144815327033e-05, 0.2797409788825341, 0.17460662965043744, 1, [-2.8439678244598756, -1.2255772945186205, -26.501799616513757, 13.929157328086628])
 
 # bg_quant = scan_to_background(G3t, G4t,Kt,symbol_list, mass_ratio_list,
 #                                     1.5612679388109132, 1.0, 0.9137839688875196, 8.016144815327033e-05, 0.2797409788825341, 0.3783143642426145, 1.0, [-0.397440209844333, -0.13916304083570108, -3.5804999320100737, 1.8796838411183758])
 
+bg_quant, lamb_funcs = scan_to_background(G3t, G4t,Kt,symbol_list, mass_ratio_list,
+                                    1.5612679388109132, 1.0, 0.9137839688875196, 8.016144815327033e-05, 0.2797409788825341, 0.3783143642426145, 1.0, [-0.397440209844333, -0.13916304083570108, -3.5804999320100737, 1.8796838411183758])
+
+phiprime_arr = np.arange(-1,1,0.01)
+phi_arr = np.ones(len(phiprime_arr))
+E0 = np.ones(len(phiprime_arr))*1.5612679388109132
+omega_l = np.ones(len(phiprime_arr))*0.3783143642426145
+omega_r = np.ones(len(phiprime_arr))*8.016144815327033e-05
+omega_m = np.ones(len(phiprime_arr))*0.2797409788825341#0.3
+k1_arr  = np.ones(len(phiprime_arr))*-0.397440209844333#-0.11442716734931437
+k2_arr = np.ones(len(phiprime_arr))*-0.13916304083570108#-0.29293354841424546
+g31_arr = np.ones(len(phiprime_arr))*-3.5804999320100737#-1.9452618449383468
+g32_arr = np.ones(len(phiprime_arr))*1.8796838411183758#1.0405243750964335
+
+fried_plot = lamb_funcs['fried_RHS_lambda'](E0,phi_arr, phiprime_arr,omega_l, omega_m, omega_r, k1_arr, k2_arr, g31_arr, g32_arr)
+
 
 fig, [ax1,ax2] = plt.subplots(figsize=(20,11),nrows=2, ncols=1)
+ax1.set_title('ESS background - yellow band above')
 ax1.loglog(bg_quant['a'], np.ones(len(bg_quant['a'])), color='black', linestyle='--')
 ax1.loglog(bg_quant['a'], bg_quant['Hubble'], label='U (Hubble)')
 ax1.loglog(bg_quant['a'],bg_quant['omega_m'], label=r'$\Omega_m$')
@@ -71,3 +88,9 @@ ax2.semilogx(bg_quant['a'],bg_quant['Hubble_prime'], label=r'U prime')
 ax1.legend()
 ax2.legend()
 fig.show()
+
+fig22, ax22 = plt.subplots()
+ax22.plot(phiprime_arr, fried_plot, label='fried RHS')
+ax22.plot(phiprime_arr, np.ones(len(phiprime_arr)), linestyle='--')
+ax22.legend()
+fig22.show()

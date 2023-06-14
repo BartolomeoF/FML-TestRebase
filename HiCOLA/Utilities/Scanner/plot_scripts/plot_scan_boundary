@@ -7,8 +7,8 @@ Created on Wed Jun 14 03:11:29 2023
 """
 
 
-EdS = 0.6422219
-k1seed = -5.19082
+EdS = 0.6423229
+k1seed = -5.16652
 
 import HiCOLA.Frontend.expression_builder as eb
 import HiCOLA.Utilities.Other.alpha_and_sound_speed as al
