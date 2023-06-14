@@ -466,6 +466,7 @@ def read_scan_result(filename):
     Or0_arr = []
     Om0_arr = []
     Ol0_arr= []
+    fsolveier_arr = []
     k1_arr = []
     k2_arr = []
     g31_arr = []
@@ -491,14 +492,15 @@ def read_scan_result(filename):
                 Or0_arr.append(float(data_string_list[3]))
                 Om0_arr.append(float(data_string_list[4]))
                 Ol0_arr.append(float(data_string_list[5]))
-                k1_arr.append(float(data_string_list[6]))
-                k2_arr.append(float(data_string_list[7]))
-                g31_arr.append(float(data_string_list[8]))
-                g32_arr.append(float(data_string_list[9]))
+                fsolveier_arr.append(float(data_string_list[6]))
+                k1_arr.append(float(data_string_list[7]))
+                k2_arr.append(float(data_string_list[8]))
+                g31_arr.append(float(data_string_list[9]))
+                g32_arr.append(float(data_string_list[10]))
             
             counter += 1
     
     dictionary = {'U0_arr':U0_arr, 'phi0_arr':phi0_arr, 'phiprime0_arr':phiprime0_arr, 'Omega_m0_arr':Om0_arr,
-                  'Omega_r0_arr':Or0_arr, 'Omega_l0_arr':Ol0_arr, 'k1_arr':k1_arr,
+                  'Omega_r0_arr':Or0_arr, 'Omega_l0_arr':Ol0_arr, 'fsolveier_arr':fsolveier_arr, 'k1_arr':k1_arr,
                   'k2_arr':k2_arr, 'g31_arr':g31_arr, 'g32_arr':g32_arr}
     return dictionary

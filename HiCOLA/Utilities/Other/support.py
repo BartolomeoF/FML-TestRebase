@@ -5,6 +5,7 @@ from scipy.optimize import fsolve
 import sys
 import matplotlib.pyplot as plt
 import itertools as it
+from scipy.interpolate import CubicSpline
 
 # writing to file
 def write_data(a_arr_inv, E_arr, alpha1_arr, alpha2_arr, B_arr, C_arr, output_filename_as_string):
@@ -168,8 +169,15 @@ def ESS_direct_to_seed(k1, g31, omega_l0, f_phi, EdS):
     alpha = 1. - omega_l0/EdS/EdS
     k1seed = k1/alpha
     g31seed = g31/alpha
-    return k1seed, g31seed
 
+    return k1seed, g31seed, omega_l0, f_phi, EdS
+
+
+def ESS_seed_to_direct(k1seed, g31seed, omega_l0,f_phi,EdS):
+    alpha = 1. - omega_l0/EdS/EdS
+    k1 = k1seed*alpha
+    g31 = g31seed*alpha
+    return k1, g31
 
 def renamer(filename):
     if filename[-6] == "_":
@@ -187,3 +195,33 @@ def compute_fphi(omega_l, omega_m, omega_r):
     omega_DE = 1. - omega_m - omega_r
     f_phi = 1. - omega_l/omega_DE
     return f_phi
+
+def interpolate_common_domain(k1_arr, pofk1_arr, k2_arr, pofk2_arr):
+    '''
+    Finds common domain between k1_arr and k2_arr and splines pofk2_arr over
+    the trimmed k1_arr
+    '''
+    
+    k1max = np.max(k1_arr)
+    k1min = np.min(k1_arr)
+    
+    k2max = np.max(k2_arr)
+    k2min = np.min(k2_arr)
+    
+    if k1max < k2max:
+        upperbound = k1max
+        k2_arr = k2_arr[k2_arr < upperbound]
+    elif k2max <= k1max:
+        upperbound = k2max
+        k1_arr = k1_arr[k1_arr < upperbound]
+    if k1min < k2min:
+        lowerbound = k2min
+        k1_arr = k1_arr[lowerbound < k1_arr]
+    elif k2min <= k1min:
+        lowerbound = k1min
+        k2_arr = k2_arr[lowerbound < k2_arr]
+        
+    pofk2_spline = CubicSpline(k2_arr, pofk2_arr)
+    pofk2_splined_arr = pofk2_spline(k1_arr)
+    
+    return k1_arr, pofk1_arr, pofk2_splined_arr
