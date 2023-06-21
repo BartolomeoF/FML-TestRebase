@@ -27,27 +27,31 @@ M_G3G4_test = 1.
 M_Ks_test = 1.
 
 K = k1*X + k2*X*X
-G3 = g31*X + g31*X*X
+G3 = g31*X + g32*X*X
 G4 = 0.5
 
 fried_RHS = eb.fried_closure(G3, G4,  K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
 fried_RHS_lambda = sym.lambdify([E,phiprime,omegal,omegam,omegar,k1,k2,g31,g32],fried_RHS)
 
+fried_RHS_sub = fried_RHS.subs([(k2,0),(g32,0),(g31,0)])
+fried_RHS_sub_lambda = sym.lambdify([E,phiprime,omegal,omegam,omegar,k1,g31],fried_RHS_sub)
 
-phiprime_arr = np.arange(-1,1,0.01)
-E0 = np.ones(len(phiprime_arr))
-omega_l = np.zeros(len(phiprime_arr))
-omega_r = omega_l
-omega_m = np.ones(len(phiprime_arr))*0.3
-k1_arr  = np.ones(len(phiprime_arr))*-0.11442716734931437
-k2_arr = np.ones(len(phiprime_arr))*-0.29293354841424546
-g31_arr = np.ones(len(phiprime_arr))*-1.9452618449383468
-g32_arr = np.ones(len(phiprime_arr))*1.0405243750964335
+
+phiprime_arr = np.arange(-2,2,0.01)
+E0 = np.ones(len(phiprime_arr))*1.23#*1.2320328542094459
+omega_l = np.ones(len(phiprime_arr))*0.63#*0.6301565022106487
+omega_r = np.zeros(len(phiprime_arr))#*1e-5
+omega_m = np.ones(len(phiprime_arr))*0.28#97409788825341
+k1_arr  = np.ones(len(phiprime_arr))*-0.11#*-0.11442716734931437
+k2_arr = np.ones(len(phiprime_arr))*-0.29#*-0.29293354841424546
+g31_arr = np.ones(len(phiprime_arr))*-1.94#*-1.9452618449383468
+g32_arr = np.ones(len(phiprime_arr))*1.04#*1.0405243750964335
 
 fried_plot = fried_RHS_lambda(E0,phiprime_arr,omega_l, omega_m, omega_r, k1_arr, k2_arr, g31_arr, g32_arr)
-
+fried_sub_plot = fried_RHS_sub_lambda(E0, phiprime_arr, omega_l, omega_m, omega_r, k1_arr, g31_arr)
 fig, ax = plt.subplots()
 ax.plot(phiprime_arr, fried_plot,label='friedman RHS')
+ax.plot(phiprime_arr, fried_sub_plot, label='friedmann cubic RHS')
 ax.plot(phiprime_arr, np.zeros(len(phiprime_arr)),linestyle='--')
 ax.set_xlabel('$\phi\'_0$')
 ax.legend()
@@ -65,15 +69,15 @@ for key in coeffdict:
     
 
     
-E_arr = np.arange(1,100,1)
-phiprime_arr = np.ones(len(E_arr))
-Omega_m_arr = np.ones(len(E_arr))*0.3
-Omega_l_arr = np.zeros(len(E_arr))
-Omega_r_arr = Omega_l_arr
+# E_arr = np.arange(1,100,1)
+# phiprime_arr = np.ones(len(E_arr))
+# Omega_m_arr = np.ones(len(E_arr))*0.3
+# Omega_l_arr = np.zeros(len(E_arr))
+# Omega_r_arr = Omega_l_arr
 
-k1_arr  = np.ones(len(phiprime_arr))*-0.11442716734931437
-k2_arr = np.ones(len(phiprime_arr))*-0.29293354841424546
-g31_arr = np.ones(len(phiprime_arr))*-1.9452618449383468
-g32_arr = np.ones(len(phiprime_arr))*1.0405243750964335
+# k1_arr  = np.ones(len(phiprime_arr))*-0.11442716734931437
+# k2_arr = np.ones(len(phiprime_arr))*-0.29293354841424546
+# g31_arr = np.ones(len(phiprime_arr))*-1.9452618449383468
+# g32_arr = np.ones(len(phiprime_arr))*1.0405243750964335
 
-cubic_arr = coefflambdict[phiprime**3.0](E_arr, phiprime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr, k1_arr, k2_arr, g31_arr, g32_arr)
+# cubic_arr = coefflambdict[phiprime**3.0](E_arr, phiprime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr, k1_arr, k2_arr, g31_arr, g32_arr)
