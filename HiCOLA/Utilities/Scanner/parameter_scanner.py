@@ -66,12 +66,12 @@ if read_scan_values_from_file is True:
         horndeski_parameters = i[6:] #this packs parameters into a list
         j = [Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
         scan_list.append(j)
-     print('scan list')
-     for l in scan_list:
-        print(l)
-        print('\n')
-     scan_list_length = len(scan_list)
-     print(f'scan list length = {scan_list_length}')
+     # print('scan list')
+     #for l in scan_list:
+     #   print(l)
+     #   print('\n')
+     #scan_list_length = len(scan_list)
+     #print(f'scan list length = {scan_list_length}')
     #[U0_array, phiprime0_array, Omega_r0_array, Omega_m0_array, Omega_l0_array, parameter_arrays] = scan_values_dict
 else:
     scan_values_dict = read_in_scan_parameters(scan_values_path)
@@ -79,8 +79,8 @@ else:
     [Omega_r0_array, Omega_m0_array, Omega_l0_array] = scan_values_dict['cosmological_parameter_arrays']
     parameter_arrays = scan_values_dict['Horndeski_parameter_arrays']
     number_of_horndeski_parameters = len(parameter_arrays)
-    print(f'number of horndeski parameters = {number_of_horndeski_parameters}')
-    print(parameter_arrays)
+    #print(f'number of horndeski parameters = {number_of_horndeski_parameters}')
+    #print(parameter_arrays)
     
     proto_scan_list = it.product(U0_array, phi0_array, phiprime0_array, Omega_r0_array,Omega_m0_array,Omega_l0_array,*parameter_arrays)
     scan_list = []
@@ -90,9 +90,9 @@ else:
         j = [Hubble0, phi0, phiprime0, Omegar0, Omegam0, Omegal0, horndeski_parameters, scan_settings_dict]
         scan_list.append(j)
 
-    print(len(scan_list))
-    print('scan_list is:')
-    print(scan_list)
+    #print(len(scan_list))
+    #print('scan_list is:')
+    #print(scan_list)
     # for i in scan_list_to_print:
     #     print(i)
 
