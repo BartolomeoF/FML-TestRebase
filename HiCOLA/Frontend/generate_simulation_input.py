@@ -169,10 +169,13 @@ if loop_counter >= 100:
 if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
+expansion_datanames = 'a    E    E\'/E'
+full_datanames = 'a    E    E\'/E    phi    phi\'    omega_m    omega_r    omega_phi    omega_lambda'
+force_datanames = 'a    S (chi/delta)    beta (coupling_factor)'
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)
-sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full)
-sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion, expansion_datanames)
+sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full, full_datanames)
+sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force, force_datanames)
 
    
 print(f'Files generated. Saved in {abs_directory}')

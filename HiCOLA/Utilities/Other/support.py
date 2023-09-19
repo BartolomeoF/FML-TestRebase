@@ -36,7 +36,7 @@ def write_all_data(a_arr_inv, E_arr, E_prime_arr, phi_prime_arr, phi_primeprime_
     np.savetxt(datafile_id, data, fmt=['%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e'])    #here the ascii file is populated.
     datafile_id.close()    #close the file
 
-def write_data_flex(data, output_filename_as_string):
+def write_data_flex(data, output_filename_as_string, datanames):
     datafile_id = open(output_filename_as_string, 'wb')    #here you open the ascii file
     format_list = list(np.repeat('%.4e',len(data)))
     newdata = []
@@ -44,7 +44,7 @@ def write_data_flex(data, output_filename_as_string):
         newdata.append(np.array(i[::-1]))
     realdata = np.array(newdata)
     realdata = realdata.T     #here you transpose your data, so to have it in two columns
-    np.savetxt(datafile_id, realdata, fmt=format_list)    #here the ascii file is populated.
+    np.savetxt(datafile_id, realdata, fmt=format_list, header=datanames)    #here the ascii file is populated.
     datafile_id.close()    #close the file
 
 def make_scan_array(minv, maxv, numv):
