@@ -12,7 +12,7 @@ import glob
 from HiCOLA.Utilities.Other.support import compute_fphi, ESS_direct_to_seed
 from HiCOLA.Frontend.read_parameters import read_scan_result
 
-directory = '/home/ashimsg/Documents/QMUL_Desktop/Horndeski_COLA/Hi-COLA/Output/Scanner/from_apocrita/2023-06-14/00-51_45/'
+directory = '/home/gupta/Documents/Hi-COLA_Project/Hi-COLA_code/Hi-COLA/Output/scans/from_apocrita/2023-07-14/17-42_54/'
 
 colours = ['green', 'grey', 'black', 'magenta', 'pink', 'red', 'blue', 'yellow']
 
@@ -39,27 +39,27 @@ for key, result in results.items():
     if key == 'green':
         result_dict = read_scan_result(results[key])
         green_results.update(result_dict)
-    # if key == 'grey':
-    #     result_dict = read_scan_result(results[key])
-    #     grey_results.update(result_dict)
-    # if key == 'black':
-    #     result_dict = read_scan_result(results[key])
-    #     black_results.update(result_dict)
-    # if key == 'magenta':
-    #     result_dict = read_scan_result(results[key])
-    #     magenta_results.update(result_dict)
+    if key == 'grey':
+        result_dict = read_scan_result(results[key])
+        grey_results.update(result_dict)
+    if key == 'black':
+        result_dict = read_scan_result(results[key])
+        black_results.update(result_dict)
+    if key == 'magenta':
+        result_dict = read_scan_result(results[key])
+        magenta_results.update(result_dict)
     if key == 'pink':
         result_dict = read_scan_result(results[key])
         pink_results.update(result_dict)
-    # if key == 'red':
-    #     result_dict = read_scan_result(results[key])
-    #     red_results.update(result_dict)
-    # if key == 'blue':
-    #     result_dict = read_scan_result(results[key])
-    #     blue_results.update(result_dict)
-    # if key == 'yellow':
-    #     result_dict = read_scan_result(results[key])
-    #     yellow_results.update(result_dict)
+    if key == 'red':
+        result_dict = read_scan_result(results[key])
+        red_results.update(result_dict)
+    if key == 'blue':
+        result_dict = read_scan_result(results[key])
+        blue_results.update(result_dict)
+    if key == 'yellow':
+        result_dict = read_scan_result(results[key])
+        yellow_results.update(result_dict)
             
         
 green_EdS = [1/U0 for U0 in green_results['U0_arr'] ]
@@ -129,7 +129,7 @@ cbar2 = plt.colorbar(scatter2, label=r'$green \ \phi^{\prime}_{0}$')
 
 ax.set_xlabel('$E_{dS}$')
 ax.set_ylabel('$k_{1-seed}$')
-ax.set_title('ESS Slice')
+ax.set_title('ESS Slice, early DE $z_{th}$=2.0')
 fig.show()
 
 
