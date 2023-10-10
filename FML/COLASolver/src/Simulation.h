@@ -62,6 +62,7 @@ class NBodySimulation {
     /// Everything related to gravity: growth factors, computing forces
     //=============================================================================
     std::shared_ptr<GravityModel<NDIM>> grav;
+    std::shared_ptr<GravityModel<NDIM>> grav_ic;
 
     //=============================================================================
     /// Everything related to linear perturbations, transfer functions, initial pofk
@@ -115,7 +116,6 @@ class NBodySimulation {
     // Force and density assignment
     int force_nmesh;                             // The gridsize to bin particles to and compute PM forces
     std::string force_density_assignment_method; // Density assignment (NGP,CIC,TSC,PCS,PQS)
-    std::string force_kernel;                    // The force kernel (see relevant files)
     bool force_linear_massive_neutrinos;         // Include the effects of massive neutrinos using linear theory
 
     // Initial conditions
@@ -128,6 +128,7 @@ class NBodySimulation {
 
     // Initial conditions: input file (power-spectrum / transfer functions)
     std::string ic_type_of_input;  // Type of input (powerspectrum, transferfuntion, transferinfofile)
+    std::string ic_type_of_input_fileformat; // Format, CAMB, CLASS (with format=camb), ..., for transfer files 
     std::string ic_input_filename; // The filename
     double ic_input_redshift;      // The redshift of P(k,z) / T(k,z) that we read in
     bool ic_use_gravity_model_GR;  // Input power-spectrum is for LCDM so if MG use LCDM to set the IC
@@ -496,18 +497,24 @@ void NBodySimulation<NDIM, T>::read_parameters(ParameterMap & param) {
     // Computing forces
     force_nmesh = param.get<int>("force_nmesh");
     force_density_assignment_method = param.get<std::string>("force_density_assignment_method");
-    force_kernel = param.get<std::string>("force_kernel");
     force_linear_massive_neutrinos = param.get<bool>("force_linear_massive_neutrinos");
+   
+    auto force_greens_function_kernel = param.get<std::string>("force_greens_function_kernel");
+    auto force_gradient_kernel = param.get<std::string>("force_gradient_kernel");
+    FML::NBODY::set_fiducial_greens_functions_kernel(force_greens_function_kernel);
+    FML::NBODY::set_fiducial_gradient_kernel(force_gradient_kernel);
 
     if (FML::ThisTask == 0) {
         std::cout << "force_nmesh                              : " << force_nmesh << "\n";
-        std::cout << "force_kernel                             : " << force_kernel << "\n";
+        std::cout << "force_greens_function_kernel             : " << force_greens_function_kernel << "\n";
+        std::cout << "force_gradient_kernel                    : " << force_gradient_kernel << "\n";
         std::cout << "force_density_assignment_method          : " << force_density_assignment_method << "\n";
         std::cout << "force_linear_massive_neutrinos           : " << force_linear_massive_neutrinos << "\n";
     }
 
     // Initial conditions
     ic_type_of_input = param.get<std::string>("ic_type_of_input");
+    ic_type_of_input_fileformat = param.get<std::string>("ic_type_of_input_fileformat", "CAMB");
     ic_input_filename = param.get<std::string>("ic_input_filename");
     ic_random_field_type = param.get<std::string>("ic_random_field_type");
     ic_input_redshift = param.get<double>("ic_input_redshift");
@@ -539,6 +546,7 @@ void NBodySimulation<NDIM, T>::read_parameters(ParameterMap & param) {
 
     if (FML::ThisTask == 0) {
         std::cout << "ic_type_of_input                         : " << ic_type_of_input << "\n";
+        std::cout << "ic_type_of_input_fileformat              : " << ic_type_of_input_fileformat << "\n";
         std::cout << "ic_input_filename                        : " << ic_input_filename << "\n";
         std::cout << "ic_random_field_type                     : " << ic_random_field_type << "\n";
         std::cout << "ic_input_redshift                        : " << ic_input_redshift << "\n";
@@ -741,7 +749,6 @@ void NBodySimulation<NDIM, T>::init() {
 
     // If we have a MG model and want exactly the same IC as for LCDM
     // we can supply LCDM P(k) and use the GR growth factors to scale it back
-    std::shared_ptr<GravityModel<NDIM>> grav_ic;
     if (ic_use_gravity_model_GR) {
         grav_ic = std::make_shared<GravityModelGR<NDIM>>(cosmo);
         grav_ic->read_parameters(*parameters);
@@ -853,10 +860,12 @@ void NBodySimulation<NDIM, T>::init() {
         if (not transferdata) {
             transferdata = std::make_shared<LinearTransferData>(cosmo->get_Omegab(),
                                                                 cosmo->get_OmegaCDM(),
+                                                                cosmo->get_OmegaMNu(),
                                                                 cosmo->get_kpivot_mpc(),
                                                                 cosmo->get_As(),
                                                                 cosmo->get_ns(),
-                                                                cosmo->get_h());
+                                                                cosmo->get_h(),
+                                                                ic_type_of_input_fileformat);
             transferdata->read_transfer(ic_input_filename);
 
             // Make sure the gravity model also gets a pointer to this
@@ -1354,10 +1363,8 @@ void NBodySimulation<NDIM, T>::run() {
                 // For COLA we can do the kick and drift at the same time
                 if (simulation_use_cola) {
                     timer.StartTiming("COLA");
-                    // If the growth factors are scaledependent then we use the scaledependent version
-                    // unless simulation_use_scaledependent_cola is set to false
                     const double aini = 1.0 / (1.0 + ic_initial_redshift);
-                    if (simulation_use_scaledependent_cola and grav->scaledependent_growth) {
+                    if (simulation_use_scaledependent_cola) {
                         cola_kick_drift_scaledependent<NDIM, T>(part,
                                                                 grav,
                                                                 phi_1LPT_ini_fourier,
@@ -1449,7 +1456,7 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
     // We need to have transfer functions for what follows and for that we
     // check [transferdata] which is created if "transferinfofile" is used
     //=============================================================
-    if (force_linear_massive_neutrinos and cosmo->get_OmegaMNu() > 0.0 and transferdata) {
+    if (force_linear_massive_neutrinos and cosmo->get_fMNu() > 0.0 and transferdata) {
 
         // First step we store the initial  density field
         if (not initial_density_field_fourier) {
@@ -1472,9 +1479,7 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
         };
 
         // We compute the total matter density-field deltaM = (OmegaCB deltaCB + OmegaMNu deltaMNu)/OmegaM
-        const double OmegaM = cosmo->get_OmegaM();
-        const double OmegaMNu = cosmo->get_OmegaMNu();
-        const double fMNu = OmegaMNu / OmegaM;
+        const double fMNu = cosmo->get_fMNu();
 
         auto Local_nx = initial_density_field_fourier.get_local_nx();
 #ifdef USE_OMP
@@ -1540,7 +1545,7 @@ void NBodySimulation<NDIM, T>::analyze_and_output(int ioutput, double redshift) 
     auto add_on_LPT_velocity = [&](double addsubtract_sign) {
         const double aini = 1.0 / (1.0 + ic_initial_redshift);
         const double a = 1.0 / (1.0 + redshift);
-        if (simulation_use_scaledependent_cola and grav->scaledependent_growth) {
+        if (simulation_use_scaledependent_cola) {
             cola_add_on_LPT_velocity_scaledependent<NDIM, T>(part,
                                                              grav,
                                                              phi_1LPT_ini_fourier,

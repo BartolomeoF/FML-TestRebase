@@ -23,6 +23,10 @@ class NBodySimulation;
 template <int NDIM, class T>
 void output_pofk_for_every_step(NBodySimulation<NDIM, T> & sim) {
 
+    // Only task 0 outputs
+    if(FML::ThisTask > 0) 
+      return;
+
     //=============================================================
     // Fetch parameters
     //=============================================================
@@ -32,8 +36,11 @@ void output_pofk_for_every_step(NBodySimulation<NDIM, T> & sim) {
     const auto & pofk_cb_every_step = sim.pofk_cb_every_step;
     const auto & pofk_total_every_step = sim.pofk_total_every_step;
     const auto & grav = sim.grav;
+    const auto & cosmo = grav->get_cosmo();
+    const auto & grav_ic = sim.grav_ic;
     const auto & transferdata = sim.transferdata;
     const auto & power_initial_spline = sim.power_initial_spline;
+    const auto & ic_use_gravity_model_GR = sim.ic_use_gravity_model_GR;
 
     //=============================================================
     // Output all CMB+baryon Pofk
@@ -47,20 +54,26 @@ void output_pofk_for_every_step(NBodySimulation<NDIM, T> & sim) {
             double Dini = grav->get_D_1LPT(1.0 / (1.0 + ic_initial_redshift), k / grav->H0_hmpc);
             return pofk_ini * std::pow(D / Dini, 2);
         };
+    
+        // Get non-linear boost (if this is implemented for the model)
+        // Currently we only have EuclidEmulator2 predictions for LCDM and w0waCDM
+        Spline non_linear_boost_of_k = cosmo->get_nonlinear_matter_power_spectrum_boost(redshift);
 
         std::stringstream stream;
         stream << std::fixed << std::setprecision(3) << redshift;
         std::string redshiftstring = stream.str();
         std::string filename = output_folder;
         filename =
-            filename + (filename == "" ? "" : "/") + "pofk_" + simulation_name + "_cb_z" + redshiftstring + ".txt";
+          filename + (filename == "" ? "" : "/") + "pofk_" + simulation_name + "_cb_z" + redshiftstring + ".txt";
 
         std::ofstream fp(filename.c_str());
-        fp << "# k  (h/Mpc)    Pcb(k)  (Mpc/h)^3    Pcb_linear(k) (Mpc/h)^3   ShotnoiseSubtracted = " << std::boolalpha << sim.pofk_subtract_shotnoise << "\n";
+        fp << "# k  (h/Mpc)    Pcb(k)  (Mpc/h)^3    Pcb_linear(k) (Mpc/h)^3    Pcb_NL(k) (Mpc/h)^3   ShotnoiseSubtracted = " << std::boolalpha << sim.pofk_subtract_shotnoise << "\n";
         for (int i = 0; i < binning.n; i++) {
+            double boost = non_linear_boost_of_k ? non_linear_boost_of_k(binning.kbin[i]) : 1.0;
             fp << std::setw(15) << binning.kbin[i] << " ";
             fp << std::setw(15) << binning.pofk[i] << " ";
             fp << std::setw(15) << pofk_cb(binning.kbin[i]) << " ";
+            fp << std::setw(15) << pofk_cb(binning.kbin[i]) * boost << " ";
             fp << "\n";
         }
     }
@@ -72,8 +85,19 @@ void output_pofk_for_every_step(NBodySimulation<NDIM, T> & sim) {
         auto redshift = p.first;
         auto binning = p.second;
         auto pofk_total = [&](double k) {
+            double fac = 1.0;  
+            // If ic_use_gravity_model_GR then transferdata is that of GR so
+            // we need to rescale it with growthfactors
+            if(ic_use_gravity_model_GR){ 
+              double D = grav->get_D_1LPT(1.0 / (1.0 + redshift), k / grav->H0_hmpc);
+              double Dini = grav->get_D_1LPT(1.0 / (1.0 + ic_initial_redshift), k / grav->H0_hmpc);
+              double D_GR = grav_ic->get_D_1LPT(1.0 / (1.0 + redshift), k / grav->H0_hmpc);
+              double Dini_GR = grav_ic->get_D_1LPT(1.0 / (1.0 + ic_initial_redshift), k / grav->H0_hmpc);
+              fac = std::pow((D/Dini) / (D_GR/Dini_GR), 2);
+            }
             if (transferdata)
-                return transferdata->get_total_power_spectrum(k, 1.0 / (1.0 + redshift));
+                return fac * transferdata->get_total_power_spectrum(k, 1.0 / (1.0 + redshift));
+            // If we don't have transfer data we don't have this info so just output 0.0
             return 0.0;
         };
 
@@ -83,13 +107,19 @@ void output_pofk_for_every_step(NBodySimulation<NDIM, T> & sim) {
         std::string filename = output_folder;
         filename =
             filename + (filename == "" ? "" : "/") + "pofk_" + simulation_name + "_total_z" + redshiftstring + ".txt";
+        
+        // Get non-linear boost (if this is implemented for the model)
+        // Currently we only have EuclidEmulator2 predictions for LCDM and w0waCDM
+        Spline non_linear_boost_of_k = cosmo->get_nonlinear_matter_power_spectrum_boost(redshift);
 
         std::ofstream fp(filename.c_str());
-        fp << "# k  (h/Mpc)    P(k)  (Mpc/h)^3    P_linear(k)  (Mpc/h)^3  ShotnoiseSubtracted = " << std::boolalpha << sim.pofk_subtract_shotnoise << "\n";
+        fp << "# k  (h/Mpc)    P(k)  (Mpc/h)^3    P_linear(k)  (Mpc/h)^3     P_NL(k)  ShotnoiseSubtracted = " << std::boolalpha << sim.pofk_subtract_shotnoise << "\n";
         for (int i = 0; i < binning.n; i++) {
+            double boost = non_linear_boost_of_k ? non_linear_boost_of_k(binning.kbin[i]) : 1.0;
             fp << std::setw(15) << binning.kbin[i] << " ";
             fp << std::setw(15) << binning.pofk[i] << " ";
             fp << std::setw(15) << pofk_total(binning.kbin[i]) << " ";
+            fp << std::setw(15) << pofk_total(binning.kbin[i]) * boost << " ";
             fp << "\n";
         }
     }
@@ -352,6 +382,7 @@ void compute_power_spectrum(NBodySimulation<NDIM, T> & sim, double redshift, std
     const auto & transferdata = sim.transferdata;
     const auto & power_initial_spline = sim.power_initial_spline;
     const auto & grav = sim.grav;
+    const auto & cosmo = grav->get_cosmo();
     auto & part = sim.part;
 
     if (FML::ThisTask == 0) {
@@ -415,20 +446,27 @@ void compute_power_spectrum(NBodySimulation<NDIM, T> & sim, double redshift, std
         v = pofk_cb(v);
     }
     FML::INTERPOLATION::SPLINE::Spline pofk_cb_linear_spline(kvals, pofk_cb_linear, "Pcb(k) linear spline");
-
+        
     // Output to file
     if (FML::ThisTask == 0) {
+    
+        // Get non-linear boost (if this is implemented for the model)
+        // Currently we only have EuclidEmulator2 predictions for LCDM and w0waCDM
+        Spline non_linear_boost_of_k = cosmo->get_nonlinear_matter_power_spectrum_boost(redshift);
+
         std::string filename = snapshot_folder + "/pofk_z" + redshiftstring + ".txt";
         std::ofstream fp(filename.c_str());
         if (not fp.is_open()) {
             std::cout << "Warning: Cannot write power-spectrum to file, failed to open [" << filename << "]\n";
         } else {
-            fp << "#  k  (h/Mpc)          P(k)  (Mpc/h)^3     P_linear(k) (Mpc/h)^3\n";
+            fp << "#  k  (h/Mpc)          P(k)  (Mpc/h)^3     P_linear(k)   P_NL(k) (Mpc/h)^3\n";
             for (int i = 0; i < pofk_cb_binning.n; i++) {
                 const double k = pofk_cb_binning.kbin[i];
+                double boost = non_linear_boost_of_k ? non_linear_boost_of_k(k) : 1.0;
                 fp << std::setw(15) << k << " ";
                 fp << std::setw(15) << pofk_cb_binning.pofk[i] << " ";
                 fp << std::setw(15) << pofk_cb_linear_spline(k) << " ";
+                fp << std::setw(15) << pofk_cb_linear_spline(k) * boost << " ";
                 fp << "\n";
             }
         }
@@ -490,29 +528,37 @@ void compute_fof_halos(NBodySimulation<NDIM, T> & sim, double redshift, std::str
         }
     }
 
-    // Compute mass-function and output it
-    if (FML::ThisTask == 0) {
-        const int nbins = 30;
-        const double massmin = 1e10;
-        const double massmax = 1e16;
-        std::vector<double> dnofM(nbins), nofM(nbins), logM(nbins);
-        const double dlogM = std::log(massmax / massmin) / double(nbins);
-        for (auto & g : FoFGroups) {
-            int index = int(std::log(g.mass / massmin) / dlogM);
-            if (index >= 0 and index < nbins) {
-                dnofM[index] += 1.0;
-            }
+    // Compute mass-function
+    const int nbins = 30;
+    const double massmin = 1e10;
+    const double massmax = 1e16;
+    std::vector<double> dnofM(nbins,0.0), nofM(nbins,0.0), logM(nbins,0.0);
+    const double dlogM = std::log(massmax / massmin) / double(nbins);
+    for (auto & g : FoFGroups) {
+        int index = int(std::log(g.mass / massmin) / dlogM);
+        if (index >= 0 and index < nbins) {
+            dnofM[index] += 1.0;
         }
-        nofM[nbins - 1] = dnofM[nbins - 1];
-        for (int i = nbins - 2; i >= 0; i--) {
-            nofM[i] = nofM[i + 1] + dnofM[i];
-        }
-        for (int i = 0; i < nbins; i++) {
-            logM[i] = std::log(massmin) + dlogM * (i + 0.5);
-            nofM[i] /= std::pow(simulation_boxsize, NDIM);
-            dnofM[i] /= std::pow(simulation_boxsize, NDIM) * dlogM;
-        }
+    }
+    
+    // Sum over tasks
+    FML::SumArrayOverTasks(dnofM.data(), nbins);
 
+    // Integrate up to get n(M)
+    nofM[nbins - 1] = dnofM[nbins - 1];
+    for (int i = nbins - 2; i >= 0; i--) {
+        nofM[i] = nofM[i + 1] + dnofM[i];
+    }
+
+    // Normalize
+    for (int i = 0; i < nbins; i++) {
+        logM[i] = std::log(massmin) + dlogM * (i + 0.5);
+        nofM[i] /= std::pow(simulation_boxsize, NDIM);
+        dnofM[i] /= std::pow(simulation_boxsize, NDIM) * dlogM;
+    }
+
+    // Output mass-function
+    if (FML::ThisTask == 0) {
         std::string filename = snapshot_folder + "/massfunc_z" + redshiftstring + ".txt";
         std::ofstream fp(filename.c_str());
         if (not fp.is_open()) {

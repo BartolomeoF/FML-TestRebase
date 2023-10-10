@@ -26,6 +26,7 @@
 #include "GravityModel_fofr.h"
 #include "GravityModel_JBD.h"
 #include "GravityModel_Geff.h"
+#include "GravityModel_mbeta.h"
 #include "GravityModel_symmetron.h"
 #include "GravityModel_HiCOLA.h"
 
@@ -161,6 +162,8 @@ int main(int argc, char ** argv) {
         grav = std::make_shared<GravityModelSymmetron<NDIM>>(cosmo);
     else if (gravity_model == "Geff")
         grav = std::make_shared<GravityModelGeff<NDIM>>(cosmo);
+    else if (gravity_model == "mbeta")
+        grav = std::make_shared<GravityModelmbeta<NDIM>>(cosmo);
     else if (gravity_model == "HiCOLA")
         grav = std::make_shared<GravityModelHiCOLA<NDIM>>(cosmo);
     else

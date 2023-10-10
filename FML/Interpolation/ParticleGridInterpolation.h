@@ -569,7 +569,7 @@ namespace FML {
                 }
 
                 // Loop over all nbor cells
-                double sumweights = 0.0;
+                [[maybe_unused]] double sumweights = 0.0;
                 for (int i = 0; i < widthtondim; i++) {
                     double w = 1.0;
                     std::array<int, N> icoord;
@@ -597,6 +597,14 @@ namespace FML {
                             if (icoord[idim] < 0)
                                 icoord[idim] += Nmesh;
                         }
+
+                        // If only 1 task then we should wrap
+                        if (FML::NTasks == 1) {
+                            if (icoord[0] >= Nmesh)
+                                icoord[0] -= Nmesh;
+                            if (icoord[0] < 0)
+                                icoord[0] += Nmesh;
+                        }
                     }
 
                     // Add particle to grid
@@ -612,7 +620,9 @@ namespace FML {
 #endif
             }
 
-            add_contribution_from_extra_slices<N>(density);
+            // Extra slices only relevant if we have more than 1 task
+            if (FML::NTasks > 1)
+                add_contribution_from_extra_slices<N>(density);
         }
 
         template <int N, int ORDER, class T>
@@ -711,7 +721,7 @@ namespace FML {
                 // Interpolation
                 std::array<double, N> value;
                 value.fill(0.0);
-                double sumweight = 0;
+                [[maybe_unused]] double sumweight = 0;
                 for (int i = 0; i < widthtondim; i++) {
                     double w = 1.0;
                     for (int idim = 0, n = 1; idim < N; idim++, n *= ORDER) {
@@ -857,7 +867,7 @@ namespace FML {
 
                 // Interpolation
                 FloatType value = 0;
-                double sumweight = 0;
+                [[maybe_unused]] double sumweight = 0;
                 for (int i = 0; i < widthtondim; i++) {
                     double w = 1.0;
                     std::array<int, N> icoord;
