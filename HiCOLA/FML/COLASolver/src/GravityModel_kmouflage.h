@@ -13,7 +13,7 @@
 
 /// HiCOLA coupling+screening factor model
 template <int NDIM>
-class GravityModelHiCOLA final : public GravityModel<NDIM> {
+class GravityModelkmouflage final : public GravityModel<NDIM> {
   public:
     template <int N>
     using FFTWGrid = FML::GRID::FFTWGrid<N>;
@@ -21,8 +21,8 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     using Spline = FML::INTERPOLATION::SPLINE::Spline;
     using DVector = FML::INTERPOLATION::SPLINE::DVector;
 
-    GravityModelHiCOLA() : GravityModel<NDIM>("HiCOLA") {}
-    GravityModelHiCOLA(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "HiCOLA") {}
+    GravityModelkmouflage() : GravityModel<NDIM>("HiCOLA") {}
+    GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "kmouflage") {}
 
     //========================================================================
     // Print some info

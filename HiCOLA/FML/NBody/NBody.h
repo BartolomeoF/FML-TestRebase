@@ -17,6 +17,7 @@
 #include <FML/RandomFields/GaussianRandomField.h>
 #include <FML/RandomFields/NonLocalGaussianRandomField.h>
 #include <FML/Timing/Timings.h>
+#include <complex>
 
 namespace FML {
 
@@ -1244,8 +1245,8 @@ namespace FML {
 
                     auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
                     density_mg_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
-                    value *= -poisson_norm / kmag2; //want this to be gradient of newtonian potential
-
+                    //value *= -poisson_norm / kmag2; //want this to be gradient of newtonian potential
+		    value *= -1.*std::complex(-1.)*poisson_norm/k
                     density_mg_fourier.set_fourier_from_index(fourier_index, value);
                 }
             }
@@ -1267,9 +1268,9 @@ namespace FML {
 #endif
             for (int islice = 0; islice < Local_nx; islice++) {
                 for (auto && real_index : density_mg_fourier.get_real_range(islice, islice + 1)) {
-                    auto phi_newton = density_mg_fourier.get_real_from_index(real_index);
+                    auto grad_phi_newton = density_mg_fourier.get_real_from_index(real_index); //we want gradient of this | setting 1247 correctly makes this gradient?
                     auto delta = delta_real.get_real_from_index(real_index);
-                    auto screening_factor = screening_factor_of_newtonian_potential(phi_newton);
+                    auto screening_factor = screening_factor_of_newtonian_potential(phi_newton); //feed gradient of phi_newton here
                     density_mg_fourier.set_real_from_index(real_index, delta * screening_factor);
                 }
             }
