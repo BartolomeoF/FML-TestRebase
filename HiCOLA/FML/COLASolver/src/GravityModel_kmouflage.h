@@ -22,7 +22,7 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
     using Spline = FML::INTERPOLATION::SPLINE::Spline;
     using DVector = FML::INTERPOLATION::SPLINE::DVector;
 
-    GravityModelkmouflage() : GravityModel<NDIM>("HiCOLA") {}
+    GravityModelkmouflage() : GravityModel<NDIM>("kmouflage") {}
     GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "kmouflage") {}
 
     //========================================================================
