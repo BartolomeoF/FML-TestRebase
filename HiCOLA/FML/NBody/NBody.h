@@ -1246,7 +1246,7 @@ namespace FML {
                     auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
                     density_mg_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
                     //value *= -poisson_norm / kmag2; //want this to be gradient of newtonian potential
-		    value *= -1.*std::complex(-1.)*poisson_norm/(kmag2**0.5)
+		    value *= -1.*I*poisson_norm/pow(kmag2,0.5)
                     density_mg_fourier.set_fourier_from_index(fourier_index, value);
                 }
             }

@@ -10,6 +10,7 @@
 #include <FML/ParameterMap/ParameterMap.h>
 #include <FML/Spline/Spline.h>
 #include <FML/FileUtils/FileUtils.h>
+#include <math.h> 
 
 /// HiCOLA coupling+screening factor model
 template <int NDIM>
@@ -125,7 +126,9 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
             // Approximate screening method
             const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_kmou = [=](double gradient) {
-                double fac = (get_chi_over_delta(a) * gradient)**(8./3.);
+                double rootgrad = pow(gradient,0.5);
+                double chi = get_chi_over_delta(a) * rootgrad;
+                double fac = pow(chi,(8./3.));
                 return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
             std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
