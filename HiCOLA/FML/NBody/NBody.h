@@ -1270,7 +1270,7 @@ namespace FML {
                 for (auto && real_index : density_mg_fourier.get_real_range(islice, islice + 1)) {
                     auto grad_phi_newton = density_mg_fourier.get_real_from_index(real_index); //we want gradient of this | setting 1247 correctly makes this gradient?
                     auto delta = delta_real.get_real_from_index(real_index);
-                    auto screening_factor = screening_factor_of_newtonian_potential(phi_newton); //feed gradient of phi_newton here
+                    auto screening_factor = screening_factor_of_newtonian_potential(grad_phi_newton); //feed gradient of phi_newton here
                     density_mg_fourier.set_real_from_index(real_index, delta * screening_factor);
                 }
             }
