@@ -1,5 +1,5 @@
-#ifndef GRAVITYMODEL_kmouflage_HEADER
-#define GRAVITYMODEL_kmouflage_HEADER
+#ifndef GRAVITYMODEL_KMOUFLAGE_HEADER
+#define GRAVITYMODEL_KMOUFLAGE_HEADER
 
 #include "GravityModel.h"
 #include <FML/FFTWGrid/FFTWGrid.h>
@@ -23,7 +23,7 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
     using DVector = FML::INTERPOLATION::SPLINE::DVector;
 
     GravityModelkmouflage() : GravityModel<NDIM>("kmouflage") {}
-    GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "HiCOLA") {}
+    GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "kmouflage") {}
 
     //========================================================================
     // Print some info
@@ -126,9 +126,9 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
             // Approximate screening method
             const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_kmou = [=](double gradient) {
-                double rootgrad = std::pow(gradient,0.5);
+                double rootgrad = pow(gradient,0.5);
                 double chi = get_chi_over_delta(a) * rootgrad;
-                double fac = std::pow(chi,(8./3.));
+                double fac = pow(chi,(8./3.));
                 return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
             std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
@@ -136,8 +136,9 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
                                                                     density_fifth_force,
                                                                     coupling,
                                                                     screening_function_kmou,
-                                                                    smoothing_scale_over_boxsize,
-                                                                    smoothing_filter);
+//                                                                     smoothing_scale_over_boxsize,
+//                                                                     smoothing_filter,
+                                                                    norm_poisson_equation * std::pow(H0Box / a, 2));
 
             // Ensure that the large scales are behaving correctly
             // We set delta_fifth_force => A * (1-f) + B * f
