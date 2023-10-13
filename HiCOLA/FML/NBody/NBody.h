@@ -1241,12 +1241,13 @@ namespace FML {
             for (int islice = 0; islice < Local_nx; islice++) {
                 [[maybe_unused]] double kmag2;
                 [[maybe_unused]] std::array<double, N> kvec;
+                std::complex<FML::GRID::FloatType> I(0, 1);
                 for (auto && fourier_index : density_mg_fourier.get_fourier_range(islice, islice + 1)) {
 
                     auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
                     density_mg_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
                     //value *= -poisson_norm / kmag2; //want this to be gradient of newtonian potential
-		    value *= -1.*I*poisson_norm/pow(kmag2,0.5)
+		    value *= -1.*I*poisson_norm/std::pow(kmag2,0.5);
                     density_mg_fourier.set_fourier_from_index(fourier_index, value);
                 }
             }

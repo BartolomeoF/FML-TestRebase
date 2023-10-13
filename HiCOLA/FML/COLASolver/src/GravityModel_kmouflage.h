@@ -1,5 +1,5 @@
-#ifndef GRAVITYMODEL_HiCOLA_HEADER
-#define GRAVITYMODEL_HiCOLA_HEADER
+#ifndef GRAVITYMODEL_kmouflage_HEADER
+#define GRAVITYMODEL_kmouflage_HEADER
 
 #include "GravityModel.h"
 #include <FML/FFTWGrid/FFTWGrid.h>
@@ -23,7 +23,7 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
     using DVector = FML::INTERPOLATION::SPLINE::DVector;
 
     GravityModelkmouflage() : GravityModel<NDIM>("kmouflage") {}
-    GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "kmouflage") {}
+    GravityModelkmouflage(std::shared_ptr<Cosmology> cosmo) : GravityModel<NDIM>(cosmo, "HiCOLA") {}
 
     //========================================================================
     // Print some info
@@ -126,9 +126,9 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
             // Approximate screening method
             const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_kmou = [=](double gradient) {
-                double rootgrad = pow(gradient,0.5);
+                double rootgrad = std::pow(gradient,0.5);
                 double chi = get_chi_over_delta(a) * rootgrad;
-                double fac = pow(chi,(8./3.));
+                double fac = std::pow(chi,(8./3.));
                 return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
             std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
