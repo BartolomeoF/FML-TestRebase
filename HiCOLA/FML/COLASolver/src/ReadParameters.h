@@ -200,6 +200,27 @@ void read_parameterfile(ParameterMap & param, std::string filename) {
             }
 
         }
+        //=============================================================
+        // Hi-COLA parametrised k-mouflage forces model
+        //=============================================================
+        if (param.get<std::string>("gravity_model") == "kmouflage") {
+
+            param["HiCOLA_preforce_filename"] = lfp.read_string("HiCOLA_preforce_filename", "", OPTIONAL);
+
+            // Screening approximation
+            param["gravity_model_screening"] = lfp.read_bool("gravity_model_screening", true, OPTIONAL);
+            if (param.get<bool>("gravity_model_screening")) {
+                param["gravity_model_HiCOLA_smoothing_filter"] =
+                    lfp.read_string("gravity_model_HiCOLA_smoothing_filter", "tophat", OPTIONAL);
+                param["gravity_model_HiCOLA_smoothing_scale_over_boxsize"] =
+                    lfp.read_double("gravity_model_HiCOLA_smoothing_scale_over_boxsize", 1.0, OPTIONAL);
+                param["gravity_model_screening_enforce_largescale_linear"] =
+                    lfp.read_bool("gravity_model_screening_enforce_largescale_linear", false, OPTIONAL);
+                param["gravity_model_screening_linear_scale_hmpc"] =
+                    lfp.read_double("gravity_model_screening_linear_scale_hmpc", 0.05, OPTIONAL);
+            }
+
+        }
     }
 
     //=============================================================
