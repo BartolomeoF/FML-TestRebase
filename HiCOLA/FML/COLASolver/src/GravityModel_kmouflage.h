@@ -136,9 +136,10 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
                                                                     density_fifth_force,
                                                                     coupling,
                                                                     screening_function_kmou,
-//                                                                     smoothing_scale_over_boxsize,
-//                                                                     smoothing_filter,
-                                                                    norm_poisson_equation * std::pow(H0Box / a, 2));
+                                                                    norm_poisson_equation * std::pow(H0Box / a, 2)
+                                                                    smoothing_scale_over_boxsize,
+                                                                    smoothing_filter
+                                                                    );
 
             // Ensure that the large scales are behaving correctly
             // We set delta_fifth_force => A * (1-f) + B * f

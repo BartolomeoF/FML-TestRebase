@@ -1226,7 +1226,9 @@ namespace FML {
             FFTWGrid<N> & density_mg_fourier,
             std::function<double(double)> coupling_factor_of_kBox,
             std::function<double(double)> screening_factor_of_newtonian_potential,
-            double poisson_norm) {
+            double poisson_norm,
+            double smoothing_scale,
+            std::string smoothing_method) {
 
             const auto Local_nx = density_fourier.get_local_nx();
             const auto Local_x_start = density_fourier.get_local_x_start();

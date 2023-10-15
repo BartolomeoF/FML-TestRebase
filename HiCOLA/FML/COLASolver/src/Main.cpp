@@ -172,8 +172,6 @@ int main(int argc, char ** argv) {
    if (gravity_model == "HiCOLA") {
         grav->read_and_spline_chi_over_delta_chi();
     }
-    grav->init();
-    grav->info();
    if (gravity_model == "kmouflage") {
         grav->read_and_spline_chi_over_delta_chi();
     }
