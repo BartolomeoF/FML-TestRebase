@@ -1251,11 +1251,11 @@ namespace FML {
                     auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
                     density_mg_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
 
-                    value_x = -value * poisson_norm/kmag2 * I * kvec[0];
+                    auto value_x = -value * poisson_norm/kmag2 * I * kvec[0];
                     phi_x.set_fourier_from_index(fourier_index, value_x);
-                    value_y *= -value * poisson_norm/kmag2 * I * kvec[1];
+                    auto value_y = -value * poisson_norm/kmag2 * I * kvec[1];
                     phi_y.set_fourier_from_index(fourier_index, value_y);
-                    value_z *= -value * poisson_norm/kmag2 * I * kvec[2];
+                    auto value_z = -value * poisson_norm/kmag2 * I * kvec[2];
                     phi_z.set_fourier_from_index(fourier_index, value_z);
 
                     // auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
@@ -1289,7 +1289,7 @@ namespace FML {
                     auto grad_phi_newton_x = phi_x.get_real_from_index(real_index); //we want gradient of this | setting 1247 correctly makes this gradient?
                     auto grad_phi_newton_y = phi_y.get_real_from_index(real_index);
                     auto grad_phi_newton_z = phi_z.get_real_from_index(real_index);
-                    auto mod_grad_newton = std::sqrt(grad_phi_newton_x*grad_phi_newton_x+grad_phi_newton_y*grad_phi_newton_y+grad_phi_newton_z*grad_phi_newton_z)
+                    auto mod_grad_newton = std::sqrt(grad_phi_newton_x*grad_phi_newton_x+grad_phi_newton_y*grad_phi_newton_y+grad_phi_newton_z*grad_phi_newton_z);
                     auto delta = delta_real.get_real_from_index(real_index);
                     auto screening_factor = screening_factor_of_newtonian_potential(mod_grad_newton); //feed gradient of phi_newton here
                     density_mg_fourier.set_real_from_index(real_index, delta * screening_factor);
