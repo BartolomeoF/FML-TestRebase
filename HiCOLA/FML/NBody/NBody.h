@@ -1236,6 +1236,9 @@ namespace FML {
             // Make copy of density grid
             density_mg_fourier = density_fourier;
 
+            auto phi_x = density_fourier;
+            auto phi_y = density_fourier;
+            auto phi_z = density_fourier;
             // Transform to Newtonian potential
 #ifdef USE_OMP
 #pragma omp parallel for
@@ -1245,12 +1248,21 @@ namespace FML {
                 [[maybe_unused]] std::array<double, N> kvec;
                 std::complex<FML::GRID::FloatType> I(0, 1);
                 for (auto && fourier_index : density_mg_fourier.get_fourier_range(islice, islice + 1)) {
-
                     auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
                     density_mg_fourier.get_fourier_wavevector_and_norm2_by_index(fourier_index, kvec, kmag2);
+
+                    value_x = -value * poisson_norm/kmag2 * I * kvec[0];
+                    phi_x.set_fourier_from_index(fourier_index, value_x);
+                    value_y *= -value * poisson_norm/kmag2 * I * kvec[1];
+                    phi_y.set_fourier_from_index(fourier_index, value_y);
+                    value_z *= -value * poisson_norm/kmag2 * I * kvec[2];
+                    phi_z.set_fourier_from_index(fourier_index, value_z);
+
+                    // auto value = density_mg_fourier.get_fourier_from_index(fourier_index);
+                    
                     //value *= -poisson_norm / kmag2; //want this to be gradient of newtonian potential
-		    value *= -1.*I*poisson_norm/std::pow(kmag2,0.5);
-                    density_mg_fourier.set_fourier_from_index(fourier_index, value);
+		            //value *= -1.*I*poisson_norm/std::pow(kmag2,0.5);
+                    //density_mg_fourier.set_fourier_from_index(fourier_index, value);
                 }
             }
 
@@ -1263,6 +1275,9 @@ namespace FML {
 
             // Transform to real space: Phi(x) and delta(x)
             density_mg_fourier.fftw_c2r();
+            phi_x.fftw_c2r();
+            phi_y.fftw_c2r();
+            phi_z.fftw_c2r();
             delta_real.fftw_c2r();
 
             // Apply screening function
@@ -1271,9 +1286,12 @@ namespace FML {
 #endif
             for (int islice = 0; islice < Local_nx; islice++) {
                 for (auto && real_index : density_mg_fourier.get_real_range(islice, islice + 1)) {
-                    auto grad_phi_newton = density_mg_fourier.get_real_from_index(real_index); //we want gradient of this | setting 1247 correctly makes this gradient?
+                    auto grad_phi_newton_x = phi_x.get_real_from_index(real_index); //we want gradient of this | setting 1247 correctly makes this gradient?
+                    auto grad_phi_newton_y = phi_y.get_real_from_index(real_index);
+                    auto grad_phi_newton_z = phi_z.get_real_from_index(real_index);
+                    auto mod_grad_newton = std::sqrt(grad_phi_newton_x*grad_phi_newton_x+grad_phi_newton_y*grad_phi_newton_y+grad_phi_newton_z*grad_phi_newton_z)
                     auto delta = delta_real.get_real_from_index(real_index);
-                    auto screening_factor = screening_factor_of_newtonian_potential(grad_phi_newton); //feed gradient of phi_newton here
+                    auto screening_factor = screening_factor_of_newtonian_potential(mod_grad_newton); //feed gradient of phi_newton here
                     density_mg_fourier.set_real_from_index(real_index, delta * screening_factor);
                 }
             }
