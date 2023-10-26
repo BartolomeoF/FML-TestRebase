@@ -112,7 +112,7 @@ def ESS_seed_to_direct_scanning_values(scanning_parameters_filename, EdS_range, 
     # print(len(scan_list))
     np.save(scanning_parameters_filename, scan_array)
     
-def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, phi_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2 = 4.28e-5, Omega_b0h2 = 0.02196, Omega_c0h2 = 0.1274, h = 0.7307, phiprime0 = 0.9):
+def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, phi_range, phiprime_range, f_phi_range, k1seed_range, g31seed_range, Omega_r0h2_range, Omega_b0h2_range, Omega_c0h2_range, h = 0.7307, phiprime0 = 0.9):
 
 
     EdS_array = make_scan_array(*EdS_range)
@@ -121,8 +121,11 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
     f_phi_array = make_scan_array(*f_phi_range)
     k1seed_array = make_scan_array(*k1seed_range)
     g31seed_array = make_scan_array(*g31seed_range)
+    Omega_r0h2_array = make_scan_array(*Omega_r0h2_range)
+    Omega_b0h2_array = make_scan_array(*Omega_b0h2_range)
+    Omega_c0h2_array = make_scan_array(*Omega_c0h2_range)
 
-    seed_cart_prod = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
+    seed_cart_prod = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array, Omega_r0h2_array, Omega_b0h2_array, Omega_c0h2_array)
     seed_cart_prod2 = it.product(EdS_array, phi_array, phiprime_array, f_phi_array, k1seed_array, g31seed_array)
     # print(len(list(seed_cart_prod2)))
     scan_list = []
@@ -146,7 +149,7 @@ def ESS_seed_to_column_scanning_values(scanning_parameters_filename, EdS_range, 
     Omega_m0_column = []
     Omega_l0_column = []
     for i in seed_cart_prod:
-        EdS, phi0, phiprime0, f_phi, k1seed, g31seed = i
+        EdS, phi0, phiprime0, f_phi, k1seed, g31seed, Omega_r0h2,Omega_b0h2, Omega_c0h2 = i
         U0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] = ESS_dS_parameters(EdS, f_phi, k1seed, g31seed, Omega_r0h2, Omega_b0h2, Omega_c0h2, h)
         # scan_list_entry = [U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, k1dS, k2dS, g31dS, g32dS ] #scan_list_entry[5:] = parameters
         # scan_list.append(scan_list_entry)
