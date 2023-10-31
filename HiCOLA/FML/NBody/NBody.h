@@ -1267,11 +1267,11 @@ namespace FML {
             }
 
             // Set DC mode
-            if (Local_x_start == 0)
+            if (Local_x_start == 0){
                 density_mg_fourier.set_fourier_from_index(0, 0.0);
                 phi_x.set_fourier_from_index(0, 0.0);
                 phi_y.set_fourier_from_index(0, 0.0);
-                phi_z.set_fourier_from_index(0, 0.0);
+                phi_z.set_fourier_from_index(0, 0.0);}
 
             // Take another copy of the density field as we need it in real space
             auto delta_real = density_fourier;
