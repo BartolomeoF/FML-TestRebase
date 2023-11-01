@@ -47,7 +47,7 @@ read_scan_values_from_file = scan_settings_dict['scan_values_from_file']
 
 #[U0, phiprime0, Omega_r0, Omega_m0, Omega_l0, [k1dS, k2dS, g31dS, g32dS] ]
 if read_scan_values_from_file is True:
-     protoscan_list = np.loadtxt(scan_values_path, unpack=True)
+     protoscan_list = np.load(scan_values_path, allow_pickle=True)
      # print(protoscan_list)
      # print(protoscan_list.shape)
      # print('Printing scan_values_dict')
