@@ -156,7 +156,7 @@ if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
 expansion_datanames = 'a    E    E\'/E'
-full_datanames = 'a    E    E\'/E    phi    phi\'    omega_m    omega_r    omega_phi    omega_lambda'
+full_datanames = 'a    E    E\'/E    phi    phi\'    omega_m    omega_r    omega_phi    omega_lambda    Growthfac    Growthfacprime'
 force_datanames = 'a    S (zeta/rootgradphi)    beta (coupling_factor)'
 
 
