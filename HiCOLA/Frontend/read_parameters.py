@@ -318,6 +318,7 @@ def read_in_scan_settings(path_to_settings):
     yellow_switch = numerical_read.as_bool("yellow_switch")
     blue_switch = numerical_read.as_bool("blue_switch")
     red_switch = numerical_read.as_bool("red_switch")
+    pink_switch = numerical_read.as_bool("pink_switch")
     tolerance = numerical_read.as_float("tolerance")
     Omega_m_crit= numerical_read.as_float("Omega_m_crit")
     
@@ -401,7 +402,10 @@ def read_in_scan_parameters(path_to_scan_parameters):
     #cosmological parameter values
     h = scan_read.as_float("h")
     Omega_m0_number = scan_read.as_int("Omega_m0_number")
+    Omega_m0_spacing = scan_read["Omega_m0_spacing"]
     Omega_r0_number = scan_read.as_int("Omega_r0_number")
+    Omega_r0_spacing = scan_read["Omega_r0_spacing"]
+    f_phi_spacing = scan_read["f_phi_spacing"]
 
     if scan_read["Omega_m0_min"] == "None":
         Omega_b0h2_min = scan_read.as_float("Omega_b0h2_min")
@@ -413,26 +417,26 @@ def read_in_scan_parameters(path_to_scan_parameters):
         Omega_c0h2_min = scan_read.as_float("Omega_c0h2_min")
         Omega_c0h2_max = scan_read.as_float("Omega_c0h2_max")
         # Omega_c0h2_array = msa(Omega_c0h2_min, Omega_c0h2_max, Omega_m0_number)
-        Omega_c0h2_array = msa(Omega_c0h2_min, Omega_c0h2_max, Omega_m0_number)
+        Omega_c0h2_array = msa(Omega_c0h2_min, Omega_c0h2_max, Omega_m0_number, Omega_m0_spacing)
 
         Omega_m0_array = Omega_b0h2_array/h/h + Omega_c0h2_array/h/h
     else:
         Omega_m0_min = scan_read.as_float("Omega_m0_min")
         Omega_m0_max = scan_read.as_float("Omega_m0_max")
-        Omega_m0_array = msa(Omega_m0_min, Omega_m0_max, Omega_m0_number)
+        Omega_m0_array = msa(Omega_m0_min, Omega_m0_max, Omega_m0_number, Omega_m0_spacing)
 
     if scan_read["Omega_r0_min"] == "None":
         Omega_r0h2_min = scan_read.as_float("Omega_r0h2_min")
         Omega_r0h2_max = scan_read.as_float("Omega_r0h2_max")
         # Omega_r0h2_array = msa(Omega_r0h2_min, Omega_r0h2_max, Omega_m0_number)
-        Omega_r0h2_array = msa(Omega_r0h2_min, Omega_r0h2_max, Omega_r0_number)
+        Omega_r0h2_array = msa(Omega_r0h2_min, Omega_r0h2_max, Omega_r0_number, Omega_r0_spacing)
 
         Omega_r0_array = Omega_r0h2_array/h/h
     else:
         # Omega_r0_min = scan_read.as_float("Omega_r0_min")
         # Omega_r0_max = scan_read.as_float("Omega_r0_max")
         # Omega_r0_array = msa(Omega_r0_min, Omega_r0_max, Omega_r0_number)
-        Omega_r0_array = gsa(scan_read, "Omega_r0")
+        Omega_r0_array = gsa(scan_read, "Omega_r0", Omega_r0_spacing)
 
     Omega_DE0_array = 1. - Omega_m0_array - Omega_r0_array
 
@@ -440,16 +444,19 @@ def read_in_scan_parameters(path_to_scan_parameters):
     # f_phi_max = numerical_read.as_float("f_phi_max")
     # f_phi_number = numerical_read.as_int("f_phi_number")
     # f_phi_array = msa(f_phi_min, f_phi_max, f_phi_number)
-    f_phi_array = gsa(scan_read,"f_phi")
+    f_phi_array = gsa(scan_read,"f_phi",f_phi_spacing)
 
     Omega_l0_array = (1. - f_phi_array)*Omega_DE0_array
     
     cosmological_parameter_arrays = [Omega_r0_array, Omega_m0_array, Omega_l0_array]
     
     #initial conditions
-    Hubble0_array = gsa(scan_read,"Hubble0")
-    phi0_array = gsa(scan_read, "phi0")
-    phiprime0_array = gsa(scan_read, "phiprime0")
+    Hubble0_spacing  = scan_read["Hubble0_spacing"]
+    Hubble0_array = gsa(scan_read,"Hubble0",Hubble0_spacing)
+    phi0_spacing  = scan_read["phi0_spacing"]
+    phi0_array = gsa(scan_read, "phi0",phi0_spacing)
+    phiprime0_spacing  = scan_read["phiprime0_spacing"]
+    phiprime0_array = gsa(scan_read, "phiprime0",phiprime0_spacing)
     
     initial_condition_arrays = [Hubble0_array, phi0_array, phiprime0_array]
     

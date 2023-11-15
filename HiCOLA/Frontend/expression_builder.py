@@ -917,6 +917,42 @@ def calC(G3, G4,  K,
             print('-------------------')
     return calC #this will depend on E, Eprime, phiprime, phiprimeprime, Theta, Thetaprime, G4prime
 
+def beta_K(G4,
+           phi='phi'):
+    parameters = [G4, phi]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G4, phi] = parameters
+    betak = (1./2./phi)*sym.ln(2*G4)
+    return betak
+
+def coupling_factor_kmou(G4,
+           phi='phi'):
+    parameters = [G4,phi]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G4, phi] = parameters
+    betak = beta_K(G4, phi)
+    coupling = 2.*(6.**0.5)*betak*betak/4./phi/phi
+    return coupling
+
+def screening_kmou(G4, H0='H_0', K0='K_0',  M_Ks = 'M_{Ks}'):
+    parameters = [G4, H0, K0, M_Ks]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G4, H0, K0, M_Ks] = parameters
+    betak = beta_K(G4)
+    term1 = -6.*K0*((2/3)**3.)
+    term2 = 3*betak*4./M_Ks/H0
+    term2m = term2*term2
+    screening = (term1*term2m)**0.25
+    return screening
 
 def coupling_factor(G3, G4,  K,
         E='E',
@@ -1034,6 +1070,18 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     return lambda_functions_dict
 #E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
  #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
+
+def create_kmouflage(G4, symbol_list, mass_ratio_list):
+     [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
+     kmou_coupling_func = coupling_factor_kmou(G4)
+     print(kmou_coupling_func)
+     kmou_coupling_lambda = sym.lambdify([phi,*symbol_list],kmou_coupling_func)
+
+     kmou_screening_func = screening_kmou(G4, M_Ks = M_Ks_test)
+     kmou_screening_lambda = sym.lambdify(['H_0','K_0',phi, *symbol_list[1:]],kmou_screening_func) #symbol_list[1:] to exclude K0
+     
+     lambda_functions_dict = {'kmou_screening':kmou_screening_lambda, 'kmou_coupling':kmou_coupling_lambda}
+     return lambda_functions_dict
 
 
 def write_data_screencoupl(a_arr_inv, chioverdelta_arr, Coupl_arr, output_filename_as_string): #from Bill's Galileon coupling script

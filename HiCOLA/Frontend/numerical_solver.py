@@ -492,3 +492,37 @@ def comp_E_dS_max(E_dS_max_guess, Omr, Omm, f_phi, almost, fried_RHS_lambda):
     #         f_phi = almost
     E_dS_max = fsolve(comp_almost_track, E_dS_max_guess, args=(Omr, Omm, f_phi, almost,fried_RHS_lambda))[0]
     return E_dS_max
+
+
+### growth factor
+def compute_growthfac_primes(Y, x, x_arr, Omega_m_arr, E_prime_E_arr, coupling_arr):
+    """Second order differential equation for growth factor D"""
+    D, Dprime = Y
+    Omega_m_spl = interp1d(x_arr, Omega_m_arr, fill_value="extrapolate")
+    E_prime_E_spl = interp1d(x_arr, E_prime_E_arr, fill_value="extrapolate")
+    coupling_spl = interp1d(x_arr, coupling_arr, fill_value="extrapolate")
+    Omega_m = Omega_m_spl(x)
+    E_prime_E = E_prime_E_spl(x)
+    coupling = coupling_spl(x)
+    GeffOverG = 1.+coupling
+    Dprimeprime = -1.*(2.+E_prime_E)*Dprime + 1.5*GeffOverG*Omega_m*D
+    return [Dprime, Dprimeprime]
+
+def solve_1stgrowth_factor(a_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr):
+    """Solve for growth mode"""
+    x_arr_inv = [np.log(av) for av in a_arr_inv]
+    x_arr = x_arr_inv[::-1]
+    x_ini = np.min(x_arr)
+    a_ini = np.exp(x_ini)
+    z_ini = 1./a_ini - 1.
+    #print('z_ini=', z_ini)
+    D_ini_growth = 1. #np.exp(x_ini) #1.
+    Dprime_ini_growth = 1. #np.exp(x_ini) #1.
+    Y_ini_growth = [D_ini_growth, Dprime_ini_growth]
+    #print(Y_ini_growth)
+    ans = odeint(compute_growthfac_primes, Y_ini_growth, x_arr, args=(x_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr))
+    D_growth_arr = ans[:,0]
+    Dprime_growth_arr = ans[:,1]
+    D_growth_arr_inv = D_growth_arr[::-1]
+    Dprime_growth_arr_inv = Dprime_growth_arr[::-1]
+    return D_growth_arr_inv, Dprime_growth_arr_inv
