@@ -46,7 +46,7 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
-odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 

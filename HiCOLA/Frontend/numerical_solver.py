@@ -337,8 +337,8 @@ def run_solver(read_out_dict):
     x_final = np.log(1./(1.+z_final))
     x_arr = np.linspace(x_ini, x_final, Npoints)
     a_arr = [np.exp(x) for x in x_arr]
-    x_arr_inv = x_arr[::-1]
-    a_arr_inv = a_arr[::-1]
+    x_arr_inv = x_arr
+    a_arr_inv = a_arr
 
 
     # print('phi_prime imminent')
@@ -346,38 +346,43 @@ def run_solver(read_out_dict):
         phi_prime0 = 0.
     #print('phi prime0 is '+str(phi_prime0))
 
-    cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
+    #omega_i(z=z_max) for forward solver ICs
+    Omega_l_ini = Omega_l0/Hubble0/Hubble0
+    Omega_m_ini = Omega_m0*((1+z_max)**3.)/Hubble0/Hubble0
+    Omega_r_ini = Omega_r0*((1+z_max)**4)/Hubble0/Hubble0
+
+    cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r_ini, Omega_m_ini, Omega_l_ini, parameters)
 
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0_closed = cl_var
-            Y0 = [phi_prime0,Hubble0_closed,Omega_r0,Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0,Hubble0_closed,Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 1:
             phi0_closed = cl_var
-            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r0, Omega_m0, Omega_l0]
+            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 2:
             phi_prime0_closed = cl_var
             if 1.-Omega_r0 - Omega_m0 == Omega_l0:
                     phi_prime0_closed = 0.
-            Y0 = [phi0, phi_prime0_closed,Hubble0,Omega_r0,Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0_closed,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 3:
-            Omega_r0_closed = cl_var
-            Y0 =[phi0, phi_prime0,Hubble0,Omega_r0_closed,Omega_m0, Omega_l0]
+            Omega_r_ini_closed = cl_var
+            Y0 =[phi0, phi_prime0,Hubble0,Omega_r_ini_closed,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 4:
-            Omega_m0_closed = cl_var
-            Y0 = [phi0, phi_prime0,Hubble0,Omega_r0,Omega_m0_closed, Omega_l0]
+            Omega_m_ini_closed = cl_var
+            Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini_closed, Omega_l_ini]
         #print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     if cl_declaration[0] == 'parameters':
         parameters[cl_declaration[1]] = cl_var
-        Y0 = [phi0, phi_prime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
+        Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
         #print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     # print('Y0 is '+str(Y0))
 
     if suppression_flag is True:
         with stdout_redirected():
-            ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv) #k1=-6, g1 = 2
+            ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r_ini,Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv) #k1=-6, g1 = 2
     else:
-        ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv)
+        ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r_ini,Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv)
     #ans = solve_ivp(comp_primes, t_eval=x_arr_inv, t_span=(x_arr_inv[0],x_arr_inv[-1]), y0=Y0, args=(Omega_r0, Omega_m0, c_M), method='Radau',max_step=hmaxv) #k1=-6, g1 = 2
     #print('odeint stage computed')
     phi_arr = ans[:,0]
