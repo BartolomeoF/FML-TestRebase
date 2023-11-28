@@ -116,8 +116,8 @@ print('Files for Hi-COLA numerical simulation being generated.')
 ##Note: U = E/E_dS
 ## U0 = 1/E_dS
 print(f'U0 is {U0}')
-E_arr = np.array(UE_arr)/U0 #check whether COLA requires intermediates constructed with E rather than U!
-E_prime_arr = np.array(UE_prime_arr)/U0 #check whether backend requires intermediates constructed with Eprime rather than Uprime!
+E_arr = np.array(UE_arr)#/U0 #check whether COLA requires intermediates constructed with E rather than U!
+E_prime_arr = np.array(UE_prime_arr)#/U0 #check whether backend requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
 print('testtestsetsetset')
