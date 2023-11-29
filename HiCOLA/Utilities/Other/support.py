@@ -41,7 +41,7 @@ def write_data_flex(data, output_filename_as_string, datanames):
     format_list = list(np.repeat('%.4e',len(data)))
     newdata = []
     for i in data:
-        newdata.append(np.array(i[::-1]))
+        newdata.append(np.array(i[::]))
     realdata = np.array(newdata)
     realdata = realdata.T     #here you transpose your data, so to have it in two columns
     np.savetxt(datafile_id, realdata, fmt=format_list, header=datanames)    #here the ascii file is populated.
