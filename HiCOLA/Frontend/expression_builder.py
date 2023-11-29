@@ -294,7 +294,7 @@ def EprimeEODERHS(G3, G4,  K,
     # print('RHS is')
     # print(sym.latex(RHS))
     EprimeE =  (term2 + term3 + term4)/term1
-    debug = {'A':A, 'A1':A1, 'A2':A2, 'B1':B, 'B2':B, 'B21':B21, 'B22':B22, 'B23':B23, 'term1':term1, 'term21':term21, 'term22':term22, 'term2':term2,
+    debug = {'A':A, 'A1':A1, 'A2':A2, 'B1':B1, 'B2':B2, 'B21':B21, 'B22':B22, 'B23':B23, 'term1':term1, 'term21':term21, 'term22':term22, 'term2':term2,
              'term3':term3, 'term4':term4}
     return EprimeE, debug
 
@@ -416,7 +416,7 @@ def fried_closure(G3, G4,  K,
             if isinstance(param[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
                 param[i] = sy(param[i])
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, f_phi, X] = param
-    omega_field = omega_phi(G3,G4,K,M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4, M_Ks=M_Ks)
+    omega_field, debug = omega_phi(G3,G4,K,M_pG4=M_pG4, M_KG4=M_KG4, M_G3s=M_G3s, M_sG4=M_sG4, M_G3G4=M_G3G4, M_Ks=M_Ks)
     fried1_RHS = omega_field + omegam + omegar + omegal -1.
     Xreal = (1./2.)*(E**2.)*(phiprime**2.)
     fried1_RHS = fried1_RHS.subs(X,Xreal)
@@ -1021,7 +1021,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     EpE_debug_lambda  = {}
     for key, term in EpE_debug.items():
          newterm = term.subs(X, Xreal)
-         lambda_key = key+"_lambda"
+         lambda_key = key
          newtermlambda = sym.lambdify([E,phi, phiprime,omegar,omegal,*symbol_list],newterm, "scipy")
          EpE_debug_lambda.update({lambda_key:newtermlambda})
 
@@ -1043,7 +1043,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     omega_field_debug_lambda  = {}
     for key, term in omega_field_debug.items():
          newterm = term.subs(X, Xreal)
-         lambda_key = key+"_lambda"
+         lambda_key = key
          newtermlambda = sym.lambdify([E,phi, phiprime, omegal, omegam, omegar, *symbol_list],newterm, "scipy")
          omega_field_debug_lambda.update({lambda_key:newtermlambda})
 

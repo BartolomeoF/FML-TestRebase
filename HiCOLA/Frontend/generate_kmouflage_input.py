@@ -185,14 +185,21 @@ expansion_datanames = '# a        E           E\'/E'
 full_datanames = '# a        E           E\'/E        phi         phi\'       omega_m    omega_r     omega_phi  omega_l    Growthfac  Growthfacprime'
 force_datanames = '# a        S           coupling'
 debug_EpE_datanames = '#a'+spaces+'A'+spaces+'A1'+spaces+'A2'+spaces+'B1'+spaces+'B2'+spaces+'B21'+spaces+'B22'+spaces+'B23'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'term3'+spaces+'term4'
-debug_omegap_datanames = '#a'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'K'
+debug_omegapAndK_datanames = '#a'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'K'
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion, expansion_datanames)
 sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr, growthfac_arr, growthfracprime_arr], filename_full, full_datanames)
 sp.write_data_flex([a_arr,kmou_screening_arr,kmou_coupling_arr],filename_force, force_datanames)
 
 #debug
-sp.write([a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr], filename_EpE_debug, debug_EpE_datanames)
-sp.write([a_arr, omegap_term1_arr, omegap_term2_arr, omegap_term21_arr, omegap_term22_arr,K_arr])
+
+print('debug statement inc')
+print(EpE_B2_arr)
+for i in [a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr]:
+     
+     print(i[0])
+
+sp.write_data_flex([a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr], filename_EpE_debug, debug_EpE_datanames)
+sp.write_data_flex([a_arr, omegap_term1_arr, omegap_term2_arr, omegap_term21_arr, omegap_term22_arr,K_arr], filename_omegapAndK_debug, debug_omegapAndK_datanames)
    
 print(f'Files generated. Saved in {abs_directory}')

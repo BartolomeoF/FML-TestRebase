@@ -466,6 +466,7 @@ def run_solver(read_out_dict):
     A1debug_arr = []
     A2debug_arr = []
     B1debug_arr = []
+    B2debug_arr = []
     B21debug_arr = []
     B22debug_arr = []
     B23debug_arr = []
@@ -475,7 +476,7 @@ def run_solver(read_out_dict):
     EpE_term2_arr = []
     EpE_term3_arr = []
     EpE_term4_arr = []
-    for key, term in EpE_debug:
+    for key, term in EpE_debug.items():
         for Omega_rv, Omega_lv, Ev, phiv, phi_primev in zip(Omega_r_arr, Omega_l_arr, Hubble_arr, phi_arr, phi_prime_arr):
             if key == 'A':
                 Adebug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
@@ -489,6 +490,9 @@ def run_solver(read_out_dict):
             if key == 'B1':
                 B1debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
                 debug_dict.update({key:B1debug_arr})
+            if key == 'B2':
+                B2debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:B2debug_arr})
             if key == 'B21':
                 B21debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
                 debug_dict.update({key:B21debug_arr})
@@ -522,19 +526,19 @@ def run_solver(read_out_dict):
     op_term21_arr = []
     op_term22_arr = []
     op_term2_arr = []
-    for key, term in omega_phi_debug:
-        for Omega_rv, Ev, E_primev, phiv, phi_primev in zip(Omega_r_arr, Hubble_arr, Hubble_prime_arr, phi_arr, phi_prime_arr):
+    for key, term in omega_phi_debug.items():
+        for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(Hubble_arr,phi_arr,phi_prime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr):
             if key == 'term1':
-                    op_term1_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    op_term1_arr.append(term(Ev, phiv, phiprimev, omegalv, omegamv, omegarv,*parameters))
                     debug_dict2.update({key:op_term1_arr})
             if key == 'term21':
-                    op_term21_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    op_term21_arr.append(term(Ev, phiv, phiprimev, omegalv, omegamv, omegarv,*parameters))
                     debug_dict2.update({key:op_term21_arr})
             if key == 'term22':
-                    op_term22_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    op_term22_arr.append(term(Ev, phiv, phiprimev, omegalv, omegamv, omegarv,*parameters))
                     debug_dict2.update({key:op_term22_arr})
             if key == 'term2':
-                    op_term2_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    op_term2_arr.append(term(Ev, phiv, phiprimev, omegalv, omegamv, omegarv,*parameters))
                     debug_dict2.update({key:op_term2_arr})
 
     K_arr = []
