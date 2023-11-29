@@ -120,12 +120,33 @@ E_arr = np.array(UE_arr)#/U0 #check whether COLA requires intermediates construc
 E_prime_arr = np.array(UE_prime_arr)#/U0 #check whether backend requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
-print('testtestsetsetset')
-print(lambdified_kmou['kmou_coupling'](1,1, 1))
+#debug
+EpE_A_arr = background_quantities['EpE_debug']['A']
+EpE_A1_arr = background_quantities['EpE_debug']['A1']
+EpE_A2_arr = background_quantities['EpE_debug']['A2']
+EpE_B1_arr = background_quantities['EpE_debug']['B1']
+EpE_B2_arr = background_quantities['EpE_debug']['B2']
+EpE_B21_arr = background_quantities['EpE_debug']['B21']
+EpE_B22_arr = background_quantities['EpE_debug']['B22']
+EpE_B23_arr = background_quantities['EpE_debug']['B23']
+EpE_term1_arr = background_quantities['EpE_debug']['term1']
+EpE_term2_arr = background_quantities['EpE_debug']['term2']
+EpE_term21_arr = background_quantities['EpE_debug']['term21']
+EpE_term22_arr = background_quantities['EpE_debug']['term22']
+EpE_term3_arr = background_quantities['EpE_debug']['term3']
+EpE_term4_arr = background_quantities['EpE_debug']['term4']
+
+omegap_term1_arr = background_quantities['omega_phi_debug']['term1']
+omegap_term2_arr = background_quantities['omega_phi_debug']['term2']
+omegap_term21_arr = background_quantities['omega_phi_debug']['term21']
+omegap_term22_arr = background_quantities['omega_phi_debug']['term22']
+
+K_arr = background_quantities['Horndeski_K']
 
 K0 = parameters[0]
-print(lambdified_kmou['kmou_screening'](U0,K0,1,1))
 
+
+E_final = E_arr[0]
 kmou_coupling_arr = []
 kmou_screening_arr = []
 for phiv in phi_arr:
@@ -142,6 +163,8 @@ if not os.path.exists(directory):
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
 filename_full = directory+f'/{model}_{cosmology_name}_full.txt'
+filename_EpE_debug = directory+f'/{model}_{cosmology_name}_EpE_debug.txt'
+filename_omegapAndK_debug = directory+f'/{model}_{cosmology_name}_omegapAndK_debug.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
@@ -150,19 +173,26 @@ while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) ) a
     filename_expansion = sp.renamer(filename_expansion)
     filename_force = sp.renamer(filename_force)
     filename_full = sp.renamer(filename_full)
+    filename_EpE_debug = sp.renamer(filename_EpE_debug)
+    filename_omegapAndK_debug = sp.renamer(filename_omegapAndK_debug)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing expansion and force output file names.")
 if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
-expansion_datanames = 'a    E    E\'/E'
-full_datanames = 'a    E    E\'/E    phi    phi\'    omega_m    omega_r    omega_phi    omega_lambda    Growthfac    Growthfacprime'
-force_datanames = 'a    S (zeta/rootgradphi)    beta (coupling_factor)'
-
+spaces='        '
+expansion_datanames = '# a        E           E\'/E'
+full_datanames = '# a        E           E\'/E        phi         phi\'       omega_m    omega_r     omega_phi  omega_l    Growthfac  Growthfacprime'
+force_datanames = '# a        S           coupling'
+debug_EpE_datanames = '#a'+spaces+'A'+spaces+'A1'+spaces+'A2'+spaces+'B1'+spaces+'B2'+spaces+'B21'+spaces+'B22'+spaces+'B23'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'term3'+spaces+'term4'
+debug_omegap_datanames = '#a'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'K'
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion, expansion_datanames)
 sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr, growthfac_arr, growthfracprime_arr], filename_full, full_datanames)
 sp.write_data_flex([a_arr,kmou_screening_arr,kmou_coupling_arr],filename_force, force_datanames)
 
+#debug
+sp.write([a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr], filename_EpE_debug, debug_EpE_datanames)
+sp.write([a_arr, omegap_term1_arr, omegap_term2_arr, omegap_term21_arr, omegap_term22_arr,K_arr])
    
 print(f'Files generated. Saved in {abs_directory}')

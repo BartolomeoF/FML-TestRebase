@@ -54,7 +54,7 @@ def nearest_index(arr, val):
     for index,val in enumerate(subtracted_arr):
         newval=1000.
         if val < 0:
-	        subtracted_arr[index] = newval	
+            subtracted_arr[index] = newval	
     near_index = subtracted_arr.argmin()
     return near_index
 
@@ -328,6 +328,11 @@ def run_solver(read_out_dict):
     calC_lambda = read_out_dict['calC_lambda']
     coupling_factor = read_out_dict['coupling_factor']
 
+    #debug
+    EpE_debug = read_out_dict['EpE_debug']
+    omega_phi_debug = read_out_dict['omega_phi_debug']
+    K_lambda = read_out_dict['Horndeski_K']
+
     parameter_symbols = read_out_dict['symbol_list']
     odeint_parameter_symbols = read_out_dict['odeint_parameter_symbols']
     cl_declaration = read_out_dict['closure_declaration']
@@ -455,6 +460,87 @@ def run_solver(read_out_dict):
     E_arr = Hubble_arr/Hubble0
     chioverdelta_arr = chi_over_delta(a_arr_inv, E_arr, calB_arr, calC_arr, Omega_m0)
 
+    #debug
+    debug_dict = {}
+    Adebug_arr = []
+    A1debug_arr = []
+    A2debug_arr = []
+    B1debug_arr = []
+    B21debug_arr = []
+    B22debug_arr = []
+    B23debug_arr = []
+    EpE_term1_arr = []
+    EpE_term21_arr = []
+    EpE_term22_arr = []
+    EpE_term2_arr = []
+    EpE_term3_arr = []
+    EpE_term4_arr = []
+    for key, term in EpE_debug:
+        for Omega_rv, Omega_lv, Ev, phiv, phi_primev in zip(Omega_r_arr, Omega_l_arr, Hubble_arr, phi_arr, phi_prime_arr):
+            if key == 'A':
+                Adebug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:Adebug_arr})
+            if key == 'A1':
+                A1debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:A1debug_arr})
+            if key == 'A2':
+                A2debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:A2debug_arr})
+            if key == 'B1':
+                B1debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:B1debug_arr})
+            if key == 'B21':
+                B21debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:B21debug_arr})
+            if key == 'B22':
+                B22debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:B22debug_arr})
+            if key == 'B23':
+                B23debug_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:B23debug_arr})
+            if key == 'term1':
+                EpE_term1_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term1_arr})
+            if key == 'term21':
+                EpE_term21_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term21_arr})
+            if key =='term22':
+                EpE_term22_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term22_arr})
+            if key == 'term2':
+                EpE_term2_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term2_arr})
+            if key == 'term3':
+                EpE_term3_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term3_arr})
+            if key == 'term4':
+                EpE_term4_arr.append(term(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+                debug_dict.update({key:EpE_term4_arr})
+    
+    debug_dict2 = {}
+    op_term1_arr = []
+    op_term21_arr = []
+    op_term22_arr = []
+    op_term2_arr = []
+    for key, term in omega_phi_debug:
+        for Omega_rv, Ev, E_primev, phiv, phi_primev in zip(Omega_r_arr, Hubble_arr, Hubble_prime_arr, phi_arr, phi_prime_arr):
+            if key == 'term1':
+                    op_term1_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    debug_dict2.update({key:op_term1_arr})
+            if key == 'term21':
+                    op_term21_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    debug_dict2.update({key:op_term21_arr})
+            if key == 'term22':
+                    op_term22_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    debug_dict2.update({key:op_term22_arr})
+            if key == 'term2':
+                    op_term2_arr.append(term(Ev,E_primev,phiv, phi_primev,*parameters))
+                    debug_dict2.update({key:op_term2_arr})
+
+    K_arr = []
+    for Ev, phiv, phi_primev in zip(Hubble_arr, phi_arr, phi_prime_arr):
+        K_arr.append(K_lambda(Ev, phiv, phi_primev, *parameters))        
+
     solution_arrays = {'a':a_arr_inv, 'Hubble':Hubble_arr, 'Hubble_prime':Hubble_prime_arr,'E_prime_E':E_prime_E_arr, 'scalar':phi_arr,'scalar_prime':phi_prime_arr,'scalar_primeprime':phi_primeprime_arr}
     cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr,'omega_phi':Omega_phi_arr, 'omega_DE':Omega_DE_arr}
     cosmo_density_prime_arrays = {'omega_m_prime':Omega_m_prime_arr,'omega_r_prime':Omega_r_prime_arr,'omega_l_prime':Omega_l_prime_arr}
@@ -464,7 +550,7 @@ def run_solver(read_out_dict):
     for i in [solution_arrays, cosmological_density_arrays, cosmo_density_prime_arrays,force_quantities]:
         result.update(i)
     result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration, 'closure_full':cl_var_full})
-
+    result.update({'EpE_debug':debug_dict, 'omega_phi_debug':debug_dict2, 'Horndeski_K':K_arr})
 
     return result #a_arr_inv, Hubble_arr, E_prime_E_arr, Hubble_prime_arr, phi_prime_arr,  phi_primeprime_arr, Omega_r_arr, Omega_m_arr, Omega_DE_arr, Omega_l_arr, Omega_phi_arr, Omega_phi_diff_arr, Omega_r_prime_arr, Omega_m_prime_arr, Omega_l_prime_arr, A_arr, calB_arr, calC_arr, coupling_factor_arr, chioverdelta_arr #phi_prime_check_arr
 

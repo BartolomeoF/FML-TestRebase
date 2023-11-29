@@ -237,7 +237,8 @@ def omega_phi(G3, G4,  K,
     term22 = 3*M_G3s*M_sG4*X*phiprime*G3x - M_G3G4*M_sG4*X*G3phi/(E**2.) - 3*phiprime*G4phi
     term2 = term21 + term22
     omega_de = term1 + (1/(3.*G4))*term2
-    return omega_de
+    debug = {'term1':term1, 'term21':term21, 'term22':term22, 'term2':term2}
+    return omega_de, debug
 
 
 def EprimeEODERHS(G3, G4,  K,
@@ -293,7 +294,9 @@ def EprimeEODERHS(G3, G4,  K,
     # print('RHS is')
     # print(sym.latex(RHS))
     EprimeE =  (term2 + term3 + term4)/term1
-    return EprimeE
+    debug = {'A':A, 'A1':A1, 'A2':A2, 'B1':B, 'B2':B, 'B21':B21, 'B22':B22, 'B23':B23, 'term1':term1, 'term21':term21, 'term22':term22, 'term2':term2,
+             'term3':term3, 'term4':term4}
+    return EprimeE, debug
 
 def EprimeEODERHS_safe(G3, G4,  K,
         threshold='threshold',
@@ -999,13 +1002,28 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
 
     [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
-    E_prime_E = EprimeEODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
+    E_prime_E, EpE_debug = EprimeEODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
     Xreal = 0.5*(E**2.)*phiprime**2.
+
+    Kfn = K.subs(X, Xreal)
+    Kfn_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],Kfn,"scipy")
+
+    G3fn = K.subs(X, Xreal)
+    G3fn_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],G3fn,"scipy")
+    
+    G4fn = K.subs(X, Xreal)
+    G4fn_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],G4fn,"scipy")
 
     E_prime_E = E_prime_E.subs(X,Xreal)
     E_prime_E_safe = EprimeEODERHS_safe(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     E_prime_E_safe = E_prime_E_safe.subs(X,Xreal)
 
+    EpE_debug_lambda  = {}
+    for key, term in EpE_debug.items():
+         newterm = term.subs(X, Xreal)
+         lambda_key = key+"_lambda"
+         newtermlambda = sym.lambdify([E,phi, phiprime,omegar,omegal,*symbol_list],newterm, "scipy")
+         EpE_debug_lambda.update({lambda_key:newtermlambda})
 
     phi_primeprime = phiprimeprimeODERHS(G3, G4, K,M_pG4=M_pG4_test, M_KG4 =M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     phi_primeprime = phi_primeprime.subs(X,Xreal)
@@ -1019,8 +1037,15 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     B2_function = B2_function.subs(X,Xreal)
     B2_lambda = sym.lambdify([E,phi, phiprime,*symbol_list],B2_function,"scipy")
 
-    omega_field = omega_phi(G3=G3,G4=G4,K=K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
+    omega_field, omega_field_debug = omega_phi(G3=G3,G4=G4,K=K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     omega_field = omega_field.subs(X,Xreal)
+
+    omega_field_debug_lambda  = {}
+    for key, term in omega_field_debug.items():
+         newterm = term.subs(X, Xreal)
+         lambda_key = key+"_lambda"
+         newtermlambda = sym.lambdify([E,phi, phiprime, omegal, omegam, omegar, *symbol_list],newterm, "scipy")
+         omega_field_debug_lambda.update({lambda_key:newtermlambda})
 
     fried_RHS_lambda = fried_closure(G3, G4,  K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test, M_G3G4=M_G3G4_test, M_Ks=M_Ks_test)
     fried_RHS_lambda = fried_RHS_lambda.subs(X,Xreal)
@@ -1066,7 +1091,8 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
-                             'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb}
+                             'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 'Horndeski_K':Kfn_lambda,
+                             'Horndeski_G3':G3fn_lambda, 'Horndeski_G4':G4fn_lambda, 'EpE_debug':EpE_debug_lambda, 'omega_phi_debug':omega_field_debug_lambda}
     return lambda_functions_dict
 #E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
  #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
