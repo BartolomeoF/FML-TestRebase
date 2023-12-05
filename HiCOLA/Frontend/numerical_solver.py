@@ -304,6 +304,18 @@ def chi_over_delta_DGP(rcH0, a, E, Eprime, Omega_m0):
     chioverdelta = 8.*rcH0*rcH0*Omega_m0/9./beta/beta/a/a/a
     return chioverdelta
 
+def coupling_kmou(a,betaK):
+    arr = np.ones(len(a))
+    return arr*2*betaK*betaK
+
+def screening_kmou(K0,H0,betaK,M_sp, E):
+    bfac = (2./3.)**3.
+    fac2 = 3*betaK*E/2./np.pi/M_sp
+    fac2v2 = 3*betaK/2./np.pi/H0/M_sp
+    screening = ( -6.*K0*bfac*fac2*fac2 )**0.25
+    screeningv2 = ( -6.*K0*bfac*fac2v2*fac2v2 )**0.25
+    return screening, screeningv2
+
 
 def run_solver(read_out_dict):
 # (z_num, z_ini, Hubble0, phi_prime0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda,

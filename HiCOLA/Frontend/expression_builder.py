@@ -937,7 +937,7 @@ def coupling_factor_kmou(G4,
                 parameters[i] = sy(parameters[i])
     [G4, phi] = parameters
     betak = beta_K(G4, phi)
-    coupling = 2.*(6.**0.5)*betak*betak/4./phi/phi
+    coupling = 2.*betak*betak
     return coupling
 
 def screening_kmou(G4, H0='H_0', K0='K_0',  M_Ks = 'M_{Ks}'):
