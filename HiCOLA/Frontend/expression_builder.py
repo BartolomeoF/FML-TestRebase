@@ -295,6 +295,44 @@ def EprimeEODERHS(G3, G4,  K,
     EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
+def EprimeE_unsubbed_ODERHS(G3, G4,  K,
+        E='E',
+        Eprime='Eprime',
+        M_pG4 = 'M_{pG4}',
+        M_KG4 = 'M_{KG4}',
+        M_G3s = 'M_{G3s}',
+        M_sG4 = 'M_{sG4}',
+        M_G3G4 = 'M_{G3G4}',
+        M_Ks = 'M_{Ks}',
+        phi='phi',
+        phiprime='phiprime',
+        phiprimeprime='phiprimeprime',
+        omegar='Omega_r',
+        omegal='Omega_l',
+        X='X'):
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    parameters = [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegal, X] = parameters
+    M_G4s = 1./M_sG4
+    term1 = M_KG4*M_KG4*K/E/E
+    phiblock = Eprime*phiprime/E + phiprimeprime
+
+    term2 = 2.*M_sG4*M_sG4*X(M_G3s*G3phi/E/E + M_G3s*G3x*phiblock)
+
+    term3 = 2.*G4phi*(phiblock + 2*phiprime)
+    term4 = 4.*X*G4phiphi/E/E
+
+    prefactor = -1./4./G4
+
+    EprimeE = prefactor*(term1 - term2 + term3 + term4)
+    return EprimeE
+
 def EprimeEODERHS_safe(G3, G4,  K,
         threshold='threshold',
         threshold_sign='threshold_sign',
@@ -999,7 +1037,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
 
     [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
-    E_prime_E = EprimeEODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
+    E_prime_E = EprimeE_unsubbed_ODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
     Xreal = 0.5*(E**2.)*phiprime**2.
 
     E_prime_E = E_prime_E.subs(X,Xreal)
@@ -1026,8 +1064,8 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     fried_RHS_lambda = fried_RHS_lambda.subs(X,Xreal)
     fried_RHS_lambda = sym.lambdify([E, phi, phiprime, omegar,omegam, omegal, *symbol_list],fried_RHS_lambda)
 
-    E_prime_E_lambda = sym.lambdify([E,phi, phiprime,omegar,omegal,*symbol_list],E_prime_E, "scipy")
-    E_prime_E_safelambda = sym.lambdify([E,phi, phiprime,omegar, omegal, threshold,threshold_sign,*symbol_list],E_prime_E_safe, "scipy")
+    E_prime_E_lambda = sym.lambdify([E,phi, phiprime,phiprimeprime, omegar,omegal,*symbol_list],E_prime_E, "scipy")
+    E_prime_E_safelambda = sym.lambdify([E,phi, phiprime,phiprimeprime, omegar, omegal, threshold,threshold_sign,*symbol_list],E_prime_E_safe, "scipy")
 
     phi_primeprime_lambda = sym.lambdify([E,Eprime, phi, phiprime,*symbol_list],phi_primeprime, "scipy")
     phi_primeprime_safelambda = sym.lambdify([E,Eprime, phi, phiprime,threshold,threshold_sign,*symbol_list],phi_primeprime_safe, "scipy")

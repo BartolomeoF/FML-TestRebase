@@ -256,7 +256,7 @@ def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prim
     #print('a is '+str(a))
     #print([Y,a],file=Y_vs_a_txt)
     #print('Y is '+str(Y))
-    phiY, phi_primeY, EUY, Omega_rY, Omega_mY, Omega_lY = Y
+    phiY, phi_primeY, phi_primeprimeY, EUY, EUprimeY, Omega_rY, Omega_mY, Omega_lY = Y
     A_value = A_lambda(EUY,phiY,phi_primeY,*parameters)
     if A_value - abs(A_value) == 0:
         A_sign = 1.
@@ -265,9 +265,9 @@ def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prim
 
 
     if (abs(A_value) >= threshold and GR_flag==False) or (threshold==0. and GR_flag==False):
-        E_prime_E_evaluated = E_prime_E_lambda(EUY,phiY, phi_primeY,Omega_rY,Omega_lY,*parameters)
+        E_prime_E_evaluated = E_prime_E_lambda(EUY,phiY, phi_primeY, phi_primeprimeY, Omega_rY,Omega_lY,*parameters)
         E_prime_evaluated = E_prime_E_evaluated*EUY
-        phi_primeprime_evaluated = phi_primeprime_lambda(EUY,E_prime_evaluated, phiY, phi_primeY,*parameters)
+        phi_primeprime_evaluated = phi_primeprime_lambda(EUY,E_prime_evaluated, phiY, phi_primeY,*parameters) #is Eprime IC needed or can use line 269?
     if (abs(A_value) < threshold and GR_flag==False):
         E_prime_E_evaluated = E_prime_E_safelambda(EUY,phiY, phi_primeY,Omega_rY,Omega_lY, threshold,A_sign,*parameters)
         E_prime_evaluated = E_prime_E_evaluated*EUY
@@ -312,7 +312,7 @@ def run_solver(read_out_dict):
 
 
     [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
-    [Hubble0, phi0, phi_prime0] = read_out_dict['initial_conditions']
+    [Hubble0, phi0, phi_prime0, phi_primeprime0] = read_out_dict['initial_conditions']
     [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
     parameters = read_out_dict['Horndeski_parameters']
 
@@ -351,25 +351,25 @@ def run_solver(read_out_dict):
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0_closed = cl_var
-            Y0 = [phi_prime0,Hubble0_closed,Omega_r0,Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0,phi_primeprime0, Hubble0_closed,Omega_r0,Omega_m0, Omega_l0]
         if cl_declaration[1] == 1:
             phi0_closed = cl_var
-            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r0, Omega_m0, Omega_l0]
+            Y0 = [phi0_closed, phi_prime0, phi_primeprime0, Hubble0, Omega_r0, Omega_m0, Omega_l0]
         if cl_declaration[1] == 2:
             phi_prime0_closed = cl_var
             if 1.-Omega_r0 - Omega_m0 == Omega_l0:
                     phi_prime0_closed = 0.
-            Y0 = [phi0, phi_prime0_closed,Hubble0,Omega_r0,Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0_closed,phi_primeprime0, Hubble0,Omega_r0,Omega_m0, Omega_l0]
         if cl_declaration[1] == 3:
             Omega_r0_closed = cl_var
-            Y0 =[phi0, phi_prime0,Hubble0,Omega_r0_closed,Omega_m0, Omega_l0]
+            Y0 =[phi0, phi_prime0,phi_primeprime0, Hubble0,Omega_r0_closed,Omega_m0, Omega_l0]
         if cl_declaration[1] == 4:
             Omega_m0_closed = cl_var
-            Y0 = [phi0, phi_prime0,Hubble0,Omega_r0,Omega_m0_closed, Omega_l0]
+            Y0 = [phi0, phi_prime0,phi_primeprime0,Hubble0,Omega_r0,Omega_m0_closed, Omega_l0]
         #print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     if cl_declaration[0] == 'parameters':
         parameters[cl_declaration[1]] = cl_var
-        Y0 = [phi0, phi_prime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
+        Y0 = [phi0, phi_prime0,phi_primeprime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
         #print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     # print('Y0 is '+str(Y0))
 
