@@ -940,22 +940,26 @@ def coupling_factor_kmou(G4,
                 parameters[i] = sy(parameters[i])
     [G4, phi] = parameters
     betak = beta_K(G4, phi)
-    coupling = 2.*(6.**0.5)*betak*betak/4./phi/phi
+    coupling = 2.*betak*betak
     return coupling
 
-def screening_kmou(G4, H0='H_0', K0='K_0',  M_Ks = 'M_{Ks}'):
-    parameters = [G4, H0, K0, M_Ks]
+def screening_kmou(G4, E='E', H0='H_0', K0='K_0',  M_pG4 = 'M_{pG4}',M_sG4 = 'M_{sG4}'):
+    parameters = [G4, E, H0, K0, M_pG4, M_sG4]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
             if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
                 parameters[i] = sy(parameters[i])
-    [G4, H0, K0, M_Ks] = parameters
+    [G4, E, H0, K0, M_pG4, M_sG4] = parameters
     betak = beta_K(G4)
     term1 = -6.*K0*((2/3)**3.)
-    term2 = 3*betak*4./M_Ks/H0
+    term2 = 3*betak*4.*M_pG4/M_sG4/H0
     term2m = term2*term2
     screening = (term1*term2m)**0.25
-    return screening
+
+    term2v2 = 3*betak*4*E*M_pG4/M_sG4 #assumed that d/dt -> d/dx eventually brings factor of H in numerator
+    term2mv2 = term2v2*term2v2
+    screeningv2 = (term1*term2mv2)**0.25
+    return screening, screeningv2
 
 def coupling_factor(G3, G4,  K,
         E='E',
@@ -1103,10 +1107,11 @@ def create_kmouflage(G4, symbol_list, mass_ratio_list):
      print(kmou_coupling_func)
      kmou_coupling_lambda = sym.lambdify([phi,*symbol_list],kmou_coupling_func)
 
-     kmou_screening_func = screening_kmou(G4, M_Ks = M_Ks_test)
-     kmou_screening_lambda = sym.lambdify(['H_0','K_0',phi, *symbol_list[1:]],kmou_screening_func) #symbol_list[1:] to exclude K0
-     
-     lambda_functions_dict = {'kmou_screening':kmou_screening_lambda, 'kmou_coupling':kmou_coupling_lambda}
+     kmou_screening_func, kmou_screening_withE_func = screening_kmou(G4, M_pG4 = M_pG4_test, M_sG4 = M_sG4_test)
+     kmou_screening_lambda = sym.lambdify([phi,'H_0','K_0', *symbol_list[1:]],kmou_screening_func) #symbol_list[1:] to exclude K0
+     kmou_screening_withE_lambda = sym.lambdify([E,phi,'K_0', *symbol_list[1:]],kmou_screening_withE_func)
+
+     lambda_functions_dict = {'kmou_screening':kmou_screening_lambda, 'kmou_screening_withE':kmou_screening_withE_lambda, 'kmou_coupling':kmou_coupling_lambda}
      return lambda_functions_dict
 
 

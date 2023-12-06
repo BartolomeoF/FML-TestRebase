@@ -149,9 +149,11 @@ K0 = parameters[0]
 E_final = E_arr[0]
 kmou_coupling_arr = []
 kmou_screening_arr = []
-for phiv in phi_arr:
-        kmou_coupling_arr.append(lambdified_kmou['kmou_coupling'](phiv, *parameters))
-        kmou_screening_arr.append(lambdified_kmou['kmou_screening'](U0, K0, phiv, *parameters[1:])) #parameters[1:] should exclude K0 parameter
+kmou_screening_withE_arr = []
+for Ev,phiv in zip(E_arr, phi_arr):
+        kmou_coupling_arr.append(lambdified_kmou['kmou_coupling'](phiv,*parameters))
+        kmou_screening_arr.append(lambdified_kmou['kmou_screening'](phiv,U0, K0, *parameters[1:])) #parameters[1:] should exclude K0 parameter
+        kmou_screening_withE_arr.append(lambdified_kmou['kmou_screening_withE'](Ev, phiv, K0, *parameters[1:]))
 
 growthfac_arr, growthfracprime_arr = ns.solve_1stgrowth_factor(a_arr, omega_m_arr, UE_prime_UE_arr, kmou_coupling_arr)
 
@@ -162,6 +164,7 @@ if not os.path.exists(directory):
 
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
+filename_force2 = directory+f'/{model}_{cosmology_name}_force2.txt'
 filename_full = directory+f'/{model}_{cosmology_name}_full.txt'
 filename_EpE_debug = directory+f'/{model}_{cosmology_name}_EpE_debug.txt'
 filename_omegapAndK_debug = directory+f'/{model}_{cosmology_name}_omegapAndK_debug.txt'
@@ -172,6 +175,7 @@ while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) ) a
     loop_counter += 1
     filename_expansion = sp.renamer(filename_expansion)
     filename_force = sp.renamer(filename_force)
+    filename_force2 = sp.renamer(filename_force2)
     filename_full = sp.renamer(filename_full)
     filename_EpE_debug = sp.renamer(filename_EpE_debug)
     filename_omegapAndK_debug = sp.renamer(filename_omegapAndK_debug)
@@ -187,18 +191,12 @@ force_datanames = '# a        S           coupling'
 debug_EpE_datanames = '#a'+spaces+'A'+spaces+'A1'+spaces+'A2'+spaces+'B1'+spaces+'B2'+spaces+'B21'+spaces+'B22'+spaces+'B23'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'term3'+spaces+'term4'
 debug_omegapAndK_datanames = '#a'+spaces+'term1'+spaces+'term2'+spaces+'term21'+spaces+'term22'+spaces+'K'
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion, expansion_datanames)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)#, expansion_datanames)
 sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr, growthfac_arr, growthfracprime_arr], filename_full, full_datanames)
-sp.write_data_flex([a_arr,kmou_screening_arr,kmou_coupling_arr],filename_force, force_datanames)
+sp.write_data_flex([a_arr,kmou_screening_arr,kmou_coupling_arr],filename_force)#, force_datanames)
+sp.write_data_flex([a_arr, kmou_screening_withE_arr, kmou_coupling_arr],filename_force2)
 
 #debug
-
-print('debug statement inc')
-print(EpE_B2_arr)
-for i in [a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr]:
-     
-     print(i[0])
-
 sp.write_data_flex([a_arr,EpE_A_arr, EpE_A1_arr, EpE_A2_arr, EpE_B1_arr, EpE_B2_arr, EpE_B21_arr, EpE_B22_arr, EpE_B23_arr, EpE_term1_arr, EpE_term2_arr, EpE_term21_arr, EpE_term22_arr, EpE_term3_arr, EpE_term4_arr], filename_EpE_debug, debug_EpE_datanames)
 sp.write_data_flex([a_arr, omegap_term1_arr, omegap_term2_arr, omegap_term21_arr, omegap_term22_arr,K_arr], filename_omegapAndK_debug, debug_omegapAndK_datanames)
    
