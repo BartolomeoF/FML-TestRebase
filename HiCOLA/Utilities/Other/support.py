@@ -36,7 +36,7 @@ def write_all_data(a_arr_inv, E_arr, E_prime_arr, phi_prime_arr, phi_primeprime_
     np.savetxt(datafile_id, data, fmt=['%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e','%.4e'])    #here the ascii file is populated.
     datafile_id.close()    #close the file
 
-def write_data_flex(data, output_filename_as_string, datanames):
+def write_data_flex(data, output_filename_as_string, datanames=''):
     datafile_id = open(output_filename_as_string, 'wb')    #here you open the ascii file
     format_list = list(np.repeat('%.4e',len(data)))
     newdata = []
