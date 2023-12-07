@@ -58,6 +58,7 @@ G4 = read_out_dict['G4']
 cosmology_name = read_out_dict['cosmo_name']
 [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
 [U0, phi0, phi_prime0] = read_out_dict['initial_conditions']
+H0_mass_units = read_out_dict['H0_in_mass_units']
 [Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
 parameters = read_out_dict['Horndeski_parameters']
 mass_ratio_list = read_out_dict['mass_ratio_list']
@@ -152,7 +153,7 @@ kmou_screening_arr = []
 kmou_screening_withE_arr = []
 for Ev,phiv in zip(E_arr, phi_arr):
         kmou_coupling_arr.append(lambdified_kmou['kmou_coupling'](phiv,*parameters))
-        kmou_screening_arr.append(lambdified_kmou['kmou_screening'](phiv,U0, K0, *parameters[1:])) #parameters[1:] should exclude K0 parameter
+        kmou_screening_arr.append(lambdified_kmou['kmou_screening'](phiv,H0_mass_units, K0, *parameters[1:])) #parameters[1:] should exclude K0 parameter
         kmou_screening_withE_arr.append(lambdified_kmou['kmou_screening_withE'](Ev, phiv, K0, *parameters[1:]))
 
 growthfac_arr, growthfracprime_arr = ns.solve_1stgrowth_factor(a_arr, omega_m_arr, UE_prime_UE_arr, kmou_coupling_arr)

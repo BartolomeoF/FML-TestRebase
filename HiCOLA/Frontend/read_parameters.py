@@ -4,6 +4,7 @@ import numpy as np
 import HiCOLA.Frontend.expression_builder as eb
 from HiCOLA.Utilities.Other.support import generate_scan_array as gsa
 from HiCOLA.Utilities.Other.support import make_scan_array as msa
+from HiCOLA.Utilities.Other.support import littleH_to_massH0
 
 def read_in_parameters(horndeski_path, numerical_path):
     read_out = {}
@@ -11,6 +12,8 @@ def read_in_parameters(horndeski_path, numerical_path):
     numerical_read = ConfigObj(numerical_path)
 
     h = numerical_read.as_float("h")
+
+    H0_mass_units = littleH_to_massH0(h)
 
     Npoints = numerical_read.as_int('Npoints')
     max_redshift = numerical_read.as_float('max_redshift')
@@ -114,7 +117,8 @@ def read_in_parameters(horndeski_path, numerical_path):
     simulation_dict = {'simulation_parameters':simulation_parameters, 'threshold_value':threshold_value,'GR_flag':GR_flag}
     read_out.update(simulation_dict)
 
-    parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions}
+    parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions,
+                        'little_h':h, 'H0_in_mass_units':H0_mass_units}
     read_out.update(parameters_dict)
 
     return read_out
