@@ -228,3 +228,16 @@ def interpolate_common_domain(k1_arr, pofk1_arr, k2_arr, pofk2_arr):
     pofk2_splined_arr = pofk2_spline(k1_arr)
     
     return k1_arr, pofk1_arr, pofk2_splined_arr
+
+def littleH_to_massH0(h):
+    #light speed in SI
+    c = 2.998*1e+8
+
+    #Newton's Gravitational constant in SI
+    GN = 6.674*1e-11
+
+    #Megaparsec in metres
+    Mpc = 3.086*1e+22
+
+    H0_mass_units = h*100.*1000.*c/Mpc/GN #used in k-mouflage screening factor
+    return H0_mass_units
