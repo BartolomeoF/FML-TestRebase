@@ -18,6 +18,8 @@
 #include <FML/RandomFields/NonLocalGaussianRandomField.h>
 #include <FML/Timing/Timings.h>
 #include <complex>
+#include <iostream>
+#include <string>
 
 namespace FML {
 
@@ -1293,6 +1295,7 @@ namespace FML {
                     auto grad_phi_newton_y = phi_y.get_real_from_index(real_index);
                     auto grad_phi_newton_z = phi_z.get_real_from_index(real_index);
                     auto mod_grad_newton = std::sqrt(grad_phi_newton_x*grad_phi_newton_x+grad_phi_newton_y*grad_phi_newton_y+grad_phi_newton_z*grad_phi_newton_z);
+                    std::cout << "[DEBUG] Value of abs(grad[phi]) = " << mod_grad_newton << std::endl;
                     auto delta = delta_real.get_real_from_index(real_index);
                     auto screening_factor = screening_factor_of_newtonian_potential(mod_grad_newton); //feed gradient of phi_newton here
                     density_mg_fourier.set_real_from_index(real_index, delta * screening_factor);
