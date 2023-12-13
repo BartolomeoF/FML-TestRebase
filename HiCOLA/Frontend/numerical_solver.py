@@ -91,6 +91,15 @@ def comp_Omega_m_LCDM(z, Omega_r0, Omega_m0):
     Omega_m = Omega_m0*(1.+z)**3./E/E
     return Omega_m
 
+def comp_Omega_m(z,Omega_m0,E,timeswitch='redshift'):
+    if timeswitch == 'redshift':
+        Omega_m = Omega_m0*(1.+z)**3./E/E
+    elif timeswitch == 'scale_factor': #z variable to be interpreted as scale factor
+        Omega_m = Omega_m0/E/E/z/z/z
+    else:
+        raise('Not sure which time variable is being used. Options are \'redshift\' or \'scale_factor\'')
+    return Omega_m
+
 def comp_Omega_L_LCDM(z, Omega_r0, Omega_m0):
     Omega_L0 = 1.-Omega_m0-Omega_r0
     E = comp_E_LCDM(z, Omega_r0, Omega_m0)
@@ -633,4 +642,4 @@ def solve_1stgrowth_factor(a_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr):
     Dprime_growth_arr = ans[:,1]
     D_growth_arr_inv = D_growth_arr[::-1]
     Dprime_growth_arr_inv = Dprime_growth_arr[::-1]
-    return D_growth_arr_inv, Dprime_growth_arr_inv
+    return D_growth_arr, Dprime_growth_arr
