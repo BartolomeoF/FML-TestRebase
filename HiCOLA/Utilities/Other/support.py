@@ -241,3 +241,22 @@ def littleH_to_massH0(h):
 
     H0_mass_units = h*100.*1000.*c/Mpc/GN #used in k-mouflage screening factor
     return H0_mass_units
+
+def EinsteinToJordan(a_E, H_E, betaK, phi_E, dphidx_E,M_pG4=1.0, M_sG4=1.0, H0_E = None, E_E_flag = False ):
+    '''
+    Converts Hubble rate in Einstein frame to Jordan frame. Assumes
+    exponential conformal factor  A = exp(betaK*phi). Also gives numerical
+    gradient of Jordan Hubble rate with respect to Jordan scale factor.
+    '''
+    A = np.exp(betaK*M_sG4*phi_E/M_pG4)
+    if E_E_flag is True:
+        H_J =  H0_E*H_E*(1.0 + M_sG4*betaK*phi_E/M_pG4)/A
+    else:
+        H_J = H_E*(1.0 + M_sG4*betaK*phi_E/M_pG4)/A
+    H_J_paper = A*H_E*(1.0 - M_sG4*betaK*phi_E/M_pG4)
+    a_J = A*a_E
+
+    H0_J = H_J[-1]
+    E_J = H_J/H0_J
+    Eprime_J = np.gradient(E_J, a_J)
+    return a_J, E_J, Eprime_J, H_J, H_J_paper, H0_J
