@@ -317,6 +317,18 @@ def coupling_kmou(a,betaK):
     arr = np.ones(len(a))
     return arr*2*betaK*betaK
 
+def coupling_kmou_brax(betaK, K0, E, phi, phiprime):
+    '''
+    A = exp(beta_K*phi) assumed. See equation 2.15 in 1509.00611
+    '''
+    X = E*E*phiprime*phiprime/2.
+    term1 = 2.*K0*X
+    term2 = (6.*betaK*betaK + 1.)*np.exp(-2.*betaK*phi)
+    Kx = term1 + term2
+    coupling_brax = 2*betaK*betaK/Kx
+    return coupling_brax
+
+
 def screening_kmou(a,K0,H0,betaK,M_pG4,M_KG4):
     term1 = 6.*abs(K0)*((2/3)**3.)
     term2 = 3*betaK*M_pG4/2./np.pi/H0/M_KG4

@@ -42,9 +42,9 @@ parser.add_argument('input_ini_filenames',nargs=3)
 args = parser.parse_args()
 print(args)
 filenames = args.input_ini_filenames
-Horndeski_path = filenames[0]
-numerical_path = filenames[1]
-bg_path = filenames[2]
+Horndeski_path = filenames[0] #Horndeski functional forms and parameter values
+numerical_path = filenames[1] #Cosmological and simulation parameter values
+bg_path = filenames[2] #Background file to read
 
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
@@ -111,8 +111,8 @@ cl_message = cl_full[3]
 
 read_a_arr, read_E_arr, read_EpE_arr, read_phi_arr = np.loadtxt(bg_path,unpack=True)
 read_Eprime_arr = [EpE*E for E, EpE in zip(read_E_arr, read_EpE_arr)]
-read_phiprime_arr = np.gradient(read_phi_arr, read_a_arr)
-read_phiprimeprime_arr = np.gradient(read_phiprime_arr, read_a_arr)
+read_phiprime_arr = np.gradient(read_phi_arr, read_a_arr, edge_order=2)*read_a_arr
+read_phiprimeprime_arr = np.gradient(read_phiprime_arr, read_a_arr, edge_order=2)*read_a_arr
 
 calB_lambda = lambdified_functions['calB_lambda']
 calC_lambda = lambdified_functions['calC_lambda']

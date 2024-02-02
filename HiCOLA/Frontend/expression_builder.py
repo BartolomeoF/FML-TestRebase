@@ -928,7 +928,7 @@ def beta_K(G4,
             if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
                 parameters[i] = sy(parameters[i])
     [G4, phi] = parameters
-    betak = (1./2./phi)*sym.ln(2*G4)
+    betak = (-1./2./phi)*sym.ln(2*G4)
     return betak
 
 def coupling_factor_kmou(G4,
@@ -942,6 +942,19 @@ def coupling_factor_kmou(G4,
     betak = beta_K(G4, phi)
     coupling = 2.*betak*betak
     return coupling
+
+def coupling_factor_kmou_brax(G4, K,
+                              phi='phi'):
+    parameters = [G4,K,phi]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G4, K, phi] = parameters
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    betak = beta_K(G4, phi)
+    coupling_brax = 2.*betak*betak/Kx
+    return coupling_brax
 
 def screening_kmou(G4, E='E', H0='H_0', K0='K_0',  M_pG4 = 'M_{pG4}',M_KG4 = 'M_{KG4}'):
     parameters = [G4, E, H0, K0, M_pG4, M_KG4]
@@ -1090,28 +1103,33 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
     coupling_fac = coupling_factor(G3,G4,K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
     coupling_fac = coupling_fac.subs([(X,Xreal)])
+    coupling_fac_sym = coupling_fac
     coupling_fac = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],coupling_fac)
 
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 'Horndeski_K':Kfn_lambda,
-                             'Horndeski_G3':G3fn_lambda, 'Horndeski_G4':G4fn_lambda, 'EpE_debug':EpE_debug_lambda, 'omega_phi_debug':omega_field_debug_lambda}
+                             'Horndeski_G3':G3fn_lambda, 'Horndeski_G4':G4fn_lambda, 'EpE_debug':EpE_debug_lambda, 'omega_phi_debug':omega_field_debug_lambda, 
+                             'coupling_factor_symbolic':coupling_fac_sym}
     return lambda_functions_dict
 #E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
  #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
 
-def create_kmouflage(G4, symbol_list, mass_ratio_list):
+def create_kmouflage(G4, K, symbol_list, mass_ratio_list):
      [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
      kmou_coupling_func = coupling_factor_kmou(G4)
      print(kmou_coupling_func)
+     kmou_brax_coupling_func = coupling_factor_kmou_brax(G4, K)
+
      kmou_coupling_lambda = sym.lambdify([phi,*symbol_list],kmou_coupling_func)
+     kmou_brax_coupling_lambda = sym.lambdify([phi,*symbol_list],kmou_brax_coupling_func)
 
      kmou_screening_func = screening_kmou(G4, M_pG4 = M_pG4_test, M_KG4 = M_KG4_test)
      kmou_screening_lambda = sym.lambdify([phi,'H_0','K_0', *symbol_list[1:]],kmou_screening_func) #symbol_list[1:] to exclude K0
      #kmou_screening_withE_lambda = sym.lambdify([E,phi,'K_0', *symbol_list[1:]],kmou_screening_withE_func)
 
-     lambda_functions_dict = {'kmou_screening':kmou_screening_lambda, 'kmou_coupling':kmou_coupling_lambda}
+     lambda_functions_dict = {'kmou_screening':kmou_screening_lambda, 'kmou_coupling':kmou_coupling_lambda, 'kmou_brax_coupling':kmou_brax_coupling_lambda}
      return lambda_functions_dict
 
 

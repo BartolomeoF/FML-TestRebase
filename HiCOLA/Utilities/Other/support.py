@@ -257,5 +257,8 @@ def EinsteinToJordan(a_E, H_E, betaK, phi_E, dphidx_E,M_pG4=1.0, M_sG4=1.0, H0_E
 
     H0_J = H_J[-1]
     E_J = H_J/H0_J
-    Eprime_J = np.gradient(E_J, a_J)
-    return a_J, E_J, Eprime_J, H_J, H_J_paper, H0_J
+    dEdaJ = np.gradient(E_J, a_J, edge_order=2)
+    Eprime_J_wrtaJ = dEdaJ*a_J
+    dEdaE = np.gradient(E_J, a_E, edge_order=2) #gradient w.r.t. a_E might be better for backend
+    Eprime_J_wrtaE = dEdaE*a_E #convert dE/da to dE/d(lna)
+    return a_J, E_J, Eprime_J_wrtaJ, Eprime_J_wrtaE, H_J, H0_J
