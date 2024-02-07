@@ -637,10 +637,10 @@ def compute_growthfac_primes(Y, x, x_arr, Omega_m_arr, E_prime_E_arr, coupling_a
     Dprimeprime = -1.*(2.+E_prime_E)*Dprime + 1.5*GeffOverG*Omega_m*D
     return [Dprime, Dprimeprime]
 
-def solve_1stgrowth_factor(a_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr):
+def solve_1stgrowth_factor(a_arr, Omega_m_arr, E_prime_E_arr, coupling_arr):
     """Solve for growth mode"""
-    x_arr_inv = [np.log(av) for av in a_arr_inv]
-    x_arr = x_arr_inv[::-1]
+    #x_arr_inv = [np.log(av) for av in a_arr_inv]
+    x_arr = [np.log(av) for av in a_arr] #x_arr_inv[::-1]
     x_ini = np.min(x_arr)
     a_ini = np.exp(x_ini)
     z_ini = 1./a_ini - 1.
@@ -649,9 +649,9 @@ def solve_1stgrowth_factor(a_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr):
     Dprime_ini_growth = 1. #np.exp(x_ini) #1.
     Y_ini_growth = [D_ini_growth, Dprime_ini_growth]
     #print(Y_ini_growth)
-    ans = odeint(compute_growthfac_primes, Y_ini_growth, x_arr, args=(x_arr_inv, Omega_m_arr, E_prime_E_arr, coupling_arr))
+    ans = odeint(compute_growthfac_primes, Y_ini_growth, x_arr, args=(x_arr, Omega_m_arr, E_prime_E_arr, coupling_arr))
     D_growth_arr = ans[:,0]
     Dprime_growth_arr = ans[:,1]
-    D_growth_arr_inv = D_growth_arr[::-1]
-    Dprime_growth_arr_inv = Dprime_growth_arr[::-1]
+    #D_growth_arr_inv = D_growth_arr[::-1]
+    #Dprime_growth_arr_inv = Dprime_growth_arr[::-1]
     return D_growth_arr, Dprime_growth_arr

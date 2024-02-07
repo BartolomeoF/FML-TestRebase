@@ -5,7 +5,8 @@ from scipy.optimize import fsolve
 import sys
 import matplotlib.pyplot as plt
 import itertools as it
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
+from HiCOLA.Frontend.numerical_solver import solve_1stgrowth_factor, comp_Omega_m
 
 # writing to file
 def write_data(a_arr_inv, E_arr, alpha1_arr, alpha2_arr, B_arr, C_arr, output_filename_as_string):
@@ -262,3 +263,43 @@ def EinsteinToJordan(a_E, H_E, betaK, phi_E, dphidx_E,M_pG4=1.0, M_sG4=1.0, H0_E
     dEdaE = np.gradient(E_J, a_E, edge_order=2) #gradient w.r.t. a_E might be better for backend
     Eprime_J_wrtaE = dEdaE*a_E #convert dE/da to dE/d(lna)
     return a_J, E_J, Eprime_J_wrtaJ, Eprime_J_wrtaE, H_J, H0_J
+
+def compute_growth(bg_file, preforce_file, Omega_m0):
+    a_arr, E_arr, EpE_arr = np.loadtxt(bg_file, unpack=True)
+    aF_arr, chioverdelta_arr, coupling_arr = np.loadtxt(preforce_file, unpack=True)
+
+    omegam_arr = comp_Omega_m(a_arr,Omega_m0,E_arr,timeswitch='scale_factor')
+
+    D_arr, Dprime_arr = solve_1stgrowth_factor(a_arr,omegam_arr, EpE_arr,coupling_arr)
+
+    return a_arr, D_arr, Dprime_arr
+
+def growth_factor_breakdown(mg_bg_file, mg_preforce_file, Omega_m0, a_lcdm, E_lcdm):
+    a_mg, E_mg, EpE_mg = np.loadtxt(mg_bg_file, unpack=True)
+    a_mg, chioverdelta, coupling = np.loadtxt(mg_preforce_file,unpack=True)
+
+    Elcdm_interp = InterpolatedUnivariateSpline(a_lcdm, E_lcdm, k=5)
+    dEdalcdm_interp = Elcdm_interp.derivative()
+    EprimeElcdm_func = lambda a: dEdalcdm_interp(a)*a/Elcdm_interp(a)
+
+    #All modified effects
+    omegam_arr = comp_Omega_m(a_mg, Omega_m0, E_mg, timeswitch='scale_factor')
+    D_arr, Dprime_arr = solve_1stgrowth_factor(a_mg, omegam_arr, EpE_mg, coupling)
+
+    #Isolate effect of E
+    omegam_wLCDM_arr = comp_Omega_m(a_lcdm,Omega_m0,E_lcdm,timeswitch='scale_factor')
+    omegam_wLCDM_interp = InterpolatedUnivariateSpline(a_lcdm, omegam_wLCDM_arr, k=5)
+    D_noE_arr, Dprime_noE_arr = solve_1stgrowth_factor(a_mg,omegam_wLCDM_interp(a_mg), EpE_mg,coupling)
+
+    Eeffect = D_arr/D_noE_arr
+
+    #Isolate effect of Eprime
+    D_noEprime_arr, Dprime_noEprime_arr = solve_1stgrowth_factor(a_mg, omegam_arr, EprimeElcdm_func(a_mg), coupling)
+    Eprimeeffect = D_arr/D_noEprime_arr
+
+    #Isolate effect of coupling
+    D_nocoupling_arr, Dprime_nocoupling_arr = solve_1stgrowth_factor(a_mg, omegam_arr, EpE_mg,np.zeros(len(coupling)))
+    couplingeffect = D_arr/D_nocoupling_arr
+
+    return a_mg, Eeffect, Eprimeeffect, couplingeffect
+    
