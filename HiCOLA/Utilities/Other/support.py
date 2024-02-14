@@ -251,9 +251,9 @@ def EinsteinToJordan(a_E, H_E, betaK, phi_E, dphidx_E,M_pG4=1.0, M_sG4=1.0, H0_E
     '''
     A = np.exp(betaK*M_sG4*phi_E/M_pG4)
     if E_E_flag is True:
-        H_J =  H0_E*H_E*(1.0 + M_sG4*betaK*phi_E/M_pG4)/A
+        H_J =  H0_E*H_E*(1.0 + M_sG4*betaK*dphidx_E/M_pG4)/A
     else:
-        H_J = H_E*(1.0 + M_sG4*betaK*phi_E/M_pG4)/A
+        H_J = H_E*(1.0 + M_sG4*betaK*dphidx_E/M_pG4)/A
     a_J = A*a_E
 
     H0_J = H_J[-1]
