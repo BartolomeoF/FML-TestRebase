@@ -301,5 +301,9 @@ def growth_factor_breakdown(mg_bg_file, mg_preforce_file, Omega_m0, a_lcdm, E_lc
     D_nocoupling_arr, Dprime_nocoupling_arr = solve_1stgrowth_factor(a_mg, omegam_arr, EpE_mg,np.zeros(len(coupling)))
     couplingeffect = D_arr/D_nocoupling_arr
 
-    return a_mg, Eeffect, Eprimeeffect, couplingeffect
+    #Isolate effect of E and Eprime (background)
+    D_noEnoEpE_arr, Dprime_noEnoEpE_arr = solve_1stgrowth_factor(a_mg, omegam_wLCDM_interp(a_mg), EprimeElcdm_func(a_mg), coupling)
+    backgroundeffect = D_arr/D_noEnoEpE_arr
+
+    return a_mg, Eeffect, Eprimeeffect, couplingeffect, backgroundeffect
     
