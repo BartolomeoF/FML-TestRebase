@@ -144,7 +144,7 @@ void output_gadget(NBodySimulation<NDIM, T> & sim, double redshift, std::string 
                            nfiles,
                            scale_factor,
                            simulation_boxsize,
-                           cosmo->get_OmegaM(),
+                           cosmo->get_OmegaM0(),
                            cosmo->get_OmegaLambda(),
                            cosmo->get_h(),
                            pos_norm,
@@ -475,7 +475,7 @@ void compute_fof_halos(NBodySimulation<NDIM, T> & sim, double redshift, std::str
     // Convert to physical units
     // Code masses are in units of the mean mass -> Msun/h
     const double MplMpl_over_H0Msunh = 2.49264e21;
-    const double mass_norm = 3.0 * cosmo->get_OmegaM() * MplMpl_over_H0Msunh *
+    const double mass_norm = 3.0 * cosmo->get_OmegaM0() * MplMpl_over_H0Msunh *
                              std::pow(simulation_boxsize * H0_hmpc, 3) / double(part.get_npart_total());
     // Code positions are in [0,1) -> Mpc/h
     const double pos_norm = simulation_boxsize;

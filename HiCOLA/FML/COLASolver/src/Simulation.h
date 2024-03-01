@@ -287,7 +287,7 @@ auto NBodySimulation<NDIM, T>::compute_deltatime_KDK(double amin, double amax, i
     // The explicit timeevolution of the prefactor to the force (1.5*OmegaM*a in GR)
     // (In general this will depend on scale, but we are not that crazy that we compute
     // a factor per scale. Probably perfectly fine to simply use the GR expression in general)
-    auto poisson_factor = [&](double a) { return 1.5 * cosmo->get_OmegaM() * grav->GeffOverG(a) * a; };
+    auto poisson_factor = [&](double a) { return 1.5 * cosmo->get_OmegaM0() * grav->GeffOverG(a) * a; };
 
     //=====================================================
     // Timestep for a kick-step: Tassev et al.
@@ -1039,7 +1039,7 @@ void NBodySimulation<NDIM, T>::init() {
         // The power-spectrum of the Bardeen potential (-Phi) at the given redshift
         const double afnl = 1.0 / (1.0 + ic_fnl_redshift);
         const double H0Box = simulation_boxsize * grav_ic->H0_hmpc;
-        const double factor = 1.5 * cosmo->get_OmegaM() / afnl;
+        const double factor = 1.5 * cosmo->get_OmegaM0() / afnl;
         auto Pofk_of_kBox_over_volume_primordial = [&](double kBox) {
             return power_primordial_spline(kBox / simulation_boxsize) / std::pow(simulation_boxsize, NDIM) *
                    std::pow(factor * grav_ic->get_D_1LPT(afnl, kBox / H0Box) / grav_ic->get_D_1LPT(1.0, kBox / H0Box),
@@ -1472,7 +1472,7 @@ void NBodySimulation<NDIM, T>::compute_density_field_fourier(FFTWGrid<NDIM> & de
         };
 
         // We compute the total matter density-field deltaM = (OmegaCB deltaCB + OmegaMNu deltaMNu)/OmegaM
-        const double OmegaM = cosmo->get_OmegaM();
+        const double OmegaM = cosmo->get_OmegaM0();
         const double OmegaMNu = cosmo->get_OmegaMNu();
         const double fMNu = OmegaMNu / OmegaM;
 

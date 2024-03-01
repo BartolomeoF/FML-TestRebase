@@ -203,7 +203,7 @@ namespace FML {
             CosmoPars RecfastCosmo;
             RecfastCosmo.Yp = Yp;
             RecfastCosmo.T0 = cosmo->get_TCMB();
-            RecfastCosmo.Omega_m = cosmo->get_OmegaM();
+            RecfastCosmo.Omega_m = cosmo->get_OmegaM0();
             RecfastCosmo.Omega_b = cosmo->get_OmegaB();
             RecfastCosmo.Omega_k = cosmo->get_OmegaK();
             RecfastCosmo.Omega_L = cosmo->get_OmegaLambda();

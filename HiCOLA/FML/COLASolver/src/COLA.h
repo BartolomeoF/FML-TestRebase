@@ -187,7 +187,7 @@ void cola_kick_drift(FML::PARTICLE::MPIParticles<T> & part,
     }
 
     auto cosmo = grav->cosmo;
-    const double norm_poisson = 1.5 * cosmo->get_OmegaM() * aold * grav->GeffOverG(aold);
+    const double norm_poisson = 1.5 * cosmo->get_OmegaM0() * aold * grav->GeffOverG(aold);
 
     const double D1 = grav->get_D_1LPT(a);
     const double D1old = grav->get_D_1LPT(aold);
@@ -315,7 +315,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
     }
 
     auto cosmo = grav->cosmo;
-    const double OmegaM = cosmo->get_OmegaM();
+    const double OmegaM = cosmo->get_OmegaM0();
     const std::string interpolation_method = "CIC";
 
     //======================================================================================

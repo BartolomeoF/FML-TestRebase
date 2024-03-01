@@ -102,7 +102,7 @@ namespace FML {
         //=====================================================================
         double PowerSpectrum::get_power_spectrum(double x, double k, std::string type) const {
             // BBKS fit used to interpolate outside of the k's we have
-            static double aeq = cosmo->get_OmegaRtot() / cosmo->get_OmegaM();
+            static double aeq = cosmo->get_OmegaRtot() / cosmo->get_OmegaM0();
             static double keq = cosmo->Hp_of_x(std::log(aeq)) / Constants.c;
             static auto bbks_fit = [](double k) {
                 const double arg = k / keq;

@@ -243,7 +243,7 @@ class GravityModel {
         const double OmegaMNu = this->cosmo->get_OmegaMNu();
         if (OmegaMNu > 0.0 and koverH0 > 0.0) {
             if (transferdata) {
-                const double OmegaM = this->cosmo->get_OmegaM();
+                const double OmegaM = this->cosmo->get_OmegaM0();
                 const double fnu = OmegaMNu / OmegaM;
                 const double T_nu = transferdata->get_massive_neutrino_transfer_function(koverH0 * H0_hmpc, a);
                 const double T_cb = transferdata->get_cdm_baryon_transfer_function(koverH0 * H0_hmpc, a);
@@ -253,16 +253,16 @@ class GravityModel {
         return factor;
     };
     virtual double source_factor_2LPT([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
-        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
+        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM0();
     };
     virtual double source_factor_2LPT_noalpha([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
-        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
+        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM0();
     };
     virtual double source_factor_3LPTa([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
-        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
+        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM0();
     };
     virtual double source_factor_3LPTb([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
-        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM();
+        return 1.0 - this->cosmo->get_OmegaMNu() / this->cosmo->get_OmegaM0();
     };
 
     // This computes the force DPhi from the density field
@@ -313,7 +313,11 @@ class GravityModel {
 
         // A quite general set of LPT equations up to 3rd order
         auto solve_growth_equations = [&](double koverH0) -> std::tuple<DVector, DVector, DVector, DVector, DVector> {
+<<<<<<< HEAD
             const double OmegaM0 = cosmo->get_OmegaM0();
+=======
+            const double OmegaM = cosmo->get_OmegaM0();
+>>>>>>> af07125 (Fix Omega_m0 for E(a=1)!=1. Fix parallel print of Hi-COLA ouput.)
             const double OmegaMNu = cosmo->get_OmegaMNu();
             const double fnu = OmegaMNu / OmegaM0;
             FML::SOLVERS::ODESOLVER::ODEFunction deriv = [&](double x, const double * y, double * dydx) {

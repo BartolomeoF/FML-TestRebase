@@ -65,7 +65,7 @@ class GravityModelFofR final : public GravityModel<NDIM> {
     // Internal method: m^2(a) / H0^2
     //========================================================================
     double mass_over_H0_squared(double a) const {
-        double OmegaM = this->cosmo->get_OmegaM();
+        double OmegaM = this->cosmo->get_OmegaM0();
         double OmegaLambda = 1.0 - OmegaM;
         double a3 = a * a * a;
         double fac = OmegaM / a3 + 4.0 * OmegaLambda;
@@ -96,7 +96,7 @@ class GravityModelFofR final : public GravityModel<NDIM> {
                        std::array<FFTWGrid<NDIM>, NDIM> & force_real) const override {
 
         // Compute fifth-force
-        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM() * a;
+        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM0() * a;
         auto coupling = [&](double kBox) { return GeffOverG(a, kBox / H0Box) - 1.0; };
         FFTWGrid<NDIM> density_fifth_force;
 
@@ -109,7 +109,7 @@ class GravityModelFofR final : public GravityModel<NDIM> {
             density_real.fftw_c2r();
             // Set up the solver, set the settings, and solve the solution
             const bool verbose = true;
-            FofrSolverCosmology<NDIM, double> mgsolver(this->cosmo->get_OmegaM(), nfofr, fofr0, H0Box, verbose);
+            FofrSolverCosmology<NDIM, double> mgsolver(this->cosmo->get_OmegaM0(), nfofr, fofr0, H0Box, verbose);
             mgsolver.set_ngs_steps(multigrid_nsweeps, multigrid_nsweeps, multigrid_nsweeps_first_step);
             mgsolver.set_epsilon(multigrid_solver_residual_convergence);
             mgsolver.solve(a, density_real, density_fifth_force);
@@ -142,7 +142,7 @@ class GravityModelFofR final : public GravityModel<NDIM> {
         } else if (use_screening_method) {
 
             // Approximate screening method
-            const double OmegaM = this->cosmo->get_OmegaM();
+            const double OmegaM = this->cosmo->get_OmegaM0();
             auto screening_function_fofr = [=](double PhiNewton) {
                 double PhiCrit =
                     1.5 * fofr0 *
