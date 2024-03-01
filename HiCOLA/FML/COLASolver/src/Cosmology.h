@@ -215,6 +215,9 @@ class Cosmology {
         double E = HoverH0_of_a(a);
         return Omegab / (a * a * a * E * E);
     }
+    virtual double get_OmegaM0() const {
+        return OmegaM;
+    }
     virtual double get_OmegaM(double a = 1.0) const {
         double E = HoverH0_of_a(a);
         return OmegaM / (a * a * a * E * E);

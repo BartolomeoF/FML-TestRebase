@@ -100,7 +100,7 @@ class GravityModelSymmetron final : public GravityModel<NDIM> {
                        std::array<FFTWGrid<NDIM>, NDIM> & force_real) const override {
 
         // Compute fifth-force
-        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM() * a;
+        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM0() * a;
         auto coupling = [&](double kBox) { return GeffOverG(a, kBox / H0Box) - 1.0; };
         FFTWGrid<NDIM> density_fifth_force;
 
@@ -115,7 +115,7 @@ class GravityModelSymmetron final : public GravityModel<NDIM> {
               
               // Set up the solver, set the settings, and solve the solution
               const bool verbose = true;
-              SymmetronSolverCosmology<NDIM, double> mgsolver(this->cosmo->get_OmegaM(), assb, beta, L_mpch, H0Box, verbose);
+              SymmetronSolverCosmology<NDIM, double> mgsolver(this->cosmo->get_OmegaM0(), assb, beta, L_mpch, H0Box, verbose);
               mgsolver.set_ngs_steps(multigrid_nsweeps, multigrid_nsweeps, multigrid_nsweeps_first_step);
               mgsolver.set_epsilon(multigrid_solver_residual_convergence);
               mgsolver.solve(a, density_real, density_fifth_force);
@@ -149,7 +149,7 @@ class GravityModelSymmetron final : public GravityModel<NDIM> {
         } else if (use_screening_method) {
 
             // Approximate screening method
-            const double OmegaM = this->cosmo->get_OmegaM();
+            const double OmegaM = this->cosmo->get_OmegaM0();
             const double PhiCrit = a < assb ? 0.0 : 3.0 * OmegaM * (this->H0_hmpc * L_mpch) * (this->H0_hmpc * L_mpch) /
                                    (assb * assb * assb);
             auto screening_function_symmetron = [=](double PhiNewton) {
