@@ -220,7 +220,7 @@ class Cosmology {
         return OmegaM / (a * a * a * E * E);
     }
     virtual double get_OmegaM0() const { //relevant in growth equation when first entry of Hubble array is not 1
-        return OmegaM
+        return OmegaM;
     }
     virtual double get_OmegaCDM(double a = 1.0) const {
         double E = HoverH0_of_a(a);
