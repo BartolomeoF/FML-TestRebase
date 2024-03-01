@@ -313,9 +313,9 @@ class GravityModel {
 
         // A quite general set of LPT equations up to 3rd order
         auto solve_growth_equations = [&](double koverH0) -> std::tuple<DVector, DVector, DVector, DVector, DVector> {
-            const double OmegaM = cosmo->get_OmegaM();
+            const double OmegaM0 = cosmo->get_OmegaM0();
             const double OmegaMNu = cosmo->get_OmegaMNu();
-            const double fnu = OmegaMNu / OmegaM;
+            const double fnu = OmegaMNu / OmegaM0;
             FML::SOLVERS::ODESOLVER::ODEFunction deriv = [&](double x, const double * y, double * dydx) {
                 const double a = std::exp(x);
                 const double H = cosmo->HoverH0_of_a(a);
@@ -324,7 +324,7 @@ class GravityModel {
                 // source_factor_nLPT also contains the effect of neutrinos ((1-fnu) + fnu * Dnu/Dcb) for 1LPT
                 // and (1-fnu) otherwise (i.e. neutrinos don't contribute). If solve_for_neutrinos then we
                 // do 1LPT further down
-                const double rhs = 1.5 * OmegaM * GeffOverG(a, koverH0) / (H * H * a * a * a);
+                const double rhs = 1.5 * OmegaM0 * GeffOverG(a, koverH0) / (H * H * a * a * a);
                 const double rhs_1LPT = rhs * source_factor_1LPT(a, koverH0);
                 const double rhs_2LPT = rhs * source_factor_2LPT(a, koverH0);
                 const double rhs_2LPT_noalpha = rhs * source_factor_2LPT_noalpha(a, koverH0);
