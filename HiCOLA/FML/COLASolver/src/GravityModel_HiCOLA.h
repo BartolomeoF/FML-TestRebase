@@ -50,7 +50,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
       DVector chi_over_delta_arr;
       DVector coupling_arr;
 
-      // Fileformat: [a, chi/delta, coupling]
+      // Fileformat: [a, chi/delta, coupling] //add GG4 column
       const int ncols = 3;
       const int col_a = 0;
       const int col_chi = 1;
@@ -88,7 +88,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     // Effective newtonian constant
     //========================================================================
     double GeffOverG(double a, [[maybe_unused]] double koverH0 = 0.0) const override {
-        return 1.0 + get_coupling(a);
+        return 1.0 + get_coupling(a); 
     }
 
     // For the LPT equations there is a modified >= 2LPT factor) // For HiCOLA, we do not modify the 2LPT factor in this way for now (i.e. we just use the GR 2LPT equation for D_2 but with modified D_1).
@@ -99,7 +99,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     //    // The base-class contains how to deal with massive neutrinos so we multiply this in
     //    // to avoid having to also implement it here
     //    return GravityModel<NDIM>::source_factor_2LPT(a, koverH0) *
-    //           (1.0 - (2.0 * rcH0_DGP * rcH0_DGP * this->cosmo->get_OmegaM0()) /
+    //           (1.0 - (2.0 * rcH0_DGP * rcH0_DGP * this->cosmo->get_OmegaM()) /
     //                      (9.0 * a * a * a * (betadgp * betadgp * betadgp) * (1 + 1.0 / (3.0 * betadgp))));
     //}
 
@@ -116,21 +116,19 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
                        std::array<FFTWGrid<NDIM>, NDIM> & force_real) const override {
 
         // Compute fifth-force
-        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM0() * a;
-        auto coupling = [&]([[maybe_unused]] double kBox) { return GeffOverG(a, kBox / H0Box) - 1.0; };
+        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM() * a; //insert GG4
+        auto coupling = [&]([[maybe_unused]] double kBox) { return GeffOverG(a, kBox / H0Box) - 1.0; }; 
         FFTWGrid<NDIM> density_fifth_force;
 
        if (use_screening_method) {
 
             // Approximate screening method
-//             const double OmegaM = this->cosmo->get_OmegaM0();
+            const double OmegaM = this->cosmo->get_OmegaM();
             auto screening_function_HiCOLA = [=](double density_contrast) {
                 double fac = get_chi_over_delta(a) * (density_contrast - 1.0);
                 return fac < 1e-5 ? 1.0 : 2.0 * (std::sqrt(1.0 + fac) - 1) / fac;
             };
-            if (FML::ThisTask == 0) {
-                std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
-                }
+            std::cout << "At a= " << a << " chi/delta=" << get_chi_over_delta(a) << " coupling=" << coupling(a) << "\n";
             FML::NBODY::compute_delta_fifth_force_density_screening(density_fourier,
                                                                     density_fifth_force,
                                                                     coupling,
