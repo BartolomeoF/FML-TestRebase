@@ -235,7 +235,8 @@ class GravityModel {
     // Effective gravitational constant and equivalent factors appearing
     // in the LPT growth equations
     //========================================================================
-    virtual double GeffOverG([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const = 0;
+    virtual double GeffOverG([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const = 0; //copy this to make a GG4 virtual function
+    virtual double get_GG4_GN([[maybe_unused]] double a) const = 0; 
 
     // Factors in the LPT equations
     virtual double source_factor_1LPT([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
@@ -313,13 +314,9 @@ class GravityModel {
 
         // A quite general set of LPT equations up to 3rd order
         auto solve_growth_equations = [&](double koverH0) -> std::tuple<DVector, DVector, DVector, DVector, DVector> {
-<<<<<<< HEAD
-            const double OmegaM0 = cosmo->get_OmegaM0();
-=======
             const double OmegaM = cosmo->get_OmegaM0();
->>>>>>> af07125 (Fix Omega_m0 for E(a=1)!=1. Fix parallel print of Hi-COLA ouput.)
             const double OmegaMNu = cosmo->get_OmegaMNu();
-            const double fnu = OmegaMNu / OmegaM0;
+            const double fnu = OmegaMNu / OmegaM;
             FML::SOLVERS::ODESOLVER::ODEFunction deriv = [&](double x, const double * y, double * dydx) {
                 const double a = std::exp(x);
                 const double H = cosmo->HoverH0_of_a(a);
@@ -328,7 +325,7 @@ class GravityModel {
                 // source_factor_nLPT also contains the effect of neutrinos ((1-fnu) + fnu * Dnu/Dcb) for 1LPT
                 // and (1-fnu) otherwise (i.e. neutrinos don't contribute). If solve_for_neutrinos then we
                 // do 1LPT further down
-                const double rhs = 1.5 * OmegaM0 * GeffOverG(a, koverH0) / (H * H * a * a * a);
+                const double rhs = 1.5 * OmegaM * get_GG4_GN(a) * GeffOverG(a, koverH0) / (H * H * a * a * a); //insert GG4
                 const double rhs_1LPT = rhs * source_factor_1LPT(a, koverH0);
                 const double rhs_2LPT = rhs * source_factor_2LPT(a, koverH0);
                 const double rhs_2LPT_noalpha = rhs * source_factor_2LPT_noalpha(a, koverH0);

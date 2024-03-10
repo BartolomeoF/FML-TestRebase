@@ -50,12 +50,13 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
       DVector chi_over_delta_arr;
       DVector coupling_arr;
 
-      // Fileformat: [a, chi/delta, coupling] //add GG4 column
-      const int ncols = 3;
+      // Fileformat: [a, chi/delta, coupling, GG4/GN]
+      const int ncols = 4;
       const int col_a = 0;
       const int col_chi = 1;
       const int col_coupl = 2;
-      std::vector<int> cols_to_keep{col_a, col_chi, col_coupl};
+      const int col_GG4_GN = 3;
+      std::vector<int> cols_to_keep{col_a, col_chi, col_coupl, col_GG4_GN};
       const int nheaderlines = 0;
 
       auto HiCOLAdata = FML::FILEUTILS::read_regular_ascii(HiCOLA_preforce_filename, ncols, cols_to_keep, nheaderlines);
@@ -63,16 +64,19 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
       HiCOLA_a_arr.resize(HiCOLAdata.size());
       chi_over_delta_arr.resize(HiCOLAdata.size());
       coupling_arr.resize(HiCOLAdata.size());
+      GG4_GN_arr.resize(HiCOLAdata.size());
 
       for (size_t i = 0; i < HiCOLA_a_arr.size(); i++) {
           HiCOLA_a_arr[i] = HiCOLAdata[i][col_a];
           chi_over_delta_arr[i] = HiCOLAdata[i][col_chi];
           coupling_arr[i] = HiCOLAdata[i][col_coupl];
+          GG4_GN_arr[i] = HiCOLAdata[i][col_GG4_GN];
           //std::cout << "# HiCOLA input: " << i << " " << HiCOLA_a_arr[i] << " " << chi_over_delta_arr[i] << " " << coupling_arr[i] << "\n";
       }
 
       chi_over_delta_spline.create(HiCOLA_a_arr, chi_over_delta_arr, "chi/delta(a)");
       coupling_spline.create(HiCOLA_a_arr, coupling_arr, "coupling(a)");
+      GG4_GN_spline.create(HiCOLA_a_arr, GG4_GN_arr, "GG4/GN(a)");
 
     }
 
@@ -82,6 +86,9 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
 
     double get_coupling(double a) const {
         return coupling_spline(a);
+    }
+    double get_GG4_GN(double a) const {
+        return GG4_GN_spline(a);
     }
 
     //========================================================================
@@ -116,7 +123,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
                        std::array<FFTWGrid<NDIM>, NDIM> & force_real) const override {
 
         // Compute fifth-force
-        const double norm_poisson_equation = 1.5 * this->cosmo->get_OmegaM0() * a; //insert GG4
+        const double norm_poisson_equation = 1.5 * get_GG4_GN(a) *this->cosmo->get_OmegaM0() * a; //insert GG4
         auto coupling = [&]([[maybe_unused]] double kBox) { return GeffOverG(a, kBox / H0Box) - 1.0; }; 
         FFTWGrid<NDIM> density_fifth_force;
 
