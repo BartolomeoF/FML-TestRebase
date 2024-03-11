@@ -248,6 +248,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
 
     Spline chi_over_delta_spline;//{"chi/delta(a)"};
     Spline coupling_spline;//{"coupling(a)"};
+    Spline GG4_GN_spline;
 };
 
 #endif
