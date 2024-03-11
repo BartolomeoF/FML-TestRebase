@@ -236,7 +236,7 @@ class GravityModel {
     // in the LPT growth equations
     //========================================================================
     virtual double GeffOverG([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const = 0; //copy this to make a GG4 virtual function
-    virtual double get_GG4_GN([[maybe_unused]] double a) const = 1;
+    virtual double get_GG4_GN([[maybe_unused]] double a) const = 0;
 
     // Factors in the LPT equations
     virtual double source_factor_1LPT([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
