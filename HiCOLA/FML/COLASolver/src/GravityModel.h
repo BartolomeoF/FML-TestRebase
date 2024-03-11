@@ -236,7 +236,7 @@ class GravityModel {
     // in the LPT growth equations
     //========================================================================
     virtual double GeffOverG([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const = 0; //copy this to make a GG4 virtual function
-    virtual double get_GG4_GN([[maybe_unused]] double a) const = 0;
+    virtual double GG4_GN([[maybe_unused]] double a) const = 0;
 
     // Factors in the LPT equations
     virtual double source_factor_1LPT([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const {
@@ -325,7 +325,7 @@ class GravityModel {
                 // source_factor_nLPT also contains the effect of neutrinos ((1-fnu) + fnu * Dnu/Dcb) for 1LPT
                 // and (1-fnu) otherwise (i.e. neutrinos don't contribute). If solve_for_neutrinos then we
                 // do 1LPT further down
-                const double rhs = 1.5 * OmegaM * get_GG4_GN(a) * GeffOverG(a, koverH0) / (H * H * a * a * a); //insert GG4
+                const double rhs = 1.5 * OmegaM * GG4_GN(a) * GeffOverG(a, koverH0) / (H * H * a * a * a); //insert GG4
                 const double rhs_1LPT = rhs * source_factor_1LPT(a, koverH0);
                 const double rhs_2LPT = rhs * source_factor_2LPT(a, koverH0);
                 const double rhs_2LPT_noalpha = rhs * source_factor_2LPT_noalpha(a, koverH0);
