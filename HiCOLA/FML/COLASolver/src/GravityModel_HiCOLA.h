@@ -88,7 +88,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
     double get_coupling(double a) const {
         return coupling_spline(a);
     }
-    double get_GG4_GN(double a) const {
+    double get_GG4_GN(double a) const override {
         return GG4_GN_spline(a);
     }
 
