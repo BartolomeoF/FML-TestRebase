@@ -49,6 +49,7 @@ class GravityModelHiCOLA final : public GravityModel<NDIM> {
       DVector HiCOLA_a_arr;
       DVector chi_over_delta_arr;
       DVector coupling_arr;
+      DVector GG4_GN_arr;
 
       // Fileformat: [a, chi/delta, coupling, GG4/GN]
       const int ncols = 4;
