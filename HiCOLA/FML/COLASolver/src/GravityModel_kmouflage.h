@@ -91,6 +91,7 @@ class GravityModelkmouflage final : public GravityModel<NDIM> {
     double GeffOverG(double a, [[maybe_unused]] double koverH0 = 0.0) const override {
         return 1.0 + get_coupling(a);
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     // For the LPT equations there is a modified >= 2LPT factor) // For HiCOLA, we do not modify the 2LPT factor in this way for now (i.e. we just use the GR 2LPT equation for D_2 but with modified D_1).
     //========================================================================

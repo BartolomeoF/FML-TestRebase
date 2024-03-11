@@ -51,6 +51,7 @@ class GravityModelJBD : public GravityModel<NDIM> {
       CosmologyJBD * jbd = dynamic_cast<CosmologyJBD *>(this->cosmo.get());
       return 1.0 / jbd->get_phi(a); 
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     //========================================================================
     // Read parameters

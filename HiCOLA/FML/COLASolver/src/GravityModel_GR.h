@@ -41,7 +41,7 @@ class GravityModelGR final : public GravityModel<NDIM> {
     // In GR GeffOverG == 1
     //========================================================================
     double GeffOverG([[maybe_unused]] double a, [[maybe_unused]] double koverH0 = 0) const override { return 1.0; }
-
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
     //========================================================================
     // Read parameters
     //========================================================================

@@ -72,6 +72,7 @@ class GravityModelDGP final : public GravityModel<NDIM> {
     double GeffOverG(double a, [[maybe_unused]] double koverH0 = 0.0) const override {
         return 1.0 + 1.0 / (3.0 * get_beta_dgp(a));
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     //========================================================================
     // For the LPT equations there is a modified >= 2LPT factor

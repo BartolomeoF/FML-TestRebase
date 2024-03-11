@@ -52,6 +52,7 @@ class GravityModelGeff : public GravityModel<NDIM> {
     double GeffOverG(double a, [[maybe_unused]] double koverH0 = 0) const override { 
       return geffofa_spline(a); 
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     //========================================================================
     // Read parameters

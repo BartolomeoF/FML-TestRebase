@@ -86,6 +86,7 @@ class GravityModelSymmetron final : public GravityModel<NDIM> {
         double phi = phi_background(a);
         return 1.0 + 2.0 * beta * beta * phi * phi * koverH02 / (koverH02 + mass2a2);
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     //========================================================================
     // Compute the force DPhi from the density field delta in fourier space

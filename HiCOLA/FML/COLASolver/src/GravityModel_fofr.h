@@ -82,6 +82,7 @@ class GravityModelFofR final : public GravityModel<NDIM> {
         double koverH02 = koverH0 * koverH0;
         return 1.0 + (1.0 / 3.0) * koverH02 / (koverH02 + mass2a2);
     }
+    double GG4_GN([[maybe_unused]] double a) const override { return 1.0; }
 
     //========================================================================
     // Compute the force DPhi from the density field delta in fourier space
