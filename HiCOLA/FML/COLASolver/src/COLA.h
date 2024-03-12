@@ -187,7 +187,7 @@ void cola_kick_drift(FML::PARTICLE::MPIParticles<T> & part,
     }
 
     auto cosmo = grav->cosmo;
-    const double norm_poisson = 1.5 * cosmo->get_OmegaM0() * aold * grav->GeffOverG(aold);
+    const double norm_poisson = 1.5 * cosmo->get_OmegaM0() * aold * grav->GeffOverG(aold) * grav->GG4_GN(aold);
 
     const double D1 = grav->get_D_1LPT(a);
     const double D1old = grav->get_D_1LPT(aold);
@@ -353,7 +353,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
     // For 1LPT kick step: -1.5 * OmegaM * a * GeffG(k,a) * D1 / D1ini
     auto function_vel_1LPT = [&](double kBox) {
         double koverH0 = kBox / H0Box;
-        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * delta_time_kick;
+        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * grav->GG4_GN(aold) * delta_time_kick;
         return factor * grav->source_factor_1LPT(aold, koverH0) * grav->get_D_1LPT(aold, koverH0) /
                grav->get_D_1LPT(aini, koverH0);
     };
@@ -367,7 +367,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
     // For 2LPT kick step: -1.5 * OmegaM * a * GeffG(k,a) * (D2 - D1 * D1) / D2ini * delta_time_kick
     [[maybe_unused]] auto function_vel_2LPT = [&](double kBox) {
         double koverH0 = kBox / H0Box;
-        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * delta_time_kick;
+        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * grav->GG4_GN(aold) * delta_time_kick;
         double D_1LPT = grav->get_D_1LPT(aold, koverH0);
         double D_2LPT = grav->get_D_2LPT(aold, koverH0);
         double D_2LPT_ini = grav->get_D_2LPT(aini, koverH0);
@@ -383,7 +383,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
     // For 3LPT kick step
     [[maybe_unused]] auto function_vel_3LPTa = [&](double kBox) {
         double koverH0 = kBox / H0Box;
-        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * delta_time_kick;
+        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * grav->GG4_GN(aold) * delta_time_kick;
         double D_1LPT = grav->get_D_1LPT(aold, koverH0);
         double D_3LPTa = grav->get_D_3LPTa(aold, koverH0);
         double D_3LPTa_ini = grav->get_D_3LPTa(aini, koverH0);
@@ -392,7 +392,7 @@ void cola_kick_drift_scaledependent(FML::PARTICLE::MPIParticles<T> & part,
     };
     [[maybe_unused]] auto function_vel_3LPTb = [&](double kBox) {
         double koverH0 = kBox / H0Box;
-        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * delta_time_kick;
+        double factor = -1.5 * OmegaM * aold * grav->GeffOverG(aold, koverH0) * grav->GG4_GN(aold) * delta_time_kick;
         double D_1LPT = grav->get_D_1LPT(aold, koverH0);
         double D_2LPT = grav->get_D_2LPT(aold, koverH0);
         double D_3LPTb = grav->get_D_3LPTb(aold, koverH0);

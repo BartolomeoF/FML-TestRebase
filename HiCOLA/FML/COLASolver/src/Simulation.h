@@ -287,7 +287,7 @@ auto NBodySimulation<NDIM, T>::compute_deltatime_KDK(double amin, double amax, i
     // The explicit timeevolution of the prefactor to the force (1.5*OmegaM*a in GR)
     // (In general this will depend on scale, but we are not that crazy that we compute
     // a factor per scale. Probably perfectly fine to simply use the GR expression in general)
-    auto poisson_factor = [&](double a) { return 1.5 * cosmo->get_OmegaM0() * grav->GeffOverG(a) * a; };
+    auto poisson_factor = [&](double a) { return 1.5 * cosmo->get_OmegaM0() * grav->GeffOverG(a) * grav->GG4_GN(a) * a; };
 
     //=====================================================
     // Timestep for a kick-step: Tassev et al.
