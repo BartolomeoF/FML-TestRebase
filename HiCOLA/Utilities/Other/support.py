@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import pandas as pd
+from pathlib import Path
 from scipy.integrate import odeint
 from scipy.optimize import fsolve
 import sys
+import os
+import re
 import matplotlib.pyplot as plt
 import itertools as it
 from scipy.interpolate import CubicSpline, InterpolatedUnivariateSpline
@@ -306,4 +310,58 @@ def growth_factor_breakdown(mg_bg_file, mg_preforce_file, Omega_m0, a_lcdm, E_lc
     backgroundeffect = D_arr/D_noEnoEpE_arr
 
     return a_mg, Eeffect, Eprimeeffect, couplingeffect, backgroundeffect
-    
+
+def import_pofk_by_z(root_directory,redshifts=["49.000","0.140","0.000"]):
+    '''
+    Imports FML power spectra files into a pandas dataframe.
+    Expected directory structure:
+    root_directory/
+                   pofk*z<redshifts[0]>.txt
+                   pofk*z<redshifts[1]>.txt
+        .
+        .
+    Output: pandas dataframe, access through data[<float:redshift>][<string:"k"/"pofk"/"pofklin"]
+    '''
+    root_directory = Path(root_directory).resolve()
+    files = os.listdir(root_directory)
+    files = [file for file in files if "pofk" in file]
+
+    dfs={}
+    for filename in files:
+        path_to_file = root_directory.joinpath(filename)
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(path_to_file, header=0, delimiter='\s+',engine='python', names=['k','pofk','pofklin'])
+        df = df.set_index('k')
+        match=re.search(r'_z(.*?)\.txt', str(filename))
+        redshift=float(match.group(1))
+        dfs[redshift]=df
+    # Concatenate all DataFrames in the list into a single DataFrame
+    data = pd.concat(dfs.values(),keys=dfs.keys(),axis=1)
+
+    return data
+
+def import_breakdown(root_directory, categories=["Full","QCDM","5thforcelinear","5thforceonly"],grlcdm=True,redshifts=["49.000","0.140","0.000"]):
+    '''
+    Imports FML power spectra files into a panda dataframe.
+    Expected directory structure:
+    root_directory/
+                  /categories[0]/
+                                /pofk*z<redshifts[0]>.txt
+                                /pofk*z<redshifts[1]>.txt
+                                .
+                 /categories[1]
+                               /pofk*z*<redshifts[0]>.txt etc.
+    Output: pandas dataframe, access through data[<string: category>][<float: redshift>][<string: "k/pofk/pofklin">]                      
+    '''
+    root_directory = Path(root_directory).resolve()
+    dfs={}
+    for category in categories:
+        subdirectory = root_directory.joinpath(category)
+        df_category = import_pofk_by_z(subdirectory,redshifts=redshifts)
+        dfs[category]=df_category
+    if grlcdm is True:
+        grlcdm_directory = root_directory.joinpath("../GRLCDM").resolve()
+        df_grlcdm = import_pofk_by_z(grlcdm_directory,redshifts=redshifts)
+        dfs["GRLCDM"]=df_grlcdm
+    data = pd.concat(dfs.values(),keys=dfs.keys(),axis=1)
+    return data
