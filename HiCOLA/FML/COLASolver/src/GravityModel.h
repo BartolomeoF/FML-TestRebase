@@ -157,7 +157,7 @@ class GravityModel {
             double loga = std::log(alow) + std::log(ahigh / alow) * i / double(npts_loga - 1);
             double a = std::exp(loga);
             fp << std::setw(15) << a << "  ";
-            fp << std::setw(15) << GeffOverG(a, koverH0) << " ";
+            fp << std::setw(15) << (a, koverH0) << " ";
             fp << std::setw(15) << get_D_1LPT(a, koverH0) << " ";
             fp << std::setw(15) << get_Dmnu_1LPT(a, koverH0) << " ";
             if (transferdata) {
