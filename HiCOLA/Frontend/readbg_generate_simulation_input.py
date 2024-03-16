@@ -117,13 +117,16 @@ read_phiprimeprime_arr = np.gradient(read_phiprime_arr, read_a_arr, edge_order=2
 calB_lambda = lambdified_functions['calB_lambda']
 calC_lambda = lambdified_functions['calC_lambda']
 coupling_factor = lambdified_functions['coupling_factor']
+GG4_over_GN = lambdified_functions['GG4_over_GN']
 calB_arr = []
 calC_arr = []
 coupling_factor_arr = []
+GG4_over_GN_arr = []
 for Ev, Eprimev, phiv, phiprimev, phiprimeprimev in zip(read_E_arr, read_Eprime_arr, read_phi_arr, read_phiprime_arr, read_phiprimeprime_arr):
         calB_arr.append(calB_lambda(Ev,Eprimev,phiv,phiprimev,phiprimeprimev, *parameters))
         calC_arr.append(calC_lambda(Ev,Eprimev,phiv,phiprimev,phiprimeprimev, *parameters))
         coupling_factor_arr.append(coupling_factor(Ev,Eprimev,phiv,phiprimev,phiprimeprimev,*parameters))
+        GG4_over_GN_arr.append(GG4_over_GN(Ev,Eprimev,phiv,phiprimev,phiprimeprimev,*parameters))
 
 chioverdelta_arr = ns.chi_over_delta(read_a_arr, read_E_arr, calB_arr, calC_arr, Omega_m0)
 
@@ -211,7 +214,7 @@ force_datanames = 'a    S (chi/delta)    beta (coupling_factor)'
 
 sp.write_data_flex([read_a_arr,read_E_arr, read_EpE_arr],filename_expansion)#, expansion_datanames)
 sp.write_data_flex([read_a_arr, read_E_arr, read_EpE_arr, read_phi_arr, read_phiprime_arr], filename_full)#, full_datanames)
-sp.write_data_flex([read_a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)#, force_datanames)
+sp.write_data_flex([read_a_arr,chioverdelta_arr,coupling_factor_arr,GG4_over_GN_arr],filename_force)#, force_datanames)
 
    
 print(f'Files generated. Saved in {abs_directory}')

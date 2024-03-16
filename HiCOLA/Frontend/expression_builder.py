@@ -1014,6 +1014,18 @@ def coupling_factor(G3, G4,  K,
             print('-------------------')
     return coupling
 
+def GG4_over_GN(G4, 
+        M_pG4 = 'M_{pG4}'):
+    parameters = [G4, M_pG4]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str): #these sympy variables are prob not globally defined, so need to always make sure there are corresponding global variables with the smae names for .subs to work?
+                parameters[i] = sy(parameters[i])
+    [G4, M_pG4] = parameters
+    GG4oGN = M_pG4*M_pG4/2.0/G4
+    return GG4oGN
+
+
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     if np.any([K,G3,G4]) is None:
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
@@ -1106,12 +1118,15 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     coupling_fac_sym = coupling_fac
     coupling_fac = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],coupling_fac)
 
+    GG4oGN_func = GG4_over_GN(G4, M_pG4=M_pG4_test) #assuming no X dependence in G4
+    GG4oGN_lamb = sym.lambdify([E,Eprime, phi, phiprime,phiprimeprime, *symbol_list],GG4oGN_func)
+
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 'Horndeski_K':Kfn_lambda,
                              'Horndeski_G3':G3fn_lambda, 'Horndeski_G4':G4fn_lambda, 'EpE_debug':EpE_debug_lambda, 'omega_phi_debug':omega_field_debug_lambda, 
-                             'coupling_factor_symbolic':coupling_fac_sym}
+                             'coupling_factor_symbolic':coupling_fac_sym, 'GG4_over_GN':GG4oGN_lamb}
     return lambda_functions_dict
 #E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, omega_phi_lambda, fried_RHS_lambda, A_lambda, B2_lambda, \
  #   coupling_fac, alpha0_lamb, alpha1_lamb, alpha2_lamb, beta0_lamb, calB_lamb, calC_lamb
