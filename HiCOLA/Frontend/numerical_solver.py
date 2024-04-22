@@ -328,6 +328,15 @@ def coupling_kmou_brax(betaK, K0, E, phi, phiprime):
     coupling_brax = 2*betaK*betaK/Kx
     return coupling_brax
 
+def coupling_kmou_brax_EinsteinK(betaK, K0, E, phi, phiprime):
+    '''
+    A = exp(beta_K*phi) assumed. See equation 2.15 in 1509.00611
+    '''
+    X = E*E*phiprime*phiprime/2.
+    Kx = 1.0 + 2.0*X
+    coupling_brax = 2.0*betaK*betaK/Kx
+    return coupling_brax
+
 
 def screening_kmou(a,K0,H0,betaK,M_pG4,M_KG4):
     term1 = 6.*abs(K0)*((2/3)**3.)

@@ -253,20 +253,34 @@ def EinsteinToJordan(a_E, H_E, betaK, phi_E, dphidx_E,M_pG4=1.0, M_sG4=1.0, H0_E
     exponential conformal factor  A = exp(betaK*phi). Also gives numerical
     gradient of Jordan Hubble rate with respect to Jordan scale factor.
     '''
-    A = np.exp(betaK*M_sG4*phi_E/M_pG4)
+    
+    A = np.array([np.exp(betaK*M_sG4*phi_Ev/M_pG4) for phi_Ev in phi_E])
     if E_E_flag is True:
         H_J =  H0_E*H_E*(1.0 + M_sG4*betaK*dphidx_E/M_pG4)/A
     else:
-        H_J = H_E*(1.0 + M_sG4*betaK*dphidx_E/M_pG4)/A
+        #H_J = H_E*(1.0 + M_sG4*betaK*dphidx_E/M_pG4)/
+        H_J = [H_Ev*(1.0 + M_sG4*betaK*dphidx_Ev/M_pG4)/Av for H_Ev, dphidx_Ev, Av in zip(H_E,dphidx_E,A)]
     a_J = A*a_E
 
     H0_J = H_J[-1]
     E_J = H_J/H0_J
-    dEdaJ = np.gradient(E_J, a_J, edge_order=2)
-    Eprime_J_wrtaJ = dEdaJ*a_J
-    dEdaE = np.gradient(E_J, a_E, edge_order=2) #gradient w.r.t. a_E might be better for backend
-    Eprime_J_wrtaE = dEdaE*a_E #convert dE/da to dE/d(lna)
-    return a_J, E_J, Eprime_J_wrtaJ, Eprime_J_wrtaE, H_J, H0_J
+    dEdaJ = InterpolatedUnivariateSpline(a_J,E_J, k=5).derivative()
+    Eprime_J_wrtaJ_func = lambda a: dEdaJ(a)*a #convert dE/da to dE/d(lna)
+    Eprime_J_wrtaJ = Eprime_J_wrtaJ_func(a_J)
+    dEdaE = InterpolatedUnivariateSpline(a_E, E_J, k=5).derivative() #gradient w.r.t. a_E might be better for backend
+    Eprime_J_wrtaE_func = lambda a: dEdaE(a)*a #convert dE/da to dE/d(lna)
+    Eprime_J_wrtaE = Eprime_J_wrtaE_func(a_E)
+
+    dHdaJ = InterpolatedUnivariateSpline(a_J,H_J, k=5).derivative()
+    Hprime_J_wrtaJ_func = lambda a: dHdaJ(a)*a #convert dE/da to dE/d(lna)
+    Hprime_J_wrtaJ = Hprime_J_wrtaJ_func(a_J)
+    dHdaE = InterpolatedUnivariateSpline(a_E, H_J, k=5).derivative() #gradient w.r.t. a_E might be better for backend
+    Hprime_J_wrtaE_func = lambda a: dHdaE(a)*a #convert dE/da to dE/d(lna)
+    Hprime_J_wrtaE = Hprime_J_wrtaE_func(a_E)
+
+    data = { "a_J":a_J, "E_J":E_J, "Eprime_J_wrt_a_J":Eprime_J_wrtaJ, "Eprime_J_wrt_a_E":Eprime_J_wrtaE, "H_J":H_J, "Hprime_J_wrt_a_J":Hprime_J_wrtaJ, "Hprime_J_wrt_a_E":Hprime_J_wrtaE,"H0_J":H0_J}
+
+    return data
 
 def compute_growth(bg_file, preforce_file, Omega_m0):
     a_arr, E_arr, EpE_arr = np.loadtxt(bg_file, unpack=True)
@@ -311,7 +325,7 @@ def growth_factor_breakdown(mg_bg_file, mg_preforce_file, Omega_m0, a_lcdm, E_lc
 
     return a_mg, Eeffect, Eprimeeffect, couplingeffect, backgroundeffect
 
-def import_pofk_by_z(root_directory,redshifts=["49.000","0.140","0.000"]):
+def import_pofk_by_z(root_directory,redshifts=["49.000","0.140","0.000"],dataheadings=['k','pofk','pofklin']):
     '''
     Imports FML power spectra files into a pandas dataframe.
     Expected directory structure:
@@ -330,7 +344,7 @@ def import_pofk_by_z(root_directory,redshifts=["49.000","0.140","0.000"]):
     for filename in files:
         path_to_file = root_directory.joinpath(filename)
         # Read the CSV file into a DataFrame
-        df = pd.read_csv(path_to_file, header=0, delimiter='\s+',engine='python', names=['k','pofk','pofklin'])
+        df = pd.read_csv(path_to_file, header=0, delimiter='\s+',engine='python', names=dataheadings)
         df = df.set_index('k')
         match=re.search(r'_z(.*?)\.txt', str(filename))
         redshift=float(match.group(1))
@@ -340,7 +354,7 @@ def import_pofk_by_z(root_directory,redshifts=["49.000","0.140","0.000"]):
 
     return data
 
-def import_breakdown(root_directory, categories=["Full","QCDM","5thforcelinear","5thforceonly"],grlcdm=True,redshifts=["49.000","0.140","0.000"]):
+def import_breakdown(root_directory, categories=["Full","QCDM","5thforcelinear","5thforceonly"],grlcdm=True,redshifts=["49.000","0.140","0.000"],dataheadings=['k','pofk','pofklin']):
     '''
     Imports FML power spectra files into a panda dataframe.
     Expected directory structure:
@@ -357,11 +371,11 @@ def import_breakdown(root_directory, categories=["Full","QCDM","5thforcelinear",
     dfs={}
     for category in categories:
         subdirectory = root_directory.joinpath(category)
-        df_category = import_pofk_by_z(subdirectory,redshifts=redshifts)
+        df_category = import_pofk_by_z(subdirectory,redshifts=redshifts,dataheadings=dataheadings)
         dfs[category]=df_category
     if grlcdm is True:
         grlcdm_directory = root_directory.joinpath("../GRLCDM").resolve()
-        df_grlcdm = import_pofk_by_z(grlcdm_directory,redshifts=redshifts)
+        df_grlcdm = import_pofk_by_z(grlcdm_directory,redshifts=redshifts,dataheadings=dataheadings)
         dfs["GRLCDM"]=df_grlcdm
     data = pd.concat(dfs.values(),keys=dfs.keys(),axis=1)
     return data
