@@ -94,6 +94,9 @@ UE_prime_UE_arr = background_quantities['E_prime_E']
 coupling_factor_arr = background_quantities['coupling_factor']
 chioverdelta_arr = background_quantities['chi_over_delta']
 Omega_m_arr = background_quantities['omega_m']
+Omega_r_arr = background_quantities['omega_r']
+Omega_lambda_arr = background_quantities['omega_l']
+Omega_phi_arr = background_quantities['omega_phi']
 
 closure_variable = str(closure_dictionary[closure_declaration[0]][closure_declaration[1]])
 closure_value = str(background_quantities['closure_value'])
@@ -128,7 +131,7 @@ if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, Omega_m_arr],filename_expansion)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    
