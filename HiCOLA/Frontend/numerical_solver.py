@@ -77,22 +77,22 @@ def comp_Omega_DE_prime_LCDM(E_prime_E, Omega_DE):
     Omega_DE_prime = -2.*E_prime_E*Omega_DE
     return Omega_DE_prime
 
-def comp_alpha_M_propto_Omega_DE_LCDM(c_M, Omega_DE):
-    alpha_M_DE = c_M*Omega_DE
-    return alpha_M_DE
+#def comp_alpha_M_propto_Omega_DE_LCDM(c_M, Omega_DE):
+#    alpha_M_DE = c_M*Omega_DE
+#    return alpha_M_DE
 
-def comp_alpha_M_prime_propto_Omega_DE_LCDM(c_M, Omega_DE_prime):
-    alpha_M_prime_DE = c_M*Omega_DE_prime
-    return alpha_M_prime_DE
+#def comp_alpha_M_prime_propto_Omega_DE_LCDM(c_M, Omega_DE_prime):
+#    alpha_M_prime_DE = c_M*Omega_DE_prime
+#    return alpha_M_prime_DE
 
-def alpha_M_int_propto_Omega_DE_LCDM(x, Omega_r0, Omega_m0, c_M):
-    Omega_DE = comp_Omega_DE_LCDM(x, Omega_r0, Omega_m0)
-    alpha_M_int = c_M * Omega_DE
-    return alpha_M_int
+#def alpha_M_int_propto_Omega_DE_LCDM(x, Omega_r0, Omega_m0, c_M):
+#    Omega_DE = comp_Omega_DE_LCDM(x, Omega_r0, Omega_m0)
+#    alpha_M_int = c_M * Omega_DE
+#    return alpha_M_int
 
-def comp_Meffsq_x2_x1_propto_Omega_DE_LCDM(x1, x2, Omega_r0, Omega_m0, c_M):
-    Meffsq_x2_x1 = np.exp(integrate.quad(alpha_M_int_propto_Omega_DE_LCDM, x1, x2, args=(Omega_r0, Omega_m0, c_M))[0])
-    return Meffsq_x2_x1
+#def comp_Meffsq_x2_x1_propto_Omega_DE_LCDM(x1, x2, Omega_r0, Omega_m0, c_M):
+#    Meffsq_x2_x1 = np.exp(integrate.quad(alpha_M_int_propto_Omega_DE_LCDM, x1, x2, args=(Omega_r0, Omega_m0, c_M))[0])
+#    return Meffsq_x2_x1
 
 def comp_Omega_r_prime(Omega_r, E, E_prime):
     E_prime_E = E_prime/E
