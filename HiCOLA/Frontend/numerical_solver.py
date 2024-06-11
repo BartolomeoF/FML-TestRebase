@@ -5,6 +5,7 @@
 import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
@@ -258,18 +259,20 @@ def run_solver(read_out_dict):
         Y0 = [phi_prime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
 
 
-    if suppression_flag is True:
-        with stdout_redirected():
-            ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv) #k1=-6, g1 = 2
-    else:
-        ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv)
+    #if suppression_flag is True:
+    #    with stdout_redirected():
+    #        ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv) #k1=-6, g1 = 2
+    #else:
+    #    ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv)
 
-    phi_prime_arr = ans[:,0]
-    Hubble_arr = ans[:,1]
+    ans = solve_ivp(comp_primes, t_eval=x_arr_inv, t_span=(x_arr_inv[0],x_arr_inv[-1]), y0=Y0, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), method='DOP853') #.y added to ans when variable is called if found using solve_ivp instead of odeint
 
-    Omega_r_arr = ans[:,2]
-    Omega_m_arr = ans[:,3]
-    Omega_l_arr = ans[:,4]
+    #slice indices swapped if using solve_ivp instead of odeint
+    phi_prime_arr = ans.y[0,:] 
+    Hubble_arr = ans.y[1,:]
+    Omega_r_arr = ans.y[2,:]
+    Omega_m_arr = ans.y[3,:]
+    Omega_l_arr = ans.y[4,:]
 
     E_prime_E_LCDM_arr = [comp_E_prime_E_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_LCDM_arr = [comp_Omega_DE_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]

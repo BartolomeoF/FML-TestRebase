@@ -13,6 +13,7 @@ Created on Fri Jul  9 01:55:07 2021
 import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
