@@ -233,7 +233,7 @@ def omega_phi(G3, G4,  K,
     omega_de = term1 + (1/(3.*G4))*term2
     return omega_de
 
-
+     
 def EprimeEODERHS(G3, G4,  K,
         E='E',
         Eprime='Eprime',
@@ -988,6 +988,60 @@ def coupling_factor(G3, G4,  K,
             print('-------------------')
     return coupling
 
+def alpha_M(G3, G4, K,
+        M_sG4 = 'M_{sG4}',
+        phiprime='phiprime'):
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    parameters = [G3, G4, K, M_sG4, phiprime]
+    paranum = len(parameters)
+    for i in np.arange(0,paranum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, M_sG4, phiprime] = parameters
+    alph_M = 2.*phiprime*G4phi/M_sG4**2.
+    return alph_M
+
+def alpha_B(G3, G4, K,
+        M_G3s = 'M_{G3s}',
+        M_sG4 = 'M_{sG4}',
+        phiprime='phiprime',
+        X='X'):
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    parameters = [G3, G4, K, M_G3s, M_sG4, phiprime, X]
+    paranum = len(parameters)
+    for i in np.arange(0,paranum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, M_G3s, M_sG4, phiprime, X] = parameters
+    alph_B = 2.*phiprime*(M_G3s*X*G3x-G4phi/M_sG4**2.)
+    return alph_B
+
+def alpha_K(G3, G4, K,
+        E='E',
+        M_G3s = 'M_{G3s}',
+        M_Ks = 'M_{Ks}',
+        phiprime='phiprime',
+        X='X'):
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    parameters = [G3, G4, K, E, M_G3s, M_Ks, phiprime, X]
+    paranum = len(parameters)
+    for i in np.arange(0,paranum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, E, M_G3s, M_Ks, phiprime, X] = parameters
+    term11 = M_Ks**2.*(Kx+2.*X*Kxx)
+    term12 = 2.*M_G3s*(G3phi+X*G3phix)
+    term1 = (term11-term12)*2.*X/E**2.
+    term2 = 12.*M_G3s*phiprime*X*(G3x+X*G3xx)
+    alph_K = term1+term2
+    return alph_K
+
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     if np.any([K,G3,G4]) is None:
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
@@ -1057,8 +1111,22 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     coupling_fac = coupling_fac.subs([(X,Xreal)])
     coupling_fac = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],coupling_fac)
 
+
+    alpha_M_func = alpha_M(G3, G4, K, M_sG4=M_sG4_test)
+    alpha_M_func = alpha_M_func.subs(X,Xreal)
+    alpha_M_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list], alpha_M_func, "scipy")
+
+    alpha_B_func = alpha_B(G3, G4, K, M_G3s=M_G3s_test, M_sG4=M_sG4_test)
+    alpha_B_func = alpha_B_func.subs(X,Xreal)
+    alpha_B_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list], alpha_B_func, "scipy")
+
+    alpha_K_func = alpha_K(G3, G4, K, M_G3s=M_G3s_test, M_Ks=M_Ks_test)
+    alpha_K_func = alpha_K_func.subs(X,Xreal)
+    alpha_K_lamb = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list], alpha_K_func, "scipy")
+
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
-                             'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb}
+                             'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 
+                             'alpha_M_lambda':alpha_M_lamb, 'alpha_B_lambda':alpha_B_lamb, 'alpha_K_lambda':alpha_K_lamb}
     return lambda_functions_dict
