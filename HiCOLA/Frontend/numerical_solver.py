@@ -334,3 +334,20 @@ def run_solver(read_out_dict):
     result.update({'closure_value':cl_var})
 
     return result
+
+def comp_alphas(read_out_dict, E, phi_prime):
+    alpha_M_lamb = read_out_dict['alpha_M_lambda']
+    alpha_B_lamb = read_out_dict['alpha_B_lambda']
+    alpha_K_lamb = read_out_dict['alpha_K_lambda']
+    parameters = read_out_dict['Horndeski_parameters']
+
+    alpha_M_evaluated = alpha_M_lamb(E, phi_prime, *parameters)
+    if not isinstance(alpha_M_evaluated, np.ndarray):
+        alpha_M_evaluated = np.zeros(len(E))
+    alpha_B_evaluated = alpha_B_lamb(E, phi_prime, *parameters)
+    if not isinstance(alpha_B_evaluated, np.ndarray):
+        alpha_B_evaluated = np.zeros(len(E))
+    alpha_K_evaluated = alpha_K_lamb(E, phi_prime, *parameters)
+    if not isinstance(alpha_K_evaluated, np.ndarray):
+        alpha_K_evaluated = np.zeros(len(E))
+    return [alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
