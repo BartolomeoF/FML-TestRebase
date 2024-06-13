@@ -343,11 +343,11 @@ def comp_alphas(read_out_dict, E, phi_prime):
 
     alpha_M_evaluated = alpha_M_lamb(E, phi_prime, *parameters)
     if not isinstance(alpha_M_evaluated, np.ndarray):
-        alpha_M_evaluated = np.zeros(len(E))
+        alpha_M_evaluated = np.ones(len(E))*alpha_M_evaluated
     alpha_B_evaluated = alpha_B_lamb(E, phi_prime, *parameters)
     if not isinstance(alpha_B_evaluated, np.ndarray):
-        alpha_B_evaluated = np.zeros(len(E))
+        alpha_B_evaluated = np.ones(len(E))*alpha_B_evaluated
     alpha_K_evaluated = alpha_K_lamb(E, phi_prime, *parameters)
     if not isinstance(alpha_K_evaluated, np.ndarray):
-        alpha_K_evaluated = np.zeros(len(E))
+        alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
     return [alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
