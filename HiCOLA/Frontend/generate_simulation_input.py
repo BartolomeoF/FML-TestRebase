@@ -103,6 +103,7 @@ UE_prime_arr = background_quantities['Hubble_prime']
 UE_prime_UE_arr = background_quantities['E_prime_E']
 coupling_factor_arr = background_quantities['coupling_factor']
 chioverdelta_arr = background_quantities['chi_over_delta']
+GG4oGN_arr = background_quantities['GG4_over_GN']
 cl_full = background_quantities['closure_full']
 cl_full0 = cl_full[0]
 cl_full3 = cl_full[2]
@@ -171,11 +172,11 @@ if loop_counter != 0:
 
 expansion_datanames = 'a    E    E\'/E'
 full_datanames = 'a    E    E\'/E    phi    phi\'    omega_m    omega_r    omega_phi    omega_lambda'
-force_datanames = 'a    S (chi/delta)    beta (coupling_factor)'
+force_datanames = 'a    S (chi/delta)    beta (coupling_factor)        GG4_over_GN'
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion, expansion_datanames)
-sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full, full_datanames)
-sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force, force_datanames)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr],filename_expansion)#, expansion_datanames)
+sp.write_data_flex([a_arr, E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, omega_m_arr, omega_r_arr, omega_phi_arr, omega_lambda_arr], filename_full)#, full_datanames)
+sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr,GG4oGN_arr],filename_force)#, force_datanames)
 
    
 print(f'Files generated. Saved in {abs_directory}')
