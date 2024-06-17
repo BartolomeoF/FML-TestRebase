@@ -351,3 +351,12 @@ def comp_alphas(read_out_dict, E, phi_prime):
     if not isinstance(alpha_K_evaluated, np.ndarray):
         alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
     return [alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
+
+def comp_parameters(read_out_dict):
+    f_phi = read_out_dict['f_phi']
+    Omega_DE0 = read_out_dict['Omega_DE0']
+
+    k_1 = -6*f_phi*Omega_DE0
+    g_31 = 2*f_phi*Omega_DE0
+    parameters = [k_1, g_31]
+    return parameters

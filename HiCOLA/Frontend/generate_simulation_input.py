@@ -50,7 +50,9 @@ read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-
+#replacing dummy k_1 and g_31 with computed values
+parameters = ns.comp_parameters(read_out_dict)
+read_out_dict.update({'Horndeski_parameters': parameters})
 
 model = read_out_dict['model_name']
 K = read_out_dict['K']

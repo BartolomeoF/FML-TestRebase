@@ -113,7 +113,7 @@ def read_in_parameters(horndeski_path, numerical_path):
     simulation_dict = {'simulation_parameters':simulation_parameters, 'threshold_value':threshold_value,'GR_flag':GR_flag}
     read_out.update(simulation_dict)
 
-    parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions}
+    parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions, 'f_phi':f_phi, 'Omega_DE0':Omega_DE0}
     read_out.update(parameters_dict)
 
     return read_out
