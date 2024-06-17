@@ -991,6 +991,9 @@ def coupling_factor(G3, G4,  K,
 def alpha_M(G3, G4, K,
         M_sG4 = 'M_{sG4}',
         phiprime='phiprime'):
+    '''
+    Code equivalent of equation A.7 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -1008,6 +1011,9 @@ def alpha_B(G3, G4, K,
         M_sG4 = 'M_{sG4}',
         phiprime='phiprime',
         X='X'):
+    '''
+    Code equivalent of equation A.9 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
@@ -1026,6 +1032,9 @@ def alpha_K(G3, G4, K,
         M_Ks = 'M_{Ks}',
         phiprime='phiprime',
         X='X'):
+    '''
+    Code equivalent of equation A.8 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
+    '''
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)

@@ -106,7 +106,7 @@ closure_value = str(background_quantities['closure_value'])
 print(f'Closure parameter is {closure_variable} = {closure_value}' )
 print('(note: therefore one of the initial conditions or Horndeski model parameters printed above was the guess value)')
 
-#TEMPORARY---comp alphas
+#----Compute alphas----
 alphas_arr = ns.comp_alphas(read_out_dict, UE_arr, phi_prime_arr)
 alpha_M_arr = alphas_arr[0]
 alpha_B_arr = alphas_arr[1]
