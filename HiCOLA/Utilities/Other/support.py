@@ -48,7 +48,7 @@ def write_data_flex(data, output_filename_as_string, datanames=''):
     for i in data:
         newdata.append(np.array(i[::]))
     realdata = np.array(newdata)
-    realdata = realdata.T     #here you transpose your data, so to have it in two columns
+    realdata = realdata.T     #here you transpose your data to have it in columns
     np.savetxt(datafile_id, realdata, fmt=format_list, header=datanames)    #here the ascii file is populated.
     datafile_id.close()    #close the file
 
@@ -379,3 +379,12 @@ def import_breakdown(root_directory, categories=["Full","QCDM","5thforcelinear",
         dfs["GRLCDM"]=df_grlcdm
     data = pd.concat(dfs.values(),keys=dfs.keys(),axis=1)
     return data
+
+def redshift_check(z1, z2, nstep):
+    '''
+    Check that 2 redshifts are not closer than 1/nstep, the minimal allowed spacing for output redshifts for 
+    the Hi-COLA backend.
+    '''
+    a = [1.0/(1.0+z) for z in [z1, z2]]
+    boo = ( abs(a[0] - a[1]) < 1.0/nstep )
+    return boo

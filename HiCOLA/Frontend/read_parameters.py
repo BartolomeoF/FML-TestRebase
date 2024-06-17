@@ -22,6 +22,8 @@ def read_in_parameters(horndeski_path, numerical_path):
 
     GR_flag = numerical_read.as_bool('GR_flag')
 
+    forwards_flag = numerical_read.as_bool('forwards_flag')
+
     threshold_value = numerical_read.as_float('threshold')
 
     simulation_parameters = [Npoints, max_redshift, suppression_flag, threshold_value, GR_flag]
@@ -114,7 +116,7 @@ def read_in_parameters(horndeski_path, numerical_path):
     lists = {'mass_ratio_list':mass_ratio_list, 'symbol_list':symbol_list, 'closure_declaration':closure_declaration}
     read_out.update(lists)
 
-    simulation_dict = {'simulation_parameters':simulation_parameters, 'threshold_value':threshold_value,'GR_flag':GR_flag}
+    simulation_dict = {'simulation_parameters':simulation_parameters, 'threshold_value':threshold_value,'GR_flag':GR_flag, 'forwards_flag':forwards_flag}
     read_out.update(simulation_dict)
 
     parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions,
