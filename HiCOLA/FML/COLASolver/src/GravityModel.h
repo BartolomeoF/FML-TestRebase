@@ -150,14 +150,15 @@ class GravityModel {
         if (not fp.is_open())
             return;
         double k = koverH0 * this->H0_hmpc;
-        fp << "#  a  GeffG(a,k)  D1(a,k)  D1mnu(a,k) ( D1_transfer(a,k) D1mnu_transfer(a,k) )  D2(a,k)  D3a(a,k)  "
+        fp << "#  a  GeffG(a,k)  GG4_GN(a)  D1(a,k)  D1mnu(a,k) ( D1_transfer(a,k) D1mnu_transfer(a,k) )  D2(a,k)  D3a(a,k)  "
               "D3b(a,k)  (source terms)  (Output for k = "
            << k << " h/Mpc)\n";
         for (int i = 0; i < npts_loga; i++) {
             double loga = std::log(alow) + std::log(ahigh / alow) * i / double(npts_loga - 1);
             double a = std::exp(loga);
             fp << std::setw(15) << a << "  ";
-            fp << std::setw(15) << (a, koverH0) << " ";
+            fp << std::setw(15) << GeffOverG(a, koverH0) << " ";
+            fp << std::setw(15) << GG4_GN(a) << " ";
             fp << std::setw(15) << get_D_1LPT(a, koverH0) << " ";
             fp << std::setw(15) << get_Dmnu_1LPT(a, koverH0) << " ";
             if (transferdata) {
