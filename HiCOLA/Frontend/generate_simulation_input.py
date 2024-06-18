@@ -143,7 +143,7 @@ if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, phi_prime_arr, phi_primeprime_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    
