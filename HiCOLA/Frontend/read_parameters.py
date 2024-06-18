@@ -30,7 +30,7 @@ def read_in_parameters(horndeski_path, numerical_path):
 
         Omega_m0 = Omega_b0h2/h/h + Omega_c0h2/h/h
     else:
-        Omega_m0 = numerical_read.as_float("Omega_r0")
+        Omega_m0 = numerical_read.as_float("Omega_m0")
 
     if numerical_read["Omega_r0"] == "None":
         Omega_r0h2 = numerical_read.as_float("Omega_r0h2")
@@ -79,10 +79,11 @@ def read_in_parameters(horndeski_path, numerical_path):
     Omega_l0 = (1. - f_phi)*Omega_DE0
 
     Hubble0 = horndeski_read.as_float("Hubble0")
+    phi0 = horndeski_read.as_float("phi0")
     phiprime0 = horndeski_read.as_float("phiprime0")
 
     cosmological_parameters = [Omega_r0, Omega_m0, Omega_l0]
-    initial_conditions = [Hubble0, phiprime0]
+    initial_conditions = [Hubble0, phi0, phiprime0]
 
     closure_guess = horndeski_read.as_float('closure_guess_value')
     odeint_declaration = horndeski_read.as_bool('use_constraint_eq_on_odeint_variables')

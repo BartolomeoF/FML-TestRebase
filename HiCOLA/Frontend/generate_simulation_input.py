@@ -47,7 +47,7 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
-odeint_parameter_symbols = [E, phiprime, omegar, omegam]
+odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 #replacing dummy k_1 and g_31 with computed values
@@ -60,7 +60,7 @@ G3 = read_out_dict['G3']
 G4 = read_out_dict['G4']
 cosmology_name = read_out_dict['cosmo_name']
 [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
-[U0, phi_prime0] = read_out_dict['initial_conditions']
+[U0, phi0, phi_prime0] = read_out_dict['initial_conditions']
 [Npoints, z_max, supp_flag, threshold_value, GR_flag] = read_out_dict['simulation_parameters']
 parameters = read_out_dict['Horndeski_parameters']
 mass_ratio_list = read_out_dict['mass_ratio_list']
@@ -100,6 +100,7 @@ Omega_m_arr = background_quantities['omega_m']
 Omega_r_arr = background_quantities['omega_r']
 Omega_lambda_arr = background_quantities['omega_l']
 Omega_phi_arr = background_quantities['omega_phi']
+phi_arr = background_quantities['scalar']
 phi_prime_arr = background_quantities['scalar_prime']
 phi_primeprime_arr = background_quantities['scalar_primeprime']
 
@@ -143,7 +144,7 @@ if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    
