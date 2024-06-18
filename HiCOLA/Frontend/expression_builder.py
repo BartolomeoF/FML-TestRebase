@@ -988,6 +988,23 @@ def coupling_factor(G3, G4,  K,
             print('-------------------')
     return coupling
 
+def M_star_sqrd(G3, G4, K,
+                M_pG4 = 'M_{pG4}'):
+    '''
+    Code equivalent of equation A.6 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
+    '''
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    parameters = [G3, G4, K]
+    paranum = len(parameters)
+    for i in np.arange(0,paranum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K] = parameters
+    M_s_sqrd = 2.*G4/M_pG4**2
+    return M_s_sqrd
+
 def alpha_M(G3, G4, K,
         M_sG4 = 'M_{sG4}',
         phiprime='phiprime'):
@@ -1121,6 +1138,9 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     coupling_fac = sym.lambdify([E,Eprime,phiprime,phiprimeprime, *symbol_list],coupling_fac)
 
 
+    M_star_sqrd_func = M_star_sqrd(G3, G4, K, M_pG4=M_pG4_test)
+    M_star_sqrd_lamb = sym.lambdify([*symbol_list],M_star_sqrd_func)
+
     alpha_M_func = alpha_M(G3, G4, K, M_sG4=M_sG4_test)
     alpha_M_func = alpha_M_func.subs(X,Xreal)
     alpha_M_lamb = sym.lambdify([E,phiprime, *symbol_list], alpha_M_func, "scipy")
@@ -1137,5 +1157,5 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 
-                             'alpha_M_lambda':alpha_M_lamb, 'alpha_B_lambda':alpha_B_lamb, 'alpha_K_lambda':alpha_K_lamb}
+                             'M_star_sqrd_lambda':M_star_sqrd_lamb, 'alpha_M_lambda':alpha_M_lamb, 'alpha_B_lambda':alpha_B_lamb, 'alpha_K_lambda':alpha_K_lamb}
     return lambda_functions_dict

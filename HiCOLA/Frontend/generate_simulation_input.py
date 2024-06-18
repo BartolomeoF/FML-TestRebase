@@ -110,9 +110,10 @@ print('(note: therefore one of the initial conditions or Horndeski model paramet
 
 #----Compute alphas----
 alphas_arr = ns.comp_alphas(read_out_dict, UE_arr, phi_prime_arr)
-alpha_M_arr = alphas_arr[0]
-alpha_B_arr = alphas_arr[1]
-alpha_K_arr = alphas_arr[2]
+M_star_sqrd_arr = alphas_arr[0]
+alpha_M_arr = alphas_arr[1]
+alpha_B_arr = alphas_arr[2]
+alpha_K_arr = alphas_arr[3]
 
 print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
@@ -142,7 +143,7 @@ if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, phi_prime_arr, phi_primeprime_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, phi_prime_arr, phi_primeprime_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
    
