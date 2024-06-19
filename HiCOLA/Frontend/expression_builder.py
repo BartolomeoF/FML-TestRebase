@@ -989,7 +989,8 @@ def coupling_factor(G3, G4,  K,
     return coupling
 
 def M_star_sqrd(G3, G4, K,
-                M_pG4 = 'M_{pG4}'):
+                M_pG4 = 'M_{pG4}',
+                phi = 'phi'):
     '''
     Code equivalent of equation A.6 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
     '''
@@ -1007,6 +1008,7 @@ def M_star_sqrd(G3, G4, K,
 
 def alpha_M(G3, G4, K,
         M_sG4 = 'M_{sG4}',
+        phi = 'phi',
         phiprime='phiprime'):
     '''
     Code equivalent of equation A.7 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050 within reduced Horndeski class
@@ -1026,6 +1028,7 @@ def alpha_M(G3, G4, K,
 def alpha_B(G3, G4, K,
         M_G3s = 'M_{G3s}',
         M_sG4 = 'M_{sG4}',
+        phi = 'phi',
         phiprime='phiprime',
         X='X'):
     '''
@@ -1047,6 +1050,7 @@ def alpha_K(G3, G4, K,
         E='E',
         M_G3s = 'M_{G3s}',
         M_Ks = 'M_{Ks}',
+        phi = 'phi',
         phiprime='phiprime',
         X='X'):
     '''
@@ -1139,19 +1143,19 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
 
     M_star_sqrd_func = M_star_sqrd(G3, G4, K, M_pG4=M_pG4_test)
-    M_star_sqrd_lamb = sym.lambdify([*symbol_list],M_star_sqrd_func)
+    M_star_sqrd_lamb = sym.lambdify([phi,*symbol_list],M_star_sqrd_func)
 
     alpha_M_func = alpha_M(G3, G4, K, M_sG4=M_sG4_test)
     alpha_M_func = alpha_M_func.subs(X,Xreal)
-    alpha_M_lamb = sym.lambdify([E,phiprime, *symbol_list], alpha_M_func, "scipy")
+    alpha_M_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_M_func, "scipy")
 
     alpha_B_func = alpha_B(G3, G4, K, M_G3s=M_G3s_test, M_sG4=M_sG4_test)
     alpha_B_func = alpha_B_func.subs(X,Xreal)
-    alpha_B_lamb = sym.lambdify([E,phiprime, *symbol_list], alpha_B_func, "scipy")
+    alpha_B_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_B_func, "scipy")
 
     alpha_K_func = alpha_K(G3, G4, K, M_G3s=M_G3s_test, M_Ks=M_Ks_test)
     alpha_K_func = alpha_K_func.subs(X,Xreal)
-    alpha_K_lamb = sym.lambdify([E,phiprime, *symbol_list], alpha_K_func, "scipy")
+    alpha_K_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_K_func, "scipy")
 
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,

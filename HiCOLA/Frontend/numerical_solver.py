@@ -342,23 +342,23 @@ def run_solver(read_out_dict):
 
     return result
 
-def comp_alphas(read_out_dict, E, phi_prime):
+def comp_alphas(read_out_dict, E, phi, phi_prime):
     M_star_sqrd_lamb = read_out_dict['M_star_sqrd_lambda']
     alpha_M_lamb = read_out_dict['alpha_M_lambda']
     alpha_B_lamb = read_out_dict['alpha_B_lambda']
     alpha_K_lamb = read_out_dict['alpha_K_lambda']
     parameters = read_out_dict['Horndeski_parameters']
 
-    M_star_sqrd_evaluated = M_star_sqrd_lamb(*parameters)
+    M_star_sqrd_evaluated = M_star_sqrd_lamb(phi, *parameters)
     if not isinstance(M_star_sqrd_evaluated, np.ndarray):
         M_star_sqrd_evaluated = np.ones(len(E))*M_star_sqrd_evaluated
-    alpha_M_evaluated = alpha_M_lamb(E, phi_prime, *parameters)
+    alpha_M_evaluated = alpha_M_lamb(E, phi, phi_prime, *parameters)
     if not isinstance(alpha_M_evaluated, np.ndarray):
         alpha_M_evaluated = np.ones(len(E))*alpha_M_evaluated
-    alpha_B_evaluated = alpha_B_lamb(E, phi_prime, *parameters)
+    alpha_B_evaluated = alpha_B_lamb(E, phi, phi_prime, *parameters)
     if not isinstance(alpha_B_evaluated, np.ndarray):
         alpha_B_evaluated = np.ones(len(E))*alpha_B_evaluated
-    alpha_K_evaluated = alpha_K_lamb(E, phi_prime, *parameters)
+    alpha_K_evaluated = alpha_K_lamb(E, phi, phi_prime, *parameters)
     if not isinstance(alpha_K_evaluated, np.ndarray):
         alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
     return [M_star_sqrd_evaluated, alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]

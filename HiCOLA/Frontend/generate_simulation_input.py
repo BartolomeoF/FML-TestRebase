@@ -50,9 +50,9 @@ read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-#replacing dummy k_1 and g_31 with computed values
-parameters = ns.comp_parameters(read_out_dict)
-read_out_dict.update({'Horndeski_parameters': parameters})
+#works only if k_1 and g_3 are present---replacing dummy k_1 and g_31 with computed values
+#parameters = ns.comp_parameters(read_out_dict)
+#read_out_dict.update({'Horndeski_parameters': parameters})
 
 model = read_out_dict['model_name']
 K = read_out_dict['K']
@@ -110,7 +110,7 @@ print(f'Closure parameter is {closure_variable} = {closure_value}' )
 print('(note: therefore one of the initial conditions or Horndeski model parameters printed above was the guess value)')
 
 #----Compute alphas----
-alphas_arr = ns.comp_alphas(read_out_dict, UE_arr, phi_prime_arr)
+alphas_arr = ns.comp_alphas(read_out_dict, UE_arr, phi_arr, phi_prime_arr)
 M_star_sqrd_arr = alphas_arr[0]
 alpha_M_arr = alphas_arr[1]
 alpha_B_arr = alphas_arr[2]
