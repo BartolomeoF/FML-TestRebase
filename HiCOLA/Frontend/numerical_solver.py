@@ -228,8 +228,14 @@ def run_solver(read_out_dict):
     x_final = np.log(1./(1.+z_final))
     x_arr = np.linspace(x_ini, x_final, Npoints)
     a_arr = [np.exp(x) for x in x_arr]
-    x_arr_inv = x_arr[::-1]
-    a_arr_inv = a_arr[::-1]
+    if read_out_dict['forwards_flag'] is True:
+        x_arr_inv = x_arr
+        a_arr_inv = a_arr
+        x_ini = np.log(1./(1.+z_final))
+        x_final = np.log(1./(1.+z_max))
+    else:
+        x_arr_inv = x_arr[::-1]
+        a_arr_inv = a_arr[::-1]
 
 
 
