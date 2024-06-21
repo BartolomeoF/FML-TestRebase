@@ -142,7 +142,8 @@ def fried_RHS_wrapper(cl_variable, cl_declaration, fried_RHS_lambda, E, phi, phi
 
 
 
-def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0,parameters):
+def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0,parameters): #calling the closure-fixed parameter "k1" is arbitrary, the choice of which parameter to fix is determined by lambdification or fried_RHS
+
     cl_guess = 1.0 #this may need to be changed depending on what is being solved for through closure, if fsolve has trouble
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
@@ -153,13 +154,18 @@ def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0,
             cl_guess = phi_prime0
         if cl_declaration[1] == 3:
             cl_guess = Omega_r0
-        if cl_declaration[1] ==4:
+        if cl_declaration[1] == 4:
             cl_guess = Omega_m0
+        # if cl_declaration[1] ==5:
+        #     cl_guess = Omega_l0
     if cl_declaration[0] == 'parameters':
         cl_guess = parameters[cl_declaration[1]]
-    cl_variable,fsolvedict,fsolveier,fsolvemsg = fsolve(fried_RHS_wrapper, cl_guess, args=(cl_declaration, fried_closure_lambda, E0, phi0, phi_prime0, Omega_r0,Omega_m0, Omega_l0,parameters), xtol=1e-6,full_output=True) 
-    cl_variable = cl_variable[0]
-    return cl_variable
+
+    cl_variable = fsolve(fried_RHS_wrapper, cl_guess, args=(cl_declaration, fried_closure_lambda, E0, phi0, phi_prime0, Omega_r0,Omega_m0, Omega_l0,parameters), xtol=1e-6,full_output=True) #make sure arguments match lambdification line in run_builder.py
+
+    cl_variable0 = cl_variable[0][0] #to unpack the fsolve solution/iteration
+
+    return cl_variable0, cl_variable
 
 def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold=1e-3,GR_flag=False): #x, Y swapped for solve_ivp ###ADD LAMBDA FUNCTION AS ARGUMENT###
 
@@ -233,46 +239,54 @@ def run_solver(read_out_dict):
         a_arr_inv = a_arr
         x_ini = np.log(1./(1.+z_final))
         x_final = np.log(1./(1.+z_max))
+
+        #omega_i(z=z_max) for forward solver ICs
+        Omega_l_ini = Omega_l0/Hubble0/Hubble0
+        Omega_m_ini = Omega_m0*((1+z_max)**3.)/Hubble0/Hubble0
+        Omega_r_ini = Omega_r0*((1+z_max)**4)/Hubble0/Hubble0
     else:
         x_arr_inv = x_arr[::-1]
         a_arr_inv = a_arr[::-1]
 
-
+        Omega_l_ini = Omega_l0
+        Omega_m_ini = Omega_m0
+        Omega_r_ini = Omega_r0
 
     if GR_flag is True:
         phi_prime0 = 0.
-
-    cl_var = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r0, Omega_m0, Omega_l0, parameters)
+        
+    cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r_ini, Omega_m_ini, Omega_l_ini, parameters)
 
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0_closed = cl_var
-            Y0 = [phi0, phi_prime0, Hubble0_closed, Omega_r0, Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0,Hubble0_closed,Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 1:
             phi0_closed = cl_var
-            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r0, Omega_m0, Omega_l0]
+            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 2:
             phi_prime0_closed = cl_var
             if 1.-Omega_r0 - Omega_m0 == Omega_l0:
                     phi_prime0_closed = 0.
-            Y0 = [phi0, phi_prime0_closed, Hubble0, Omega_r0, Omega_m0, Omega_l0]
+            Y0 = [phi0, phi_prime0_closed,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 3:
-            Omega_r0_closed = cl_var
-            Y0 =[phi0, phi_prime0,Hubble0,Omega_r0_closed,Omega_m0, Omega_l0]
+            Omega_r_ini_closed = cl_var
+            Y0 =[phi0, phi_prime0,Hubble0,Omega_r_ini_closed,Omega_m_ini, Omega_l_ini]
         if cl_declaration[1] == 4:
-            Omega_m0_closed = cl_var
-            Y0 = [phi0, phi_prime0,Hubble0,Omega_r0,Omega_m0_closed, Omega_l0]
-
+            Omega_m_ini_closed = cl_var
+            Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini_closed, Omega_l_ini]
+        #print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
     if cl_declaration[0] == 'parameters':
         parameters[cl_declaration[1]] = cl_var
-        Y0 = [phi0,phi_prime0,Hubble0,Omega_r0,Omega_m0,Omega_l0]
-
+        Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
+        #print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
+    # print('Y0 is '+str(Y0))
 
     if suppression_flag is True:
         with stdout_redirected():
-            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv) #k1=-6, g1 = 2
+            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv) #k1=-6, g1 = 2
     else:
-        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv)
+        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv)
 
     ans = ans["y"].T
     phi_arr = ans[:,0]

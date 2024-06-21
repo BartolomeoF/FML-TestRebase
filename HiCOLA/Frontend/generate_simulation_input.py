@@ -50,7 +50,7 @@ read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-#works only if k_1 and g_3 are present---replacing dummy k_1 and g_31 with computed values
+#works if k_1 and g_3 are only parameters and using present conditions---replacing dummy k_1 and g_31 with computed values
 #parameters = ns.comp_parameters(read_out_dict)
 #read_out_dict.update({'Horndeski_parameters': parameters})
 
@@ -87,6 +87,7 @@ print('Omega_r0 = '+str(Omega_r0))
 print(f'Omega_lambda0 = {Omega_l0}')
 print('Initial conditions----------------')
 print(f'Hubble0 = {U0}')
+print(f'scalar0 = {phi0}')
 print(f'scalar_prime0 = {phi_prime0}')
 
 background_quantities = ns.run_solver(read_out_dict)
@@ -120,8 +121,8 @@ print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
 ##Note: U = E/E_dS
 ## U0 = 1/E_dS
-E_arr = np.array(UE_arr)/U0 #check whether you require intermediates constructed with E rather than U!
-E_prime_arr = np.array(UE_prime_arr)/U0 #check whether backend requires intermediates constructed with Eprime rather than Uprime!
+E_arr = np.array(UE_arr) #check whether you require intermediates constructed with E rather than U!
+E_prime_arr = np.array(UE_prime_arr)#check whether backend requires intermediates constructed with Eprime rather than Uprime!
 ##Note: E_prime_E is the same as U_prime_U, so that array does not need to be multiplied by anything.
 
 directory = read_out_dict['output_directory']
