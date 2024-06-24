@@ -362,12 +362,16 @@ def run_solver(read_out_dict):
 
     return result
 
-def comp_alphas(read_out_dict, E, phi, phi_prime):
+def comp_alphas(read_out_dict, background_quantities):
     M_star_sqrd_lamb = read_out_dict['M_star_sqrd_lambda']
     alpha_M_lamb = read_out_dict['alpha_M_lambda']
     alpha_B_lamb = read_out_dict['alpha_B_lambda']
     alpha_K_lamb = read_out_dict['alpha_K_lambda']
     parameters = read_out_dict['Horndeski_parameters']
+
+    E = background_quantities['Hubble']
+    phi = background_quantities['scalar']
+    phi_prime = background_quantities['scalar_prime']
 
     M_star_sqrd_evaluated = M_star_sqrd_lamb(phi, *parameters)
     if not isinstance(M_star_sqrd_evaluated, np.ndarray):
@@ -382,6 +386,32 @@ def comp_alphas(read_out_dict, E, phi, phi_prime):
     if not isinstance(alpha_K_evaluated, np.ndarray):
         alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
     return [M_star_sqrd_evaluated, alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
+
+def comp_w_DE(background_quantities):
+    E = background_quantities['Hubble']
+    E_prime = background_quantities['Hubble_prime']
+    Omega_m = background_quantities['omega_m']
+
+    P_DE = -2*E*E_prime - 3*E**2
+    rho_DE = 3*E**2*(1-Omega_m)
+    w_DE = P_DE/rho_DE
+    return w_DE, P_DE, rho_DE
+
+def comp_w_DE2(read_out_dict, background_quantities):
+    P_DE_lamb = read_out_dict['P_DE_lambda']
+    rho_DE_lamb = read_out_dict['rho_DE_lambda']
+    parameters = read_out_dict['Horndeski_parameters']
+
+    E = background_quantities['Hubble']
+    E_prime = background_quantities['Hubble_prime']
+    phi = background_quantities['scalar']
+    phi_prime = background_quantities['scalar_prime']
+    phi_primeprime = background_quantities['scalar_primeprime']
+
+    P_DE_evaluated = P_DE_lamb(E, E_prime, phi, phi_prime, phi_primeprime, *parameters)
+    rho_DE_evaluated = rho_DE_lamb(E, phi, phi_prime, *parameters)
+    w_DE = P_DE_evaluated/rho_DE_evaluated
+    return w_DE, P_DE_evaluated, rho_DE_evaluated
 
 def comp_parameters(read_out_dict):
     f_phi = read_out_dict['f_phi']
