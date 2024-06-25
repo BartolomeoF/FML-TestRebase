@@ -50,10 +50,6 @@ read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-#works if k_1 and g_3 are only parameters and using present conditions---replacing dummy k_1 and g_31 with computed values
-#parameters = ns.comp_parameters(read_out_dict)
-#read_out_dict.update({'Horndeski_parameters': parameters})
-
 model = read_out_dict['model_name']
 K = read_out_dict['K']
 G3 = read_out_dict['G3']
@@ -117,7 +113,8 @@ alpha_M_arr = alphas_arr[1]
 alpha_B_arr = alphas_arr[2]
 alpha_K_arr = alphas_arr[3]
 
-DE_arr = ns.comp_w_DE(background_quantities)
+#----Compute Dark Energy EoS----
+DE_arr = ns.comp_w_DE2(read_out_dict, background_quantities)#to change compute method remove 2 and read_out_dict
 w_DE_arr = DE_arr[0]
 P_DE_arr = DE_arr[1]
 rho_DE_arr = DE_arr[2]

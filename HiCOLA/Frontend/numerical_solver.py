@@ -387,6 +387,7 @@ def comp_alphas(read_out_dict, background_quantities):
         alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
     return [M_star_sqrd_evaluated, alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
 
+#based on already calculated background evolution only
 def comp_w_DE(background_quantities):
     E = background_quantities['Hubble']
     E_prime = background_quantities['Hubble_prime']
@@ -399,6 +400,7 @@ def comp_w_DE(background_quantities):
     w_DE = P_DE/rho_DE
     return w_DE, P_DE, rho_DE
 
+#based on P and rho funcs of background evolution
 def comp_w_DE2(read_out_dict, background_quantities):
     P_DE_lamb = read_out_dict['P_DE_lambda']
     rho_DE_lamb = read_out_dict['rho_DE_lambda']
@@ -414,12 +416,3 @@ def comp_w_DE2(read_out_dict, background_quantities):
     rho_DE_evaluated = rho_DE_lamb(E, phi, phi_prime, *parameters)
     w_DE = P_DE_evaluated/rho_DE_evaluated
     return w_DE, P_DE_evaluated, rho_DE_evaluated
-
-def comp_parameters(read_out_dict):
-    f_phi = read_out_dict['f_phi']
-    Omega_DE0 = read_out_dict['Omega_DE0']
-
-    k_1 = -6*f_phi*Omega_DE0
-    g_31 = 2*f_phi*Omega_DE0
-    parameters = [k_1, g_31]
-    return parameters
