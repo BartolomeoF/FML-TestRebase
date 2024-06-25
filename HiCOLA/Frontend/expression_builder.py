@@ -1074,14 +1074,16 @@ def alpha_K(G3, G4, K,
     term11 = M_K**2*(Kx+2*X*Kxx)/M_eff**2
     term12 = 2*M_s*M_G3*(G3phi + X*G3phix)/M_eff**2
     term1 = (term11 - term12)*2*X/E**2
-    term2 = 12*M_s*M_G3*phiprime*X*(G3x + X*G3xx)
+    term2 = 12*M_s*M_G3*phiprime*X*(G3x + X*G3xx)/M_eff**2
     alph_K = term1 + term2
     return alph_K
 
 def rhode(G3, G4, K,
-        M_G3s = 'M_{G3s}',
-        M_Ks = 'M_{Ks}',
-        M_sG4 = 'M_{sG4}',
+        M_eff = 'M_{eff}',
+        M_s = 'M_{s}',
+        M_K = 'M_{Ks}',
+        M_G3 = 'M_{G3}',
+        M_G4 = 'M_{G4}',
         E='E',
         phi = 'phi',
         phiprime='phiprime',
@@ -1092,21 +1094,23 @@ def rhode(G3, G4, K,
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
-    parameters = [G3, G4, K, M_G3s, M_Ks, M_sG4, E, phi, phiprime, X]
+    parameters = [G3, G4, K, M_eff, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
-    [G3, G4, K, M_G3s, M_Ks, M_sG4, E, phi, phiprime, X] = parameters
-    term1 = M_Ks**2*Kx - M_G3s*G3phi
-    term2 = M_G3s*G3x*X-G4phi/M_sG4**2
-    rho_DE = 2*X*term1 + 6*E**2*phiprime*term2 - M_Ks**2*K
+    [G3, G4, K, M_eff, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X] = parameters
+    term1 = M_K**2*Kx - M_s*M_G3*G3phi
+    term2 = M_s*M_G3*G3x*X-G4phi*M_G4**2
+    rho_DE = (2*X*term1 + 6*E**2*phiprime*term2 - M_K**2*K)/M_eff**2
     return rho_DE
 
 def Pde(G3, G4, K, 
-        M_G3s = 'M_{G3s}',
-        M_Ks = 'M_{Ks}',
-        M_sG4 = 'M_{sG4}',
+        M_eff = 'M_{eff}',
+        M_s = 'M_{s}',
+        M_K = 'M_{Ks}',
+        M_G3 = 'M_{G3}',
+        M_G4 = 'M_{G4}',
         E='E',
         Eprime = 'Eprime',
         phi = 'phi',
@@ -1119,17 +1123,17 @@ def Pde(G3, G4, K,
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
-    parameters = [G3, G4, K, M_G3s, M_Ks, M_sG4, E, Eprime, phi, phiprime, phiprimeprime, X]
+    parameters = [G3, G4, K, M_eff, M_s, M_K, M_G3, M_G4, E, Eprime, phi, phiprime, phiprimeprime, X]
     paramnum = len(parameters)
     for i in np.arange(0,paramnum):
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
-    [G3, G4, K, M_G3s, M_Ks, M_sG4, E, Eprime, phi, phiprime, phiprimeprime, X] = parameters
-    term1 = M_Ks**2*K + 4*E**2*G4phi/M_sG4**2
-    term2 = M_G3s*G3phi - 2*G4phiphi/M_sG4**2 
-    term31 = 2*phiprime*(M_G3s*X*G3x - G4phi/M_sG4**2)
+    [G3, G4, K, M_eff, M_s, M_K, M_G3, M_G4, E, Eprime, phi, phiprime, phiprimeprime, X] = parameters
+    term1 = M_K**2*K + 4*E**2*G4phi*phiprime*M_G4**2
+    term2 = M_s*M_G3*G3phi - 2*G4phiphi*M_G4**2 
+    term31 = 2*phiprime*(M_s*M_G3*X*G3x - G4phi*M_G4**2)
     term3 = term31*E*(Eprime*phiprime + E*phiprimeprime)/phiprime
-    P_DE = term1 - 2*X*term2 - term3
+    P_DE = (term1 - 2*X*term2 - term3)/M_eff**2
     return P_DE
 
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
@@ -1222,12 +1226,14 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     alpha_K_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_K_func, "scipy")
 
 
-    rho_DE_func = rhode(G3, G4, K, M_G3s=M_G3s_test, M_Ks=M_Ks_test, M_sG4=M_sG4_test)
+    rho_DE_func = rhode(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     rho_DE_func = rho_DE_func.subs(X,Xreal)
+    rho_DE_func = rho_DE_func.subs(M_eff,M_star)
     rho_DE_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], rho_DE_func, "scipy")
 
-    P_DE_func = Pde(G3, G4, K, M_G3s=M_G3s_test, M_Ks=M_Ks_test, M_sG4=M_sG4_test)
+    P_DE_func = Pde(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     P_DE_func = P_DE_func.subs(X,Xreal)
+    P_DE_func = P_DE_func.subs(M_eff,M_star)
     P_DE_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list], P_DE_func, "scipy")
 
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
