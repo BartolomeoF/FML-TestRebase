@@ -372,7 +372,7 @@ def comp_alphas(read_out_dict, background_quantities):
     E = background_quantities['Hubble']
     phi = background_quantities['scalar']
     phi_prime = background_quantities['scalar_prime']
-
+    
     M_star_sqrd_evaluated = M_star_sqrd_lamb(phi, *parameters)
     if not isinstance(M_star_sqrd_evaluated, np.ndarray):
         M_star_sqrd_evaluated = np.ones(len(E))*M_star_sqrd_evaluated

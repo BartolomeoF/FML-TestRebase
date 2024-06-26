@@ -38,7 +38,7 @@ def write_all_data(a_arr_inv, E_arr, E_prime_arr, phi_prime_arr, phi_primeprime_
 
 def write_data_flex(data, output_filename_as_string):
     datafile_id = open(output_filename_as_string, 'wb')    #here you open the ascii file
-    format_list = list(np.repeat('%.4e',len(data)))
+    format_list = list(np.repeat('%.8e',len(data)))
     newdata = []
     for i in data:
         newdata.append(np.array(i[::-1]))

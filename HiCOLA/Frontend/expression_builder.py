@@ -1003,7 +1003,7 @@ def M_star_sqrd(G3, G4, K,
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
     [G3, G4, K, M_G4, phi] = parameters
-    M_s_sqrd = 2*G4/M_G4**2
+    M_s_sqrd = 2*G4*M_G4**2
     return M_s_sqrd
 
 def alpha_M(G3, G4, K,
