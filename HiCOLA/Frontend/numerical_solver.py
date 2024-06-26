@@ -415,3 +415,19 @@ def comp_w_DE2(read_out_dict, background_quantities):
     rho_DE_evaluated = rho_DE_lamb(E, phi, phi_prime, *parameters)
     w_DE = P_DE_evaluated/rho_DE_evaluated
     return w_DE, P_DE_evaluated, rho_DE_evaluated
+
+def comp_stability(read_out_dict, background_quantities):
+    parameters = read_out_dict['Horndeski_parameters']
+    Q_S_lamb = read_out_dict['Q_S_lambda']
+
+    E = background_quantities['Hubble']
+    phi = background_quantities['scalar']
+    phi_prime = background_quantities['scalar_prime']
+
+    Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
+    if Q_S_evaluated.all() > 0:
+        print('Stability conditions satisified')
+        return
+    else:
+        print('Stability conditions not always satisified')
+        return Q_S_evaluated

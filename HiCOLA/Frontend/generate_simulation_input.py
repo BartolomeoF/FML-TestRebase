@@ -119,6 +119,9 @@ w_DE_arr = DE_arr[0]
 P_DE_arr = DE_arr[1]
 rho_DE_arr = DE_arr[2]
 
+#----Checking stability conditions----
+Q_S_arr = ns.comp_stability(read_out_dict, background_quantities)
+
 print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
 ##Note: U = E/E_dS
@@ -134,6 +137,7 @@ if not os.path.exists(directory):
 
 filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
+filename_stability = directory+f'/{model}_{cosmology_name}_stability.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
@@ -150,5 +154,7 @@ if loop_counter != 0:
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, w_DE_arr, P_DE_arr, rho_DE_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
+if isinstance(Q_S_arr, np.ndarray):
+    sp.write_data_flex([a_arr, Q_S_arr], filename_stability)
    
 print(f'Files generated. Saved in {abs_directory}')

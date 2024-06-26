@@ -11,7 +11,7 @@ def declare_symbols():
     It is normal to see "undefined quantities" throughout this script and others in Hi-COLA. When
     this function is executed, the 'erroneous' quantities become defined at runtime.
     '''
-    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X, M_eff, M_s, M_K, M_G3, M_G4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{eff} M_s M_{K} M_{G3} M_{G4} M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign")'
+    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X, M_eff, M_s, M_K, M_G3, M_G4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign, alphaM, alphaB, alphaK, = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{eff} M_s M_{K} M_{G3} M_{G4} M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign alpha_{M} alpha_{B} alpha_{K}")'
     return to_be_executed
 exec(declare_symbols())
 
@@ -1136,6 +1136,22 @@ def Pde(G3, G4, K,
     P_DE = (term1 - 2*X*term2 - term3)/M_eff**2
     return P_DE
 
+def Q_S(M_eff = 'M_{eff}',
+        E = 'E',
+        phi = 'phi',
+        phiprime = 'phiprime',
+        alphaB = 'alpha_{B}',
+        alphaK = 'alpha_{K}'):
+    parameters = [M_eff, E, phi, phiprime, alphaB, alphaK]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [M_eff, E, phi, phiprime, alphaB, alphaK] = parameters
+    D = alphaK + alphaB**2*3/2
+    Q = 2*M_eff*D/(2-alphaB)**2   
+    return Q         
+
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     if np.any([K,G3,G4]) is None:
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
@@ -1235,10 +1251,17 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     P_DE_func = P_DE_func.subs(M_eff,M_star_sqrd_func)
     P_DE_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list], P_DE_func, "scipy")
 
+
+    Q_S_func = Q_S()
+    Q_S_func = Q_S_func.subs(alphaB, alpha_B_func)
+    Q_S_func = Q_S_func.subs(alphaK, alpha_K_func)
+    Q_S_func = Q_S_func.subs(M_eff,M_star_sqrd_func)
+    Q_S_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], Q_S_func, "scipy")
+
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
                              'phi_primeprime_safelambda':phi_primeprime_safelambda, 'omega_phi_lambda':omega_phi_lambda, 'fried_RHS_lambda':fried_RHS_lambda,
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 
                              'M_star_sqrd_lambda':M_star_sqrd_lamb, 'alpha_M_lambda':alpha_M_lamb, 'alpha_B_lambda':alpha_B_lamb, 'alpha_K_lambda':alpha_K_lamb,
-                             'rho_DE_lambda':rho_DE_lamb, 'P_DE_lambda':P_DE_lamb}
+                             'rho_DE_lambda':rho_DE_lamb, 'P_DE_lambda':P_DE_lamb, 'Q_S_lambda':Q_S_lamb}
     return lambda_functions_dict
