@@ -114,7 +114,7 @@ alpha_B_arr = alphas_arr[2]
 alpha_K_arr = alphas_arr[3]
 
 #----Compute Dark Energy EoS----
-DE_arr = ns.comp_w_DE2(read_out_dict, background_quantities)#to change compute method remove 2 and read_out_dict
+DE_arr = ns.comp_w_DE(background_quantities)#to change compute method remove 2 and read_out_dict
 w_DE_arr = DE_arr[0]
 P_DE_arr = DE_arr[1]
 rho_DE_arr = DE_arr[2]
