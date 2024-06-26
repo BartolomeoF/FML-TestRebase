@@ -1143,7 +1143,6 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     [M_pG4_test, M_KG4_test, M_G3s_test, M_sG4_test, M_G3G4_test, M_Ks_test, M_gp_test] = mass_ratio_list
     E_prime_E = EprimeEODERHS(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test) #These are the actual equations that need to use SymPy builder script
     Xreal = 0.5*(E**2.)*phiprime**2.
-    M_star = 2*G4/M_pG4_test**2
 
     E_prime_E = E_prime_E.subs(X,Xreal)
     E_prime_E_safe = EprimeEODERHS_safe(G3, G4, K, M_pG4=M_pG4_test, M_KG4=M_KG4_test, M_G3s=M_G3s_test, M_sG4=M_sG4_test,M_G3G4=M_G3G4_test,M_Ks=M_Ks_test)
@@ -1212,28 +1211,28 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
 
     alpha_M_func = alpha_M(G3, G4, K, M_G4=(1/M_pG4_test))
     alpha_M_func = alpha_M_func.subs(X,Xreal)
-    alpha_M_func = alpha_M_func.subs(M_eff,M_star)
+    alpha_M_func = alpha_M_func.subs(M_eff,M_star_sqrd_func)
     alpha_M_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_M_func, "scipy")
 
     alpha_B_func = alpha_B(G3, G4, K, M_s=1, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     alpha_B_func = alpha_B_func.subs(X,Xreal)
-    alpha_B_func = alpha_B_func.subs(M_eff,M_star)
+    alpha_B_func = alpha_B_func.subs(M_eff,M_star_sqrd_func)
     alpha_B_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_B_func, "scipy")
 
     alpha_K_func = alpha_K(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     alpha_K_func = alpha_K_func.subs(X,Xreal)
-    alpha_K_func = alpha_K_func.subs(M_eff,M_star)
+    alpha_K_func = alpha_K_func.subs(M_eff,M_star_sqrd_func)
     alpha_K_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_K_func, "scipy")
 
 
     rho_DE_func = rhode(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     rho_DE_func = rho_DE_func.subs(X,Xreal)
-    rho_DE_func = rho_DE_func.subs(M_eff,M_star)
+    rho_DE_func = rho_DE_func.subs(M_eff,M_star_sqrd_func)
     rho_DE_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], rho_DE_func, "scipy")
 
     P_DE_func = Pde(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     P_DE_func = P_DE_func.subs(X,Xreal)
-    P_DE_func = P_DE_func.subs(M_eff,M_star)
+    P_DE_func = P_DE_func.subs(M_eff,M_star_sqrd_func)
     P_DE_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list], P_DE_func, "scipy")
 
     lambda_functions_dict = {'E_prime_E_lambda':E_prime_E_lambda, 'E_prime_E_safelambda':E_prime_E_safelambda, 'phi_primeprime_lambda':phi_primeprime_lambda,
