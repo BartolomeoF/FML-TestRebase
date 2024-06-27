@@ -389,13 +389,14 @@ def comp_alphas(read_out_dict, background_quantities):
 
 #based on already calculated background evolution only
 def comp_w_DE(background_quantities):
-    E_prime_E = background_quantities['E_prime_E']
+    E = background_quantities['Hubble']
+    E_prime = background_quantities['Hubble_prime']
     Omega_m = background_quantities['omega_m']
     Omega_r = background_quantities['omega_r']
     Omega_l = background_quantities['omega_l']
 
-    P_DE = -2*E_prime_E - 3*(1+Omega_r*1/3-Omega_l)
-    rho_DE = 3*(1-Omega_m-Omega_r-Omega_l)
+    P_DE = -2*E*E_prime - 3*E**2*(1+Omega_r*1/3-Omega_l)
+    rho_DE = 3*E**2*(1-Omega_m-Omega_r-Omega_l)
     w_DE = P_DE/rho_DE
     return w_DE, P_DE, rho_DE
 
