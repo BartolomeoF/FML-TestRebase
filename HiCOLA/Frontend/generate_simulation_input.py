@@ -120,7 +120,7 @@ P_DE_arr = DE_arr[1]
 rho_DE_arr = DE_arr[2]
 
 #----Checking stability conditions----
-Q_S_arr = ns.comp_stability(read_out_dict, background_quantities)
+Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
 
 print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
@@ -150,11 +150,23 @@ if loop_counter >= 100:
 if loop_counter != 0:
     print(f"Warning: expansion or force file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force}")
 
+loop_counter = 0
+while os.path.exists(filename_stability) and loop_counter < 100:
+    loop_counter += 1
+    filename_stability = sp.renamer(filename_stability)
+if loop_counter >= 100:
+    raise Exception("Counter for file renaming loop excessively high, consider changing stability output file name.")
+if loop_counter != 0:
+    print(f"Warning: stability file with same name found in \"{abs_directory}\", new filename is \n stability: {filename_stability}")
 
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, w_DE_arr, P_DE_arr, rho_DE_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 
-if isinstance(Q_S_arr, np.ndarray):
+if (isinstance(Q_S_arr, np.ndarray) and isinstance(c_s_sq_arr, np.ndarray)):
+    sp.write_data_flex([a_arr, Q_S_arr, c_s_sq_arr], filename_stability)
+elif isinstance(Q_S_arr, np.ndarray):
     sp.write_data_flex([a_arr, Q_S_arr], filename_stability)
+elif isinstance(c_s_sq_arr, np.ndarray):
+    sp.write_data_flex([a_arr, c_s_sq_arr], filename_stability)
    
 print(f'Files generated. Saved in {abs_directory}')

@@ -419,15 +419,36 @@ def comp_w_DE2(read_out_dict, background_quantities):
 def comp_stability(read_out_dict, background_quantities):
     parameters = read_out_dict['Horndeski_parameters']
     Q_S_lamb = read_out_dict['Q_S_lambda']
+    c_s_sq_lamb = read_out_dict['c_s_sq_lambda']
+    alpha_B_lamb = read_out_dict['alpha_B_lambda']
 
+    a = background_quantities['a']
     E = background_quantities['Hubble']
+    Eprime = background_quantities['Hubble_prime']
     phi = background_quantities['scalar']
     phi_prime = background_quantities['scalar_prime']
+    Omega_m = background_quantities['omega_m']
+    Omega_r = background_quantities['omega_r']
+
+    alpha_B_evaluated = alpha_B_lamb(E, phi, phi_prime, *parameters)
+    if not isinstance(alpha_B_evaluated, np.ndarray):
+        alpha_B_evaluated = np.ones(len(E))*alpha_B_evaluated
+
+    lna = np.log(a)
+    alphaBprime = np.gradient(alpha_B_evaluated, lna)
 
     Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
-    if Q_S_evaluated.all() > 0:
+    c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
+
+    if (Q_S_evaluated.all() and c_s_sq_evaluated.all()) > 0:
         print('Stability conditions satisified')
-        return
+        return 0, 0
+    elif Q_S_evaluated.all() > 0:
+        print('Stability conditions not satisfied: c_s_sq not always > 0. See stability file')
+        return 0, c_s_sq_evaluated
+    elif c_s_sq_evaluated.all() > 0:
+        print('Stability conditions not satisfied: Q_S not always > 0. See stability file')
+        return Q_S_evaluated, 0
     else:
-        print('Stability conditions not always satisified')
-        return Q_S_evaluated
+        print('Stability conditions not satisfied: Q_S and c_s_sq not always > 0. See stability file')
+        return Q_S_evaluated, c_s_sq_evaluated
