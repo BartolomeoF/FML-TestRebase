@@ -454,13 +454,29 @@ def comp_stability(read_out_dict, background_quantities):
         print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0. See stability file')
         return Q_S_evaluated, c_s_sq_evaluated
     
-def alpha_X1(alpha_X0, read_out_dict, background_quantities):
-    Omega_m = background_quantities['omega_m']
-    Omega_r = background_quantities['omega_r']
-    [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
+def alpha_M1(data, alpha_M0, Omega_m0, Omega_r0):
+    Omega_m, Omega_r = data
 
-    alph_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
-    return alph_X
+    alph_M = alpha_M0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    return alph_M
+
+def alpha_B1(data, alpha_B0, Omega_m0, Omega_r0):
+    Omega_m, Omega_r = data
+
+    alph_B = alpha_B0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    return alph_B
+
+def alpha_K1(data, alpha_K0, Omega_m0, Omega_r0):
+    Omega_m, Omega_r = data
+
+    alph_K = alpha_K0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    return alph_K
+
+def alpha_M1(data, alpha_M0, Omega_m0, Omega_r0):
+    Omega_m, Omega_r = data
+
+    alph_M = alpha_M0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    return alph_M
 
 def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
     alph_M = alpha_M0*a**q

@@ -129,18 +129,19 @@ Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
 alpha_M01 = 0.
 alpha_B01 = 0.288
 alpha_K01 = 0.864
+(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_M1, (Omega_m_arr, Omega_r_arr), alpha_M_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
+(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_B1, (Omega_m_arr, Omega_r_arr), alpha_B_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
+(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_K1, (Omega_m_arr, Omega_r_arr), alpha_K_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
 print('First parameterisation------------')
 print('alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M01, alpha_B01, alpha_K01))
-alpha_X01 = np.array([[alpha_M01],[alpha_B01],[alpha_K01]])
-alphas_param1_arr = ns.alpha_X1(alpha_X01, read_out_dict, background_quantities)
-alpha_M_param1_arr = alphas_param1_arr[0]
-alpha_B_param1_arr = alphas_param1_arr[1]
-alpha_K_param1_arr = alphas_param1_arr[2]
+alpha_M_param1_arr = ns.alpha_M1((Omega_m_arr, Omega_r_arr), alpha_M01, Omega_m0, Omega_r0)
+alpha_B_param1_arr = ns.alpha_B1((Omega_m_arr, Omega_r_arr), alpha_B01, Omega_m0, Omega_r0)
+alpha_K_param1_arr = ns.alpha_K1((Omega_m_arr, Omega_r_arr), alpha_K01, Omega_m0, Omega_r0)
 
 #second parameterisation
-alpha_X = np.concatenate((alpha_M_arr, alpha_B_arr, alpha_K_arr))
-(alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(ns.alpha_X2, a_arr, alpha_X, bounds=([-1,-1,-1,2],[1,1,1,6]))
+alpha_X2 = np.concatenate((alpha_M_arr, alpha_B_arr, alpha_K_arr))
+(alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(ns.alpha_X2, a_arr, alpha_X2, bounds=([-1,-1,-1,2],[1,1,1,6]))
 print('Second parameterisation-----------')
 print('alpha_X = alpha_X0*(1 + z)^(-q)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M02, alpha_B02, alpha_K02))
