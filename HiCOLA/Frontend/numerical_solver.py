@@ -385,7 +385,8 @@ def comp_alphas(read_out_dict, background_quantities):
     alpha_K_evaluated = alpha_K_lamb(E, phi, phi_prime, *parameters)
     if not isinstance(alpha_K_evaluated, np.ndarray):
         alpha_K_evaluated = np.ones(len(E))*alpha_K_evaluated
-    return [M_star_sqrd_evaluated, alpha_M_evaluated, alpha_B_evaluated, alpha_K_evaluated]
+    alphas = {'M_star_sq':M_star_sqrd_evaluated, 'alpha_M':alpha_M_evaluated, 'alpha_B':alpha_B_evaluated,'alpha_K':alpha_K_evaluated}
+    return alphas
 
 #based on already calculated background evolution only
 def comp_w_DE(background_quantities):
@@ -394,9 +395,10 @@ def comp_w_DE(background_quantities):
     Omega_m = background_quantities['omega_m']
     Omega_r = background_quantities['omega_r']
     Omega_l = background_quantities['omega_l']
+    M_star_sq = background_quantities['M_star_sq']
 
-    P_DE = -2*E*E_prime - 3*E**2*(1+Omega_r*1/3-Omega_l)
-    rho_DE = 3*E**2*(1-Omega_m-Omega_r-Omega_l)
+    P_DE = -2*E*E_prime - 3*E**2*(1+(Omega_r*1/3-Omega_l)/M_star_sq)
+    rho_DE = 3*E**2*(1-(Omega_m+Omega_r+Omega_l)/M_star_sq)
     w_DE = P_DE/rho_DE
     return w_DE, P_DE, rho_DE
 
@@ -421,7 +423,6 @@ def comp_stability(read_out_dict, background_quantities):
     parameters = read_out_dict['Horndeski_parameters']
     Q_S_lamb = read_out_dict['Q_S_lambda']
     c_s_sq_lamb = read_out_dict['c_s_sq_lambda']
-    alpha_B_lamb = read_out_dict['alpha_B_lambda']
 
     a = background_quantities['a']
     E = background_quantities['Hubble']
@@ -430,10 +431,7 @@ def comp_stability(read_out_dict, background_quantities):
     phi_prime = background_quantities['scalar_prime']
     Omega_m = background_quantities['omega_m']
     Omega_r = background_quantities['omega_r']
-
-    alpha_B_evaluated = alpha_B_lamb(E, phi, phi_prime, *parameters)
-    if not isinstance(alpha_B_evaluated, np.ndarray):
-        alpha_B_evaluated = np.ones(len(E))*alpha_B_evaluated
+    alpha_B_evaluated = background_quantities['alpha_B']
 
     lna = np.log(a)
     alphaBprime = np.gradient(alpha_B_evaluated, lna)

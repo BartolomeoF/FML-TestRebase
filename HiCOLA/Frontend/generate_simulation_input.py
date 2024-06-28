@@ -109,10 +109,11 @@ print('(note: therefore one of the initial conditions or Horndeski model paramet
 
 #----Compute alphas----
 alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
-M_star_sqrd_arr = alphas_arr[0]
-alpha_M_arr = alphas_arr[1]
-alpha_B_arr = alphas_arr[2]
-alpha_K_arr = alphas_arr[3]
+background_quantities.update(alphas_arr)
+M_star_sqrd_arr = alphas_arr['M_star_sq']
+alpha_M_arr = alphas_arr['alpha_M']
+alpha_B_arr = alphas_arr['alpha_B']
+alpha_K_arr = alphas_arr['alpha_K']
 
 #----Compute Dark Energy EoS----
 DE_arr = ns.comp_w_DE(background_quantities)#to change compute method remove 2 and read_out_dict
@@ -129,9 +130,11 @@ Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
 alpha_M01 = 0.
 alpha_B01 = 0.288
 alpha_K01 = 0.864
-(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_M_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
-(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_B_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
-(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_K_arr, bounds=([-1,Omega_m0-1e-10,Omega_r0-1e-10],[1,Omega_m0+1e-10,Omega_r0+1e-10]))
+lower = [-1,Omega_m0-1e-10,Omega_r0-1e-10]
+upper = [1,Omega_m0+1e-10,Omega_r0+1e-10]
+(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_M_arr, bounds=(lower,upper))
+(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_B_arr, bounds=(lower,upper))
+(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_K_arr, bounds=(lower,upper))
 print('First parameterisation------------')
 print('alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M01, alpha_B01, alpha_K01))
