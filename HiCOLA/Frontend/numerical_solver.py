@@ -440,14 +440,16 @@ def comp_stability(read_out_dict, background_quantities):
 
     Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
     c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
+    print((c_s_sq_evaluated>0).all())
+    print((Q_S_evaluated>0).all())
 
-    if (Q_S_evaluated.all() and c_s_sq_evaluated.all()) > 0:
+    if (Q_S_evaluated>0).all() and (c_s_sq_evaluated>0).all():
         print('Stability conditions satisified')
         return 0, 0
-    elif Q_S_evaluated.all() > 0:
+    elif (Q_S_evaluated>0).all():
         print('Warning: Stability conditions not satisfied: c_s_sq not always > 0. See stability file')
         return 0, c_s_sq_evaluated
-    elif c_s_sq_evaluated.all() > 0:
+    elif (c_s_sq_evaluated>0).all():
         print('Warning: Stability conditions not satisfied: Q_S not always > 0. See stability file')
         return Q_S_evaluated, 0
     else:
