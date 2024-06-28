@@ -454,29 +454,11 @@ def comp_stability(read_out_dict, background_quantities):
         print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0. See stability file')
         return Q_S_evaluated, c_s_sq_evaluated
     
-def alpha_M1(data, alpha_M0, Omega_m0, Omega_r0):
+def alpha_X1(data, alpha_X0, Omega_m0, Omega_r0):
     Omega_m, Omega_r = data
 
-    alph_M = alpha_M0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
-    return alph_M
-
-def alpha_B1(data, alpha_B0, Omega_m0, Omega_r0):
-    Omega_m, Omega_r = data
-
-    alph_B = alpha_B0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
-    return alph_B
-
-def alpha_K1(data, alpha_K0, Omega_m0, Omega_r0):
-    Omega_m, Omega_r = data
-
-    alph_K = alpha_K0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
-    return alph_K
-
-def alpha_M1(data, alpha_M0, Omega_m0, Omega_r0):
-    Omega_m, Omega_r = data
-
-    alph_M = alpha_M0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
-    return alph_M
+    alph_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    return alph_X
 
 def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
     alph_M = alpha_M0*a**q
@@ -484,14 +466,6 @@ def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
     alph_K = alpha_K0*a**q
     return np.concatenate((alph_M, alph_B, alph_K))
 
-def alpha_M3(a,  alpha_M0, q_M):
-    alph_M = alpha_M0*a**q_M
-    return alph_M
-
-def alpha_B3(a, alpha_B0, q_B):
-    alph_B = alpha_B0*a**q_B
-    return alph_B
-
-def alpha_K3(a, alpha_K0, q_K):
-    alph_K = alpha_K0*a**q_K
-    return alph_K
+def alpha_X3(a,  alpha_X0, q_X):
+    alph_X = alpha_X0*a**q_X
+    return alph_X
