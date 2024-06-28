@@ -388,3 +388,13 @@ def redshift_check(z1, z2, nstep):
     a = [1.0/(1.0+z) for z in [z1, z2]]
     boo = ( abs(a[0] - a[1]) < 1.0/nstep )
     return boo
+
+def first_instance_cleaner(arr_dict,ref_key='a_E'):
+    new_dict = {}
+    for key in arr_dict.keys():
+        new_dict[key] = np.array([])
+    for vals in zip(*arr_dict.values()):
+        if vals[0] not in new_dict[ref_key]:
+            for val,key in zip(vals,arr_dict.keys()):
+                new_dict[key] = np.append(new_dict[key], val)
+    return new_dict
