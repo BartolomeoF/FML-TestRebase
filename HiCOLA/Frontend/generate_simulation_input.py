@@ -132,15 +132,15 @@ alpha_B01 = 0.288
 alpha_K01 = 0.864
 lower = [-1,Omega_m0-1e-10,Omega_r0-1e-10]
 upper = [1,Omega_m0+1e-10,Omega_r0+1e-10]
-(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_M_arr, bounds=(lower,upper))
-(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_B_arr, bounds=(lower,upper))
-(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, (Omega_m_arr, Omega_r_arr), alpha_K_arr, bounds=(lower,upper))
+(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_M_arr, bounds=(lower,upper))
+(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_B_arr, bounds=(lower,upper))
+(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_K_arr, bounds=(lower,upper))
 print('First parameterisation------------')
 print('alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M01, alpha_B01, alpha_K01))
-alpha_M_param1_arr = ns.alpha_X1((Omega_m_arr, Omega_r_arr), alpha_M01, Omega_m0, Omega_r0)
-alpha_B_param1_arr = ns.alpha_X1((Omega_m_arr, Omega_r_arr), alpha_B01, Omega_m0, Omega_r0)
-alpha_K_param1_arr = ns.alpha_X1((Omega_m_arr, Omega_r_arr), alpha_K01, Omega_m0, Omega_r0)
+alpha_M_param1_arr = ns.alpha_X1(a_arr, alpha_M01, Omega_m0, Omega_r0)
+alpha_B_param1_arr = ns.alpha_X1(a_arr, alpha_B01, Omega_m0, Omega_r0)
+alpha_K_param1_arr = ns.alpha_X1(a_arr, alpha_K01, Omega_m0, Omega_r0)
 
 #second parameterisation
 alpha_X2 = np.concatenate((alpha_M_arr, alpha_B_arr, alpha_K_arr))

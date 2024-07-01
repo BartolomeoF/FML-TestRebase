@@ -452,10 +452,12 @@ def comp_stability(read_out_dict, background_quantities):
         print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0. See stability file')
         return Q_S_evaluated, c_s_sq_evaluated
     
-def alpha_X1(data, alpha_X0, Omega_m0, Omega_r0):
-    Omega_m, Omega_r = data
+def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
+    z = 1/a - 1
 
-    alph_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+    Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
+
+    alph_X = alpha_X0*Omega_l/(1 - Omega_m0 - Omega_r0)
     return alph_X
 
 def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
