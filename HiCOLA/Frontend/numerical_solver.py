@@ -441,16 +441,14 @@ def comp_stability(read_out_dict, background_quantities):
 
     if (Q_S_evaluated>0).all() and (c_s_sq_evaluated>0).all():
         print('Stability conditions satisified')
-        return 0, 0
     elif (Q_S_evaluated>0).all():
         print('Warning: Stability condition not satisfied: c_s_sq not always > 0. See stability file')
-        return 0, c_s_sq_evaluated
     elif (c_s_sq_evaluated>0).all():
         print('Warning: Stability condition not satisfied: Q_S not always > 0. See stability file')
-        return Q_S_evaluated, 0
     else:
         print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0. See stability file')
-        return Q_S_evaluated, c_s_sq_evaluated
+    
+    return Q_S_evaluated, c_s_sq_evaluated
     
 def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
     z = 1/a - 1
