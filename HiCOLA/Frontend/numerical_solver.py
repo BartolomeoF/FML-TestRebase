@@ -399,7 +399,7 @@ def comp_alphas(read_out_dict, background_quantities):
     return alphas
 
 #based on already calculated background evolution only
-def comp_w_DE(read_out_dict, background_quantities):
+def comp_w_phi(read_out_dict, background_quantities):
     E = background_quantities['Hubble']
     E_prime = background_quantities['Hubble_prime']
     Omega_m = background_quantities['omega_m']
@@ -409,15 +409,15 @@ def comp_w_DE(read_out_dict, background_quantities):
 
     H_0 = 100*read_out_dict['little_h']
 
-    P_DE = -2*H_0**2*E*E_prime - 3*H_0**2*E**2*(1+(Omega_r*1/3-Omega_l)/M_star_sq)
-    rho_DE = 3*H_0**2*E**2*(1-(Omega_m+Omega_r+Omega_l)/M_star_sq)
-    w_DE = P_DE/rho_DE
-    return w_DE, P_DE, rho_DE
+    P_phi = -2*H_0**2*E*E_prime - 3*H_0**2*E**2*(1+(Omega_r*1/3-Omega_l)/M_star_sq)
+    rho_phi = 3*H_0**2*E**2*(1-(Omega_m+Omega_r+Omega_l)/M_star_sq)
+    w_phi = P_phi/rho_phi
+    return w_phi, P_phi, rho_phi
 
 #based on P and rho funcs of background evolution
-def comp_w_DE2(read_out_dict, background_quantities):
-    P_DE_lamb = read_out_dict['P_DE_lambda']
-    rho_DE_lamb = read_out_dict['rho_DE_lambda']
+def comp_w_phi2(read_out_dict, background_quantities):
+    P_phi_lamb = read_out_dict['P_DE_lambda']
+    rho_phi_lamb = read_out_dict['rho_DE_lambda']
     parameters = read_out_dict['Horndeski_parameters']
 
     E = background_quantities['Hubble']
@@ -426,10 +426,15 @@ def comp_w_DE2(read_out_dict, background_quantities):
     phi_prime = background_quantities['scalar_prime']
     phi_primeprime = background_quantities['scalar_primeprime']
 
-    P_DE_evaluated = P_DE_lamb(E, E_prime, phi, phi_prime, phi_primeprime, *parameters)
-    rho_DE_evaluated = rho_DE_lamb(E, phi, phi_prime, *parameters)
-    w_DE = P_DE_evaluated/rho_DE_evaluated
-    return w_DE, P_DE_evaluated, rho_DE_evaluated
+    P_phi_evaluated = P_phi_lamb(E, E_prime, phi, phi_prime, phi_primeprime, *parameters)
+    rho_phi_evaluated = rho_phi_lamb(E, phi, phi_prime, *parameters)
+    w_phi = P_phi_evaluated/rho_phi_evaluated
+    return w_phi, P_phi_evaluated, rho_phi_evaluated
+
+def comp_w_eff(background_quantities):
+    EprimeE = background_quantities['E_prime_E']
+    w_eff = -1-EprimeE*2/3
+    return w_eff
 
 def comp_stability(read_out_dict, background_quantities):
     parameters = read_out_dict['Horndeski_parameters']

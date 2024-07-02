@@ -123,11 +123,13 @@ alpha_M_arr = alphas_arr['alpha_M']
 alpha_B_arr = alphas_arr['alpha_B']
 alpha_K_arr = alphas_arr['alpha_K']
 
-#----Compute Dark Energy EoS----
-DE_arr = ns.comp_w_DE(read_out_dict, background_quantities)#to change compute method remove 2
-w_DE_arr = DE_arr[0]
-P_DE_arr = DE_arr[1]
-rho_DE_arr = DE_arr[2]
+#----Compute EoS----
+DE_arr = ns.comp_w_phi(read_out_dict, background_quantities)#to change compute method remove 2
+w_phi_arr = DE_arr[0]
+P_phi_arr = DE_arr[1]
+rho_phi_arr = DE_arr[2]
+
+w_eff_arr = ns.comp_w_eff(background_quantities)
 
 #----Checking stability conditions----
 Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
@@ -219,7 +221,7 @@ if loop_counter >= 100:
 if loop_counter != 0:
     print(f"Warning: stability file with same name found in \"{abs_directory}\", new filename is \n stability: {filename_stability}")
 
-sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, w_DE_arr, P_DE_arr, rho_DE_arr],filename_expansion)
+sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, w_phi_arr, P_phi_arr, rho_phi_arr, w_eff_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 sp.write_data_flex([a_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr, alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr, alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr],filename_properties)
 sp.write_data_flex([a_arr,E_LCDM_arr,E_prime_E_LCDM_arr,Omega_m_LCDM_arr,Omega_r_LCDM_arr,Omega_l_LCDM_arr],filename_LCDM)
