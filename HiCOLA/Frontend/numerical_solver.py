@@ -66,11 +66,10 @@ def comp_Omega_DE_LCDM(x, Omega_r0, Omega_m0):
     Omega_DE = Omega_DE0/term1
     return Omega_DE
 
-def comp_E_prime_E_LCDM(x, Omega_r0, Omega_m0):
-    Omega_DE0 = 1. - Omega_m0 - Omega_r0
-    term1 = Omega_r0*np.exp(-4.*x)+Omega_m0*np.exp(-3.*x)+Omega_DE0
-    term2 = 4.*Omega_r0*np.exp(-4.*x)+3.*Omega_m0*np.exp(-3.*x)
-    E_prime_E = -0.5*term2/term1
+def comp_E_prime_E_LCDM(z, Omega_r0, Omega_m0):
+    Omega_r = comp_Omega_r_LCDM(z, Omega_r0, Omega_m0)
+    Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
+    E_prime_E = -0.5*(Omega_r - 3*Omega_l + 3)
     return E_prime_E
 
 def comp_Omega_DE_prime_LCDM(E_prime_E, Omega_DE):
@@ -111,7 +110,7 @@ def comp_LCDM(a, Omega_r0, Omega_m0):
     z = 1/a - 1
 
     E = comp_E_LCDM(z, Omega_r0, Omega_m0)
-    E_prime_E = comp_E_prime_E_LCDM(a, Omega_r0, Omega_m0)
+    E_prime_E = comp_E_prime_E_LCDM(z, Omega_r0, Omega_m0)
     Omega_m = comp_Omega_m_LCDM(z, Omega_r0, Omega_m0)
     Omega_r = comp_Omega_r_LCDM(z, Omega_r0, Omega_m0)
     Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
