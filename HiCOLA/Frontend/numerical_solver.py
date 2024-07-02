@@ -34,7 +34,7 @@ def comp_H_LCDM(z, Omega_r0, Omega_m0, H0):
 
 def comp_E_LCDM(z, Omega_r0, Omega_m0):
     Omega_L0 = 1.-Omega_m0-Omega_r0
-    E = np.sqrt(Omega_m0*(1.+z)**3. + Omega_r0*(1.+z)**4. + Omega_L0)
+    E = (Omega_m0*(1.+z)**3. + Omega_r0*(1.+z)**4. + Omega_L0)**0.5
     return E
 
 def comp_E_LCDM_DE(z, Omega_r0, Omega_m0):
@@ -106,6 +106,16 @@ def comp_Omega_m_prime(Omega_m, E, E_prime):
     E_prime_E = E_prime/E
     Omega_m_prime = -Omega_m*(3.+2.*E_prime_E)
     return Omega_m_prime
+
+def comp_LCDM(a, Omega_r0, Omega_m0):
+    z = 1/a - 1
+
+    E = comp_E_LCDM(z, Omega_r0, Omega_m0)
+    E_prime_E = comp_E_prime_E_LCDM(a, Omega_r0, Omega_m0)
+    Omega_m = comp_Omega_m_LCDM(z, Omega_r0, Omega_m0)
+    Omega_r = comp_Omega_r_LCDM(z, Omega_r0, Omega_m0)
+    Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
+    return [E, E_prime_E, Omega_m, Omega_r, Omega_l]
 
 #fried1 is ultimately the closure equation for the density parameters
 def fried1(phi_prime, k1, g1, Omega_r, Omega_m, E, alpha_M, Ms_Mp, Meffsq_Mpsq):

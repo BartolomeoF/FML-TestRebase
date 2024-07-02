@@ -107,6 +107,13 @@ closure_value = str(background_quantities['closure_value'])
 print(f'Closure parameter is {closure_variable} = {closure_value}' )
 print('(note: therefore one of the initial conditions or Horndeski model parameters printed above was the guess value)')
 
+LCDM = ns.comp_LCDM(a_arr, Omega_r0, Omega_m0)
+E_LCDM_arr = LCDM[0]
+E_prime_E_LCDM_arr = LCDM[1]
+Omega_m_LCDM_arr = LCDM[2]
+Omega_r_LCDM_arr = LCDM[3]
+Omega_l_LCDM_arr = LCDM[4]
+
 #----Compute alphas----
 alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
 background_quantities.update(alphas_arr)
@@ -125,6 +132,11 @@ rho_DE_arr = DE_arr[2]
 Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
 
 #----Alpha parameterisation----
+z_arr = 1/a_arr - 1
+a_fit = a_arr[z_arr<0.3]
+alpha_M_fit = alpha_M_arr[z_arr<0.3]
+alpha_B_fit = alpha_B_arr[z_arr<0.3]
+alpha_K_fit = alpha_K_arr[z_arr<0.3]
 
 #first parameterisation
 alpha_M01 = 0.
@@ -132,9 +144,9 @@ alpha_B01 = 0.288
 alpha_K01 = 0.864
 lower = [-1,Omega_m0-1e-10,Omega_r0-1e-10]
 upper = [1,Omega_m0+1e-10,Omega_r0+1e-10]
-(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_M_arr, bounds=(lower,upper))
-(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_B_arr, bounds=(lower,upper))
-(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_arr, alpha_K_arr, bounds=(lower,upper))
+(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_M_fit, bounds=(lower,upper))
+(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_B_fit, bounds=(lower,upper))
+(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_K_fit, bounds=(lower,upper))
 print('First parameterisation------------')
 print('alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M01, alpha_B01, alpha_K01))
@@ -143,8 +155,8 @@ alpha_B_param1_arr = ns.alpha_X1(a_arr, alpha_B01, Omega_m0, Omega_r0)
 alpha_K_param1_arr = ns.alpha_X1(a_arr, alpha_K01, Omega_m0, Omega_r0)
 
 #second parameterisation
-alpha_X2 = np.concatenate((alpha_M_arr, alpha_B_arr, alpha_K_arr))
-(alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(ns.alpha_X2, a_arr, alpha_X2, bounds=([-1,-1,-1,2],[1,1,1,6]))
+alpha_X2 = np.concatenate((alpha_M_fit, alpha_B_fit, alpha_K_fit))
+(alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(ns.alpha_X2, a_fit, alpha_X2, bounds=([-1,-1,-1,2],[1,1,1,6]))
 print('Second parameterisation-----------')
 print('alpha_X = alpha_X0*(1 + z)^(-q)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M02, alpha_B02, alpha_K02))
@@ -154,9 +166,9 @@ alpha_B_param2_arr = ns.alpha_X3(a_arr, alpha_B02, q)
 alpha_K_param2_arr = ns.alpha_X3(a_arr, alpha_K02, q)
 
 #third parameterisation
-(alpha_M03, q_M), junk = curve_fit(ns.alpha_X3, a_arr, alpha_M_arr, bounds=([-1,2],[1,6]))
-(alpha_B03, q_B), junk = curve_fit(ns.alpha_X3, a_arr, alpha_B_arr, bounds=([-1,2],[1,6]))
-(alpha_K03, q_K), junk = curve_fit(ns.alpha_X3, a_arr, alpha_K_arr, bounds=([-1,2],[1,6]))
+(alpha_M03, q_M), junk = curve_fit(ns.alpha_X3, a_fit, alpha_M_fit, bounds=([-1,2],[1,6]))
+(alpha_B03, q_B), junk = curve_fit(ns.alpha_X3, a_fit, alpha_B_fit, bounds=([-1,2],[1,6]))
+(alpha_K03, q_K), junk = curve_fit(ns.alpha_X3, a_fit, alpha_K_fit, bounds=([-1,2],[1,6]))
 print('Third parameterisation------------')
 print('alpha_X = alpha_X0*(1 + z)^(-q_X)')
 print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M03, alpha_B03, alpha_K03))
@@ -182,18 +194,20 @@ filename_expansion = directory+f'/{model}_{cosmology_name}_expansion.txt'
 filename_force = directory+f'/{model}_{cosmology_name}_force.txt'
 filename_stability = directory+f'/{model}_{cosmology_name}_stability.txt'
 filename_properties = directory+f'/{model}_{cosmology_name}_properties.txt'
+filename_LCDM = directory+f'/{model}_{cosmology_name}_LCDM.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
-while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) or os.path.exists(filename_properties) ) and loop_counter < 100:
+while ( os.path.exists(filename_expansion) or os.path.exists(filename_force) or os.path.exists(filename_properties) or os.path.exists(filename_LCDM)) and loop_counter < 100:
     loop_counter += 1
     filename_expansion = sp.renamer(filename_expansion)
     filename_force = sp.renamer(filename_force)
     filename_properties = sp.renamer(filename_properties)
+    filename_LCDM = sp.renamer(filename_LCDM)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing expansion, force and properties output file names.")
 if loop_counter != 0:
-    print(f"Warning: expansion, force or properties file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force} \n properties:{filename_properties}")
+    print(f"Warning: expansion, force or properties file with same name found in \"{abs_directory}\", new filenames are \n expansion: {filename_expansion} \n force:{filename_force} \n properties:{filename_properties} \n LCDM: {filename_LCDM}")
 
 loop_counter = 0
 while os.path.exists(filename_stability) and loop_counter < 100:
@@ -207,6 +221,7 @@ if loop_counter != 0:
 sp.write_data_flex([a_arr,E_arr, UE_prime_UE_arr, phi_arr, phi_prime_arr, phi_primeprime_arr, Omega_m_arr, Omega_r_arr, Omega_lambda_arr, Omega_phi_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, w_DE_arr, P_DE_arr, rho_DE_arr],filename_expansion)
 sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 sp.write_data_flex([a_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr, alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr, alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr],filename_properties)
+sp.write_data_flex([a_arr,E_LCDM_arr,E_prime_E_LCDM_arr,Omega_m_LCDM_arr,Omega_r_LCDM_arr,Omega_l_LCDM_arr],filename_LCDM)
 
 if (isinstance(Q_S_arr, np.ndarray) and isinstance(c_s_sq_arr, np.ndarray)):
     sp.write_data_flex([a_arr, Q_S_arr, c_s_sq_arr], filename_stability)
