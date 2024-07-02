@@ -63,10 +63,11 @@ parameters = read_out_dict['Horndeski_parameters']
 mass_ratio_list = read_out_dict['mass_ratio_list']
 symbol_list = read_out_dict['symbol_list']
 closure_declaration = read_out_dict['closure_declaration']
+H0 = 100*read_out_dict['little_h']
 
 closure_dictionary = {'odeint_parameters':odeint_parameter_symbols, 'parameters':symbol_list}
 
-lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list)
+lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
 
 
@@ -123,7 +124,7 @@ alpha_B_arr = alphas_arr['alpha_B']
 alpha_K_arr = alphas_arr['alpha_K']
 
 #----Compute Dark Energy EoS----
-DE_arr = ns.comp_w_DE(background_quantities)#to change compute method remove 2 and read_out_dict
+DE_arr = ns.comp_w_DE(read_out_dict, background_quantities)#to change compute method remove 2
 w_DE_arr = DE_arr[0]
 P_DE_arr = DE_arr[1]
 rho_DE_arr = DE_arr[2]

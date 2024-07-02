@@ -399,7 +399,7 @@ def comp_alphas(read_out_dict, background_quantities):
     return alphas
 
 #based on already calculated background evolution only
-def comp_w_DE(background_quantities):
+def comp_w_DE(read_out_dict, background_quantities):
     E = background_quantities['Hubble']
     E_prime = background_quantities['Hubble_prime']
     Omega_m = background_quantities['omega_m']
@@ -407,8 +407,10 @@ def comp_w_DE(background_quantities):
     Omega_l = background_quantities['omega_l']
     M_star_sq = background_quantities['M_star_sq']
 
-    P_DE = -2*E*E_prime - 3*E**2*(1+(Omega_r*1/3-Omega_l)/M_star_sq)
-    rho_DE = 3*E**2*(1-(Omega_m+Omega_r+Omega_l)/M_star_sq)
+    H_0 = 100*read_out_dict['little_h']
+
+    P_DE = -2*H_0**2*E*E_prime - 3*H_0**2*E**2*(1+(Omega_r*1/3-Omega_l)/M_star_sq)
+    rho_DE = 3*H_0**2*E**2*(1-(Omega_m+Omega_r+Omega_l)/M_star_sq)
     w_DE = P_DE/rho_DE
     return w_DE, P_DE, rho_DE
 

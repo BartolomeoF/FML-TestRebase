@@ -11,7 +11,7 @@ def declare_symbols():
     It is normal to see "undefined quantities" throughout this script and others in Hi-COLA. When
     this function is executed, the 'erroneous' quantities become defined at runtime.
     '''
-    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X, M_eff_sq, M_s, M_K, M_G3, M_G4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign, alphaM, alphaB, alphaK, alphaBprime = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{eff} M_s M_{K} M_{G3} M_{G4} M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign alpha_{M} alpha_{B} alpha_{K} alpha_{B}prime")'
+    to_be_executed = 'a, E, Eprime, phi, phiprime, phiprimeprime, X, M_eff_sq, M_s, M_K, M_G3, M_G4, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, M_gp, omegar, omegam, omegal, f_phi, Theta, threshold, threshold_sign, alphaM, alphaB, alphaK, alphaBprime, H_0 = sym.symbols("a E Eprime phi phiprime phiprimeprime X M_{eff} M_s M_{K} M_{G3} M_{G4} M_{pG4} M_{KG4} M_{G3s} M_{sG4} M_{G3G4} M_{Ks} M_{gp} Omega_r Omega_m Omega_l f_phi Theta threshold threshold_sign alpha_{M} alpha_{B} alpha_{K} alpha_{B}prime, H_{0}")'
     return to_be_executed
 exec(declare_symbols())
 
@@ -1055,6 +1055,7 @@ def alpha_K(G3, G4, K,
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
+        H_0 = 'H_{0}',
         E='E',
         phi = 'phi',
         phiprime='phiprime',
@@ -1065,15 +1066,15 @@ def alpha_K(G3, G4, K,
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
-    parameters = [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X]
+    parameters = [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, H_0, E, phi, phiprime, X]
     paranum = len(parameters)
     for i in np.arange(0,paranum):
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
-    [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X] = parameters
-    term11 = M_K**2*(Kx+2*X*Kxx)/M_eff_sq
-    term12 = 2*M_s*M_G3*(G3phi + X*G3phix)/M_eff_sq
-    term1 = (term11 - term12)*2*X/E**2
+    [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, H_0, E, phi, phiprime, X] = parameters
+    term11 = M_K**2*(Kx+2*X*Kxx)
+    term12 = 2*H_0**2*M_s*M_G3*(G3phi + X*G3phix)
+    term1 = (term11 - term12)*2*X/(H_0**2*M_eff_sq*E**2)
     term2 = 12*M_s*M_G3*phiprime*X*(G3x + X*G3xx)/M_eff_sq
     alph_K = term1 + term2
     return alph_K
@@ -1084,6 +1085,7 @@ def rhode(G3, G4, K,
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
+        H_0 = 'H_{0}',
         E='E',
         phi = 'phi',
         phiprime='phiprime',
@@ -1102,7 +1104,7 @@ def rhode(G3, G4, K,
     [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X] = parameters
     term1 = M_K**2*Kx - M_s*M_G3*G3phi
     term2 = M_s*M_G3*G3x*X-G4phi*M_G4**2
-    rho_DE = (2*X*term1 + 6*E**2*phiprime*term2 - M_K**2*K)/M_eff_sq
+    rho_DE = H_0**2*(2*X*term1 + 6*E**2*phiprime*term2 - M_K**2*K)/M_eff_sq
     return rho_DE
 
 def Pde(G3, G4, K, 
@@ -1111,6 +1113,7 @@ def Pde(G3, G4, K,
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
+        H_0 = 'H_{0}',
         E='E',
         Eprime = 'Eprime',
         phi = 'phi',
@@ -1133,7 +1136,7 @@ def Pde(G3, G4, K,
     term2 = M_s*M_G3*G3phi - 2*G4phiphi*M_G4**2 
     term31 = 2*phiprime*(M_s*M_G3*X*G3x - G4phi*M_G4**2)
     term3 = term31*E*(Eprime*phiprime + E*phiprimeprime)/phiprime
-    P_DE = (term1 - 2*X*term2 - term3)/M_eff_sq
+    P_DE = H_0**2*(term1 - 2*X*term2 - term3)/M_eff_sq
     return P_DE
 
 def Q_S(M_eff_sq = 'M_{eff}',
@@ -1181,7 +1184,7 @@ def c_s_sq(M_eff_sq = 'M_{eff}',
     c_sq = -((2 - alphaB)*term1 - alphaBprime + term2/M_eff_sq)/D
     return c_sq
 
-def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
+def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0):
     if np.any([K,G3,G4]) is None:
         raise Exception("Horndeski functions K, G3 and G4 have not been specified.")
 
@@ -1264,18 +1267,18 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list):
     alpha_B_func = alpha_B_func.subs(M_eff_sq,M_star_sqrd_func)
     alpha_B_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_B_func, "scipy")
 
-    alpha_K_func = alpha_K(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
+    alpha_K_func = alpha_K(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test), H_0=H0)
     alpha_K_func = alpha_K_func.subs(X,Xreal)
     alpha_K_func = alpha_K_func.subs(M_eff_sq,M_star_sqrd_func)
     alpha_K_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_K_func, "scipy")
 
 
-    rho_DE_func = rhode(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
+    rho_DE_func = rhode(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test), H_0=H0)
     rho_DE_func = rho_DE_func.subs(X,Xreal)
     rho_DE_func = rho_DE_func.subs(M_eff_sq,M_star_sqrd_func)
     rho_DE_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], rho_DE_func, "scipy")
 
-    P_DE_func = Pde(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
+    P_DE_func = Pde(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test), H_0=H0)
     P_DE_func = P_DE_func.subs(X,Xreal)
     P_DE_func = P_DE_func.subs(M_eff_sq,M_star_sqrd_func)
     P_DE_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list], P_DE_func, "scipy")

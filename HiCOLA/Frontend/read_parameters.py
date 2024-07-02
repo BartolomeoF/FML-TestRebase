@@ -119,6 +119,9 @@ def read_in_parameters(horndeski_path, numerical_path):
     parameters_dict = {'cosmological_parameters':cosmological_parameters, 'Horndeski_parameters':parameters,'initial_conditions':initial_conditions, 'f_phi':f_phi, 'Omega_DE0':Omega_DE0}
     read_out.update(parameters_dict)
 
+    little_h = {'little_h':h}
+    read_out.update(little_h)
+
     return read_out
 
 def old_read_in_scan_parameters(horndeski_scanning_path, numerical_scanning_path):
