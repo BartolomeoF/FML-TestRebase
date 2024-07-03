@@ -483,3 +483,10 @@ def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
 def alpha_X3(a,  alpha_X0, q_X):
     alph_X = alpha_X0*a**q_X
     return alph_X
+
+def r_chi2(y, y_model):
+    """
+    This function calculates the value of chi squared between a given model and a set of data with errors.
+    """
+    chisq = np.sum(((y-y_model)**2.0)/(y_model**2.0))
+    return chisq/len(y)
