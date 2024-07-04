@@ -7,6 +7,7 @@ import scipy.integrate as integrate
 from scipy.integrate import odeint
 from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
+from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -486,7 +487,80 @@ def alpha_X3(a,  alpha_X0, q_X):
 
 def r_chi2(y, y_model):
     """
-    This function calculates the value of chi squared between a given model and a set of data with errors.
+    This function calculates the value of reduced chi squared between a given model and a set of data with errors.
     """
     chisq = np.sum(((y-y_model)**2.0)/(y_model**2.0))
     return chisq/len(y)
+
+def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    z_arr = 1/a_arr - 1
+    a_fit = a_arr[z_arr<z_max]
+    alpha_M_fit = alpha_M_arr[z_arr<z_max]
+    alpha_B_fit = alpha_B_arr[z_arr<z_max]
+    alpha_K_fit = alpha_K_arr[z_arr<z_max]
+
+    lower = [-50,Omega_m0-1e-10,Omega_r0-1e-10]
+    upper = [50,Omega_m0+1e-10,Omega_r0+1e-10]
+    (alpha_M01, junk1, junk2), junk = curve_fit(alpha_X1, a_fit, alpha_M_fit, bounds=(lower,upper))
+    (alpha_B01, junk1, junk2), junk = curve_fit(alpha_X1, a_fit, alpha_B_fit, bounds=(lower,upper))
+    (alpha_K01, junk1, junk2), junk = curve_fit(alpha_X1, a_fit, alpha_K_fit, bounds=(lower,upper))
+
+    alpha_M_param1_arr = alpha_X1(a_arr, alpha_M01, Omega_m0, Omega_r0)
+    alpha_B_param1_arr = alpha_X1(a_arr, alpha_B01, Omega_m0, Omega_r0)
+    alpha_K_param1_arr = alpha_X1(a_arr, alpha_K01, Omega_m0, Omega_r0)
+
+    BIC_M = r_chi2(alpha_M_param1_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param1_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param1_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+
+    model_vals = (alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr)
+    model_params = (alpha_M01, alpha_B01, alpha_K01)
+    fit_goodness = (BIC_M, BIC_B, BIC_K)
+    return model_vals, model_params, fit_goodness
+
+def parameterise2(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    z_arr = 1/a_arr - 1
+    a_fit = a_arr[z_arr<z_max]
+    alpha_M_fit = alpha_M_arr[z_arr<z_max]
+    alpha_B_fit = alpha_B_arr[z_arr<z_max]
+    alpha_K_fit = alpha_K_arr[z_arr<z_max]
+
+    alpha_X2_fit = np.concatenate((alpha_M_fit, alpha_B_fit, alpha_K_fit))
+    (alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(alpha_X2, a_fit, alpha_X2_fit, bounds=([-50,-50,-50,0],[50,50,50,6]))
+
+    alpha_M_param2_arr = alpha_X3(a_arr, alpha_M02, q)
+    alpha_B_param2_arr = alpha_X3(a_arr, alpha_B02, q)
+    alpha_K_param2_arr = alpha_X3(a_arr, alpha_K02, q)
+
+    BIC_M = r_chi2(alpha_M_param2_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param2_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param2_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+
+    model_vals = (alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr)
+    model_params = (alpha_M02, alpha_B02, alpha_K02, q)
+    fit_goodness = (BIC_M, BIC_B, BIC_K)
+    return model_vals, model_params, fit_goodness
+
+def parameterise3(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    z_arr = 1/a_arr - 1
+    a_fit = a_arr[z_arr<z_max]
+    alpha_M_fit = alpha_M_arr[z_arr<z_max]
+    alpha_B_fit = alpha_B_arr[z_arr<z_max]
+    alpha_K_fit = alpha_K_arr[z_arr<z_max]
+
+    (alpha_M03, q_M), junk = curve_fit(alpha_X3, a_fit, alpha_M_fit, bounds=([-50,0],[50,6]))
+    (alpha_B03, q_B), junk = curve_fit(alpha_X3, a_fit, alpha_B_fit, bounds=([-50,0],[50,6]))
+    (alpha_K03, q_K), junk = curve_fit(alpha_X3, a_fit, alpha_K_fit, bounds=([-50,0],[50,6]))
+
+    alpha_M_param3_arr = alpha_X3(a_arr, alpha_M03, q_M)
+    alpha_B_param3_arr = alpha_X3(a_arr, alpha_B03, q_B)
+    alpha_K_param3_arr = alpha_X3(a_arr, alpha_K03, q_K)
+
+    BIC_M = r_chi2(alpha_M_param3_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param3_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param3_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+
+    model_vals = (alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr)
+    model_params = (alpha_M03, alpha_B03, alpha_K03, q_M, q_B, q_K)
+    fit_goodness = (BIC_M, BIC_B, BIC_K)
+    return model_vals, model_params, fit_goodness

@@ -1055,7 +1055,6 @@ def alpha_K(G3, G4, K,
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
-        H_0 = 'H_{0}',
         E='E',
         phi = 'phi',
         phiprime='phiprime',
@@ -1066,15 +1065,15 @@ def alpha_K(G3, G4, K,
     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
     Kx, Kxx, Kxphi, Kphi = K_func(K)
-    parameters = [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, H_0, E, phi, phiprime, X]
+    parameters = [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X]
     paranum = len(parameters)
     for i in np.arange(0,paranum):
             if isinstance(parameters[i],str):
                 parameters[i] = sy(parameters[i])
-    [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, H_0, E, phi, phiprime, X] = parameters
+    [G3, G4, K, M_eff_sq, M_s, M_K, M_G3, M_G4, E, phi, phiprime, X] = parameters
     term11 = M_K**2*(Kx+2*X*Kxx)
-    term12 = 2*H_0**2*M_s*M_G3*(G3phi + X*G3phix)
-    term1 = (term11 - term12)*2*X/(H_0**2*M_eff_sq*E**2)
+    term12 = 2*M_s*M_G3*(G3phi + X*G3phix)
+    term1 = (term11 - term12)*2*X/(M_eff_sq*E**2)
     term2 = 12*M_s*M_G3*phiprime*X*(G3x + X*G3xx)/M_eff_sq
     alph_K = term1 + term2
     return alph_K
@@ -1267,7 +1266,7 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0):
     alpha_B_func = alpha_B_func.subs(M_eff_sq,M_star_sqrd_func)
     alpha_B_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_B_func, "scipy")
 
-    alpha_K_func = alpha_K(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test), H_0=H0)
+    alpha_K_func = alpha_K(G3, G4, K, M_s=1, M_K=M_Ks_test, M_G3=M_G3s_test, M_G4=(1/M_sG4_test))
     alpha_K_func = alpha_K_func.subs(X,Xreal)
     alpha_K_func = alpha_K_func.subs(M_eff_sq,M_star_sqrd_func)
     alpha_K_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], alpha_K_func, "scipy")

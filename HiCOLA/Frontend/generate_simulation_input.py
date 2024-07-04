@@ -124,7 +124,7 @@ alpha_B_arr = alphas_arr['alpha_B']
 alpha_K_arr = alphas_arr['alpha_K']
 
 #----Compute EoS----
-DE_arr = ns.comp_w_phi(read_out_dict, background_quantities)#to change compute method remove 2
+DE_arr = ns.comp_w_phi2(read_out_dict, background_quantities)#to change compute method remove 2
 w_phi_arr = DE_arr[0]
 P_phi_arr = DE_arr[1]
 rho_phi_arr = DE_arr[2]
@@ -135,66 +135,31 @@ w_eff_arr = ns.comp_w_eff(background_quantities)
 Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
 
 #----Alpha parameterisation----
-z_arr = 1/a_arr - 1
 z_max = 3
-a_fit = a_arr[z_arr<z_max]
-alpha_M_fit = alpha_M_arr[z_arr<z_max]
-alpha_B_fit = alpha_B_arr[z_arr<z_max]
-alpha_K_fit = alpha_K_arr[z_arr<z_max]
 
 #first parameterisation
-alpha_M01 = 0.
-alpha_B01 = 0.288
-alpha_K01 = 0.864
-lower = [-50,Omega_m0-1e-10,Omega_r0-1e-10]
-upper = [50,Omega_m0+1e-10,Omega_r0+1e-10]
-(alpha_M01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_M_fit, bounds=(lower,upper))
-(alpha_B01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_B_fit, bounds=(lower,upper))
-(alpha_K01, junk1, junk2), junk = curve_fit(ns.alpha_X1, a_fit, alpha_K_fit, bounds=(lower,upper))
+#of form alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)
+alpha_X_param1, model_params, fit_goodness = ns.parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, alpha_K_arr)
+alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr = alpha_X_param1
 print('First parameterisation------------')
-print('alpha_X = alpha_X0*(1 - Omega_m - Omega_r)/(1 - Omega_m0 - Omega_r0)')
-print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M01, alpha_B01, alpha_K01))
-alpha_M_param1_arr = ns.alpha_X1(a_arr, alpha_M01, Omega_m0, Omega_r0)
-alpha_B_param1_arr = ns.alpha_X1(a_arr, alpha_B01, Omega_m0, Omega_r0)
-alpha_K_param1_arr = ns.alpha_X1(a_arr, alpha_K01, Omega_m0, Omega_r0)
-
-BIC_M = ns.r_chi2(alpha_M_param1_arr[z_arr<z_max], alpha_M_fit) + np.log(len(alpha_M_fit))/len(alpha_M_fit)
-BIC_B = ns.r_chi2(alpha_B_param1_arr[z_arr<z_max], alpha_B_fit) + np.log(len(alpha_B_fit))/len(alpha_M_fit)
-BIC_K = ns.r_chi2(alpha_K_param1_arr[z_arr<z_max], alpha_K_fit) + np.log(len(alpha_K_fit))/len(alpha_M_fit)
-print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(BIC_M, BIC_B, BIC_K))
+print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(*model_params))
+print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(*fit_goodness))
 
 #second parameterisation
-alpha_X2 = np.concatenate((alpha_M_fit, alpha_B_fit, alpha_K_fit))
-(alpha_M02, alpha_B02, alpha_K02, q), junk = curve_fit(ns.alpha_X2, a_fit, alpha_X2, bounds=([-50,-50,-50,0],[50,50,50,6]))
+#of form alpha_X = alpha_X0*(1 + z)^(-q)
+alpha_X_param2, model_params, fit_goodness = ns.parameterise2(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr)
+alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr = alpha_X_param2
 print('Second parameterisation-----------')
-print('alpha_X = alpha_X0*(1 + z)^(-q)')
-print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M02, alpha_B02, alpha_K02))
-print("q = ", q)
-alpha_M_param2_arr = ns.alpha_X3(a_arr, alpha_M02, q)
-alpha_B_param2_arr = ns.alpha_X3(a_arr, alpha_B02, q)
-alpha_K_param2_arr = ns.alpha_X3(a_arr, alpha_K02, q)
-
-BIC_M = ns.r_chi2(alpha_M_param2_arr[z_arr<z_max], alpha_M_fit) + np.log(len(alpha_M_fit))/len(alpha_M_fit)
-BIC_B = ns.r_chi2(alpha_B_param2_arr[z_arr<z_max], alpha_B_fit) + np.log(len(alpha_B_fit))/len(alpha_M_fit)
-BIC_K = ns.r_chi2(alpha_K_param2_arr[z_arr<z_max], alpha_K_fit) + np.log(len(alpha_K_fit))/len(alpha_M_fit)
-print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(BIC_M, BIC_B, BIC_K))
+print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {} \n q = {}".format(*model_params))
+print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(*fit_goodness))
 
 #third parameterisation
-(alpha_M03, q_M), junk = curve_fit(ns.alpha_X3, a_fit, alpha_M_fit, bounds=([-50,0],[50,6]))
-(alpha_B03, q_B), junk = curve_fit(ns.alpha_X3, a_fit, alpha_B_fit, bounds=([-50,0],[50,6]))
-(alpha_K03, q_K), junk = curve_fit(ns.alpha_X3, a_fit, alpha_K_fit, bounds=([-50,0],[50,6]))
+#of form alpha_X = alpha_X0*(1 + z)^(-q_X)
+alpha_X_param3, model_params, fit_goodness = ns.parameterise3(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr)
+alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr = alpha_X_param3
 print('Third parameterisation------------')
-print('alpha_X = alpha_X0*(1 + z)^(-q_X)')
-print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {}".format(alpha_M03, alpha_B03, alpha_K03))
-print("q_M, q_B, q_K = {}, {}, {}".format(q_M, q_B, q_K))
-alpha_M_param3_arr = ns.alpha_X3(a_arr, alpha_M03, q_M)
-alpha_B_param3_arr = ns.alpha_X3(a_arr, alpha_B03, q_B)
-alpha_K_param3_arr = ns.alpha_X3(a_arr, alpha_K03, q_K)
-
-BIC_M = ns.r_chi2(alpha_M_param3_arr[z_arr<z_max], alpha_M_fit) + np.log(len(alpha_M_fit))/len(alpha_M_fit)
-BIC_B = ns.r_chi2(alpha_B_param3_arr[z_arr<z_max], alpha_B_fit) + np.log(len(alpha_B_fit))/len(alpha_M_fit)
-BIC_K = ns.r_chi2(alpha_K_param3_arr[z_arr<z_max], alpha_K_fit) + np.log(len(alpha_K_fit))/len(alpha_M_fit)
-print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(BIC_M, BIC_B, BIC_K))
+print("alpha_M0, alpha_B0, alpha_K0 = {}, {}, {} \n q_M, q_B, q_K = {}, {}, {}".format(*model_params))
+print("BIC/N values for alpha_M, alpha_B, alpha_K = {}, {}, {}".format(*fit_goodness))
 
 print('Files for Hi-COLA numerical simulation being generated.')
 ###----Intermediate quantities-----
