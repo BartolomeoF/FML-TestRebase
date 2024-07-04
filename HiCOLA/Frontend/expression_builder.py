@@ -138,65 +138,55 @@ def sy(string):
 
 
 
-# def Pde(G3, G4,  K,
-#         H='H',
-#         Hprime = 'Hprime',
-#         Meff='M_eff',
-#         Mp='M_p',
-#         Ms='M_s',
-#         phi='Tildephi',
-#         phiprime='Tildephiprime',
-#         phiprimeprime='Tildephiprimeprime',
-#         omegar='Omega_r',
-#         X='X'):
-#     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
-#     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
-#     parameters = [G3, G4, H, Hprime, K, Meff, Mp, phi, phiprime, phiprimeprime, omegar,X, Ms]
-#     paramnum = len(parameters)
-#     for i in np.arange(0,paramnum):
-#             if isinstance(parameters[i],str):
-#                 parameters[i] = sy(parameters[i])
-#     H = parameters[2]
-#     Hprime = parameters[3]
-#     K = parameters[4]
-#     Meff = parameters[5]
-#     Mp = parameters[6]
-#     phi = parameters[7]
-#     phiprime = parameters[8]
-#     phiprimeprime = parameters[9]
-#     omegar = parameters[9]
-#     X = parameters[10]
-#     Ms = parameters[-1]
-#     Mfrac = (Mp**2)/(Meff**2)
-#     term1 = 2*X* (G3phi + H*(Hprime*Ms*phiprime + H*Ms*phiprimeprime) *G3x)
-#     term2 = 2* G4phi* (H*(Hprime*Ms*phiprime + H*Ms*phiprimeprime) + 2 *(H**2) *Ms*phiprime)
-#     term3 = 4 *X *G4phiphi
-#     P_DE = Mfrac*(K-term1 + term2 + term3) + ((H**2)*omegar*(Mp**2))* (Mfrac - 1)
-#     return P_DE
+def Pde1_old(G3, G4,  K,
+        M_eff_sq='M_{eff}',
+        M_s='M_s',
+        E='E',
+        Eprime = 'Eprime',
+        H_0 = 'H_{0}',
+        phi='phi',
+        phiprime='phiprime',
+        phiprimeprime='phiprimeprime',
+        omegar='Omega_r',
+        X='X'):
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    parameters = [G3, G4, K, M_eff_sq, M_s, E, Eprime, H_0, phi, phiprime, phiprimeprime, omegar,X]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, M_eff_sq, M_s, E, Eprime, H_0, phi, phiprime, phiprimeprime, omegar,X] = parameters
+    Mfrac = 1/(M_eff_sq)
+    term1 = 2*X* (G3phi + E*(Eprime*M_s*phiprime + E*M_s*phiprimeprime) *G3x)
+    term2 = 2* G4phi* (E*(Eprime*M_s*phiprime + E*M_s*phiprimeprime) + 2 *(E**2) *M_s*phiprime)
+    term3 = 4 *X *G4phiphi
+    P_DE = H_0**2*(Mfrac*(K-term1 + term2 + term3) + ((E**2)*omegar)* (Mfrac - 1))
+    return P_DE
 
-# def rhode(G3, G4,  K,
-#         H='H',
-#         Meff='M_eff',
-#         Mp='M_p',
-#         Ms='M_s',
-#         phi='phi',
-#         phidot='phidot',
-#         phidotdot='phidotdot',
-#         omegam='Omega_m',
-#         omegar='Omega_r',
-#         X='X'): 
-#     G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
-#     Kx, Kxx, Kxphi, Kphi = K_func(K)
-#     G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
-#     parameters = [G3, G4, H, K, Meff, Mp, phi, phidot, phidotdot, omegar,X]
-#     paramnum = len(parameters)
-#     for i in np.arange(0,paramnum):
-#             if isinstance(parameters[i],str):
-#                 parameters[i] = sy(parameters[i])
-#     Mfrac = (Mp**2)/(Meff**2)
-#     term1 = 2* X* Kx - K + 6 *X* Ms*phiprime* (H**2)*G3x
-#     term2 = 2* X* G3phi + 6* (H**2) *Ms*phiprime* G4phi
-#     return (3*(H**2)*(Mp**2))(omegar + omegam) *( Mfrac - 1) + Mfrac* (term1 - term2)
+def rhode_old(G3, G4,  K,
+        M_eff_sq='M_{eff}',
+        M_s='M_s',
+        E='E',
+        H_0 = 'H_{0}',
+        phi='phi',
+        phiprime='phiprime',
+        omegam='Omega_m',
+        omegar='Omega_r',
+        X='X'): 
+    G3x, G3xx, G3xphi, G3phix, G3phiphi, G3phi = G3_func(G3)
+    Kx, Kxx, Kxphi, Kphi = K_func(K)
+    G4x, G4xx, G4xphi, G4phix, G4phiphi, G4phi = G4_func(G4)
+    parameters = [G3, G4, K, M_eff_sq, M_s, E, H_0, phi, phiprime, omegam, omegar,X]
+    paramnum = len(parameters)
+    for i in np.arange(0,paramnum):
+            if isinstance(parameters[i],str):
+                parameters[i] = sy(parameters[i])
+    [G3, G4, K, M_eff_sq, M_s, E, H_0, phi, phiprime, omegam, omegar,X] = parameters
+    Mfrac = 1/(M_eff_sq)
+    term1 = 2* X* Kx - K + 6 *X* M_s*phiprime* (E**2)*G3x
+    term2 = 2* X* G3phi + 6* (E**2) *M_s*phiprime* G4phi
+    return H_0**2*(3*(E**2)*(omegar + omegam) *( Mfrac - 1) + Mfrac* (term1 - term2))
 
 def omega_phi(G3, G4,  K,
         E='E',
@@ -1028,7 +1018,7 @@ def alpha_M(G3, G4, K,
 
 def alpha_B(G3, G4, K,
         M_eff_sq = 'M_{eff}',
-        M_s = 'M_{s}',
+        M_s = 'M_s',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
         phi = 'phi',
@@ -1051,7 +1041,7 @@ def alpha_B(G3, G4, K,
 
 def alpha_K(G3, G4, K,
         M_eff_sq = 'M_{eff}',
-        M_s = 'M_{s}',
+        M_s = 'M_s',
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
@@ -1080,7 +1070,7 @@ def alpha_K(G3, G4, K,
 
 def rhode(G3, G4, K,
         M_eff_sq = 'M_{eff}',
-        M_s = 'M_{s}',
+        M_s = 'M_s',
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
@@ -1108,7 +1098,7 @@ def rhode(G3, G4, K,
 
 def Pde(G3, G4, K, 
         M_eff_sq = 'M_{eff}',
-        M_s = 'M_{s}',
+        M_s = 'M_s',
         M_K = 'M_{Ks}',
         M_G3 = 'M_{G3}',
         M_G4 = 'M_{G4}',
