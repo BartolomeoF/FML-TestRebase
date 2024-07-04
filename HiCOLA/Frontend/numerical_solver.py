@@ -35,7 +35,7 @@ def comp_H_LCDM(z, Omega_r0, Omega_m0, H0):
 
 def comp_E_LCDM(z, Omega_r0, Omega_m0):
     Omega_L0 = 1.-Omega_m0-Omega_r0
-    E = (Omega_m0*(1.+z)**3. + Omega_r0*(1.+z)**4. + Omega_L0)**0.5
+    E = np.sqrt(Omega_m0*(1.+z)**3. + Omega_r0*(1.+z)**4. + Omega_L0)
     return E
 
 def comp_E_LCDM_DE(z, Omega_r0, Omega_m0):
@@ -67,10 +67,11 @@ def comp_Omega_DE_LCDM(x, Omega_r0, Omega_m0):
     Omega_DE = Omega_DE0/term1
     return Omega_DE
 
-def comp_E_prime_E_LCDM(z, Omega_r0, Omega_m0):
-    Omega_r = comp_Omega_r_LCDM(z, Omega_r0, Omega_m0)
-    Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
-    E_prime_E = -0.5*(Omega_r - 3*Omega_l + 3)
+def comp_E_prime_E_LCDM(x, Omega_r0, Omega_m0):
+    Omega_DE0 = 1. - Omega_m0 - Omega_r0
+    term1 = Omega_r0*np.exp(-4.*x)+Omega_m0*np.exp(-3.*x)+Omega_DE0
+    term2 = 4.*Omega_r0*np.exp(-4.*x)+3.*Omega_m0*np.exp(-3.*x)
+    E_prime_E = -0.5*term2/term1
     return E_prime_E
 
 def comp_Omega_DE_prime_LCDM(E_prime_E, Omega_DE):
@@ -487,10 +488,13 @@ def alpha_X3(a,  alpha_X0, q_X):
 
 def r_chi2(y, y_model):
     """
-    This function calculates the value of reduced chi squared between a given model and a set of data with errors.
+    This function calculates the value of reduced chi squared between a given model and a set of data.
     """
-    chisq = np.sum(((y-y_model)**2.0)/(y_model**2.0))
-    return chisq/len(y)
+    if (y_model==0).all():
+        return 0
+    else:
+        chisq = np.sum(((y-y_model)**2.0)/(y_model**2.0))
+        return chisq/len(y)
 
 def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, alpha_K_arr):
     z_arr = 1/a_arr - 1
