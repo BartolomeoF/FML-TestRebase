@@ -108,7 +108,7 @@ closure_value = str(background_quantities['closure_value'])
 print(f'Closure parameter is {closure_variable} = {closure_value}' )
 print('(note: therefore one of the initial conditions or Horndeski model parameters printed above was the guess value)')
 
-LCDM = ns.comp_LCDM(a_arr, Omega_r0, Omega_m0)
+LCDM = ns.comp_LCDM(read_out_dict, Omega_r0, Omega_m0)
 E_LCDM_arr = LCDM[0]
 E_prime_E_LCDM_arr = LCDM[1]
 Omega_m_LCDM_arr = LCDM[2]

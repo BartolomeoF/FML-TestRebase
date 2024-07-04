@@ -108,14 +108,22 @@ def comp_Omega_m_prime(Omega_m, E, E_prime):
     Omega_m_prime = -Omega_m*(3.+2.*E_prime_E)
     return Omega_m_prime
 
-def comp_LCDM(a, Omega_r0, Omega_m0):
-    z = 1/a - 1
+def comp_LCDM(read_out_dict, Omega_r0, Omega_m0):
+    [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
 
-    E = comp_E_LCDM(z, Omega_r0, Omega_m0)
-    E_prime_E = comp_E_prime_E_LCDM(z, Omega_r0, Omega_m0)
-    Omega_m = comp_Omega_m_LCDM(z, Omega_r0, Omega_m0)
-    Omega_r = comp_Omega_r_LCDM(z, Omega_r0, Omega_m0)
-    Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
+    z_final = 0.
+    x_ini = np.log(1./(1.+z_max))
+    x_final = np.log(1./(1.+z_final))
+    x_arr = np.linspace(x_ini, x_final, Npoints)
+    a_arr = [np.exp(x) for x in x_arr]
+    a_arr = np.array(a_arr)
+    z_arr = 1/a_arr - 1
+
+    E = comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
+    E_prime_E = comp_E_prime_E_LCDM(x_arr, Omega_r0, Omega_m0)
+    Omega_m = comp_Omega_m_LCDM(z_arr, Omega_r0, Omega_m0)
+    Omega_r = comp_Omega_r_LCDM(z_arr, Omega_r0, Omega_m0)
+    Omega_l = comp_Omega_L_LCDM(z_arr, Omega_r0, Omega_m0)
     return [E, E_prime_E, Omega_m, Omega_r, Omega_l]
 
 #fried1 is ultimately the closure equation for the density parameters
