@@ -366,7 +366,7 @@ def run_solver(read_out_dict):
         calC_arr.append(calC_lambda(UEv,UEprimev,phiv,phiprimev,phiprimeprimev, *parameters))
         coupling_factor_arr.append(coupling_factor(UEv,UEprimev,phiv,phiprimev,phiprimeprimev,*parameters))
 
-    E_arr = Hubble_arr/Hubble0
+    E_arr = Hubble_arr/Hubble0 #if E_ini is normalised to 1
     chioverdelta_arr = chi_over_delta(a_arr_inv, E_arr, calB_arr, calC_arr, Omega_m0)
 
     solution_arrays = {'a':a_arr_inv, 'Hubble':Hubble_arr, 'Hubble_prime':Hubble_prime_arr,'E_prime_E':E_prime_E_arr, 'scalar':phi_arr,'scalar_prime':phi_prime_arr,'scalar_primeprime':phi_primeprime_arr}

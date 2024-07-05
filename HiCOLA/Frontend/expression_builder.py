@@ -185,7 +185,7 @@ def rhode_old(G3, G4,  K,
     [G3, G4, K, M_eff_sq, M_s, E, H_0, phi, phiprime, omegam, omegar,X] = parameters
     Mfrac = 1/(M_eff_sq)
     term1 = 2* X* Kx - K + 6 *X* M_s*phiprime* (E**2)*G3x
-    term2 = 2* X* G3phi + 6* (E**2) *M_s*phiprime* G4phi
+    term2 = 2* X* G3phi + 6* (E**2) *M_s*phiprime* G4phi #possible sign error in from of G4phi term
     return H_0**2*(3*(E**2)*(omegar + omegam) *( Mfrac - 1) + Mfrac* (term1 - term2))
 
 def omega_phi(G3, G4,  K,
@@ -1170,8 +1170,8 @@ def c_s_sq(M_eff_sq = 'M_{eff}',
     D = alphaK + alphaB**2*3/2
     term1 = Eprime/E - alphaM/2
     term2 = 3*omegam + 4*omegar
-    c_sq = -((2 - alphaB)*term1 - alphaBprime + term2/M_eff_sq)/D
-    return c_sq
+    c_sq_D = -((2 - alphaB)*term1 - alphaBprime + term2/M_eff_sq)
+    return c_sq_D
 
 def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0):
     if np.any([K,G3,G4]) is None:

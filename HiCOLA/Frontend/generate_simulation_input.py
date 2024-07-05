@@ -124,7 +124,7 @@ alpha_B_arr = alphas_arr['alpha_B']
 alpha_K_arr = alphas_arr['alpha_K']
 
 #----Compute EoS----
-DE_arr = ns.comp_w_phi2(read_out_dict, background_quantities)#to change compute method remove 2
+DE_arr = ns.comp_w_phi(read_out_dict, background_quantities)#to change compute method remove 2
 w_phi_arr = DE_arr[0]
 P_phi_arr = DE_arr[1]
 rho_phi_arr = DE_arr[2]
