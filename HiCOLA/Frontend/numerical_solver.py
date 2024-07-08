@@ -303,9 +303,9 @@ def run_solver(read_out_dict):
 
     if suppression_flag is True:
         with stdout_redirected():
-            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv) #k1=-6, g1 = 2
+            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv) #k1=-6, g1 = 2
     else:
-        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv)
+        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10)#, hmax=hmaxv)
 
     ans = ans["y"].T
     phi_arr = ans[:,0]
@@ -314,6 +314,11 @@ def run_solver(read_out_dict):
     Omega_r_arr = ans[:,3]
     Omega_m_arr = ans[:,4]
     Omega_l_arr = ans[:,5]
+
+    #simple check for numerical discontinuity which returns False if one is found
+    if len(Hubble_arr) != 1000:
+        print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
+        return False
 
     E_prime_E_LCDM_arr = [comp_E_prime_E_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_LCDM_arr = [comp_Omega_DE_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]

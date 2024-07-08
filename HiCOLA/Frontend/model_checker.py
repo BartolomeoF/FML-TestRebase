@@ -36,21 +36,22 @@ H0 = 100*read_out_dict['little_h']
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
 
-
-
-parameters = fb.generate_params(read_out_dict)
-read_out_dict.update(parameters)
-
-background_quantities = ns.run_solver(read_out_dict)
-
-alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
-background_quantities.update(alphas_arr)
-
-Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
-
-
-
 print(read_out_dict['symbol_list'])
 print(read_out_dict['func_list'])
 print(read_out_dict['K'])
-print(read_out_dict['Horndeski_parameters'])
+
+N_models = 5
+
+for i in range(N_models):
+    parameters = fb.generate_params(read_out_dict, N_models)[i]
+    read_out_dict.update({'Horndeski_parameters':parameters})
+
+    print(read_out_dict['Horndeski_parameters'])
+
+    background_quantities = ns.run_solver(read_out_dict)
+
+    if background_quantities != False:
+        alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
+        background_quantities.update(alphas_arr)
+
+        Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)

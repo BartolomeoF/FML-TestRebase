@@ -17,7 +17,7 @@ def define_funcs():
     out.update(Horndeski_functions)
     return out
 
-def generate_params(read_out_dict):
+def generate_params(read_out_dict, N_models):
     """
     Generate random parameter values for a list of symbolic functions.
 
@@ -31,8 +31,8 @@ def generate_params(read_out_dict):
     (parameters) using the sympy atoms() method. phi and X are variables and so no values 
     are generated for those symbols.
     """
-    rng = np.random.default_rng(seed=12345)
-    param_vals = []
+    rng = np.random.default_rng()
+    parameters_tot = set()
     phi, X = sym.symbols('phi X')
 
     funcs = read_out_dict['func_list']
@@ -44,8 +44,7 @@ def generate_params(read_out_dict):
             parameters.remove(X)
         else:
             parameters.remove(phi)
-        param_vals.append(rng.uniform(size=len(parameters)))
+        parameters_tot.update(parameters)
 
-    param_vals = np.concatenate(param_vals)
-    parameters_dict = {'Horndeski_parameters':param_vals}
-    return parameters_dict
+    param_vals = rng.uniform(size=(N_models, len(parameters_tot)))
+    return param_vals

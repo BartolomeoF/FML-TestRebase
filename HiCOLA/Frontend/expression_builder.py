@@ -218,7 +218,7 @@ def omega_phi(G3, G4,  K,
     [G3, G4, K, E, Eprime, M_pG4, M_KG4, M_G3s, M_sG4, M_G3G4, M_Ks, phi, phiprime, phiprimeprime, omegar, omegam, omegal, X] = parameters
     term1 = (omegam + omegar + omegal)*( (M_pG4**2.)/(2.*G4) - 1. )
     term21 = (M_KG4**2.)*X*Kx/(E**2.) - (M_KG4**2.)*K/(2.*(E**2.))
-    term22 = 3*M_G3s*M_sG4*X*phiprime*G3x - M_G3G4*M_sG4*X*G3phi/(E**2.) - 3*phiprime*G4phi
+    term22 = 3*M_G3G4*M_sG4*X*phiprime*G3x - M_G3G4*M_sG4*X*G3phi/(E**2.) - 3*phiprime*G4phi
     term2 = term21 + term22
     omega_de = term1 + (1/(3.*G4))*term2
     return omega_de
