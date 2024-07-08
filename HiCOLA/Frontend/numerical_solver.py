@@ -5,6 +5,7 @@
 import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
@@ -260,10 +261,11 @@ def run_solver(read_out_dict):
 
     if suppression_flag is True:
         with stdout_redirected():
-            ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv) #k1=-6, g1 = 2
+            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-15)#, hmax=hmaxv) #k1=-6, g1 = 2
     else:
-        ans = odeint(comp_primes, Y0, x_arr_inv, args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), tfirst=True)#, hmax=hmaxv)
+        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='RK45', args=(Hubble0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-15)#, hmax=hmaxv)
 
+    ans = ans["y"].T
     phi_prime_arr = ans[:,0]
     Hubble_arr = ans[:,1]
 
