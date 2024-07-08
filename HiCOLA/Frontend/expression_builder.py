@@ -279,7 +279,7 @@ def EprimeEODERHS(G3, G4,  K,
     term4 = (-1./2.)*M_G3G4*M_sG4*X*G3x*(B2/(G4*A)) + (G4phi*B2)/(2*G4*A)
     RHS = term2 + term3 + term4
 
-    EprimeE =  sym.simplify((term2 + term3 + term4)/sym.simplify(term1))
+    EprimeE =  (term2 + term3 + term4)/term1
     return EprimeE
 
 def EprimeEODERHS_safe(G3, G4,  K,

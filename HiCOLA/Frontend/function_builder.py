@@ -9,9 +9,9 @@ def define_funcs():
     G4 = g_4 + g_4phi*phi + g_4phiphi*phi*phi
 
     Horndeski_functions = {'K':K, 'G3':G3, 'G4':G4}
-    symbol_list = ["k", "k_{\phi}", "k_{X}", "k_{\phi\phi}", "k_{X\phi}", "k_{XX}",
-                    "g_{3}", "g_{3\phi}", "g_{3X}", "g_{3\phi\phi}", "g_{3X\phi}", "g_{3XX}",
-                    "g_{4}", "g_{4\phi}", "g_{4\phi\phi}"]
+    symbol_list = [k, k_phi, k_X, k_phiphi, k_phiX, k_XX,
+                    g_3, g_3phi, g_3X, g_3phiphi, g_3phiX, g_3XX,
+                    g_4, g_4phi, g_4phiphi]
     func_list = [K, G3, G4]
     out = {'symbol_list':symbol_list, 'func_list':func_list}
     out.update(Horndeski_functions)

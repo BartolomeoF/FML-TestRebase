@@ -26,8 +26,29 @@ read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 Horndeski_funcs = fb.define_funcs()
 read_out_dict.update(Horndeski_funcs)
 
+K = read_out_dict['K']
+G3 = read_out_dict['G3']
+G4 = read_out_dict['G4']
+mass_ratio_list = read_out_dict['mass_ratio_list']
+symbol_list = read_out_dict['symbol_list']
+H0 = 100*read_out_dict['little_h']
+
+lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
+read_out_dict.update(lambdified_functions)
+
+
+
 parameters = fb.generate_params(read_out_dict)
 read_out_dict.update(parameters)
+
+background_quantities = ns.run_solver(read_out_dict)
+
+alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
+background_quantities.update(alphas_arr)
+
+Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
+
+
 
 print(read_out_dict['symbol_list'])
 print(read_out_dict['func_list'])
