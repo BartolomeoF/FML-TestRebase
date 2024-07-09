@@ -89,6 +89,8 @@ print(f'scalar0 = {phi0}')
 print(f'scalar_prime0 = {phi_prime0}')
 
 background_quantities = ns.run_solver(read_out_dict)
+if background_quantities == False: 
+    print('Warning: The number of elements in some ODE solution(s) is not 1000 due to a numerical discontinuity')
 a_arr = background_quantities['a']
 UE_arr = background_quantities['Hubble']
 UE_prime_arr = background_quantities['Hubble_prime']
@@ -132,7 +134,11 @@ rho_phi_arr = DE_arr[2]
 w_eff_arr = ns.comp_w_eff(background_quantities)
 
 #----Checking stability conditions----
-Q_S_arr, c_s_sq_arr = ns.comp_stability(read_out_dict, background_quantities)
+Q_S_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
+if stable:
+    print('Stability conditions satisified')
+else:
+    print('Warning: Stability conditions not satisfied: Q_S and/or c_s_sq not always > 0')
 
 #----Alpha parameterisation----
 z_max = 3

@@ -317,7 +317,6 @@ def run_solver(read_out_dict):
 
     #simple check for numerical discontinuity which returns False if one is found
     if len(Hubble_arr) != 1000:
-        print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
         return False
 
     E_prime_E_LCDM_arr = [comp_E_prime_E_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
@@ -470,16 +469,18 @@ def comp_stability(read_out_dict, background_quantities):
     Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
     c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
 
+    stable = False
     if (Q_S_evaluated>0).all() and (c_s_sq_evaluated>0).all():
-        print('Stability conditions satisified')
-    elif (Q_S_evaluated>0).all():
-        print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
-    elif (c_s_sq_evaluated>0).all():
-        print('Warning: Stability condition not satisfied: Q_S not always > 0')
-    else:
-        print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
+        #print('Stability conditions satisified')
+        stable = True
+    #elif (Q_S_evaluated>0).all():
+        #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
+    #elif (c_s_sq_evaluated>0).all():
+        #print('Warning: Stability condition not satisfied: Q_S not always > 0')
+    #else:
+        #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
     
-    return Q_S_evaluated, c_s_sq_evaluated
+    return Q_S_evaluated, c_s_sq_evaluated, stable
     
 def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
     z = 1/a - 1
