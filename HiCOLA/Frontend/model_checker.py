@@ -7,6 +7,7 @@ from HiCOLA.Utilities.Other import support as sp
 from HiCOLA.Frontend.read_parameters import read_in_parameters
 import os
 from argparse import ArgumentParser
+import time
 
 symbol_decl = eb.declare_symbols()
 exec(symbol_decl)
@@ -38,37 +39,42 @@ H0 = 100*read_out_dict['little_h']
 cosmology_name = read_out_dict['cosmo_name']
 directory = read_out_dict['output_directory']
 
+#----producing lambdified functions for all models----
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
 
-print(read_out_dict['symbol_list'])
-print(read_out_dict['func_list'])
-print(read_out_dict['K'])
-
+#----checking stability of models produced by each set of parameters----
 stable_models = []
 unstable_models = []
+all_parameters = fb.generate_params(read_out_dict, N_models)
 
+start = time.time()
 for i in range(N_models):
-    parameters = fb.generate_params(read_out_dict, N_models)[i]
+    parameters = all_parameters[i]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
     background_quantities = ns.run_solver(read_out_dict)
 
+    #initial numerical stability check
     if background_quantities == False:
         #print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
         unstable_models.append(read_out_dict['Horndeski_parameters'])
     else:
+        #stability condition check
         alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
         background_quantities.update(alphas_arr)
 
         Q_S_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
+
         if stable:
             #print('Stability conditions satisified')
             stable_models.append(read_out_dict['Horndeski_parameters'])
         else:
             #print('Warning: Stability conditions not satisfied: Q_S and/or c_s_sq not always > 0')
             unstable_models.append(read_out_dict['Horndeski_parameters'])
+end = time.time()
 
+#----writing stable and unstable models to files----
 filename_stable = directory+f'/{cosmology_name}_stable.txt'
 filename_unstable = directory+f'/{cosmology_name}_unstable.txt'
 
@@ -85,3 +91,6 @@ if loop_counter != 0:
 
 sp.write_model_list(stable_models, filename_stable)
 sp.write_model_list(unstable_models, filename_unstable)
+
+print('{} stable and {} unstable models out of {}'.format(len(stable_models), len(unstable_models), N_models))
+print('time taken = {}s'.format(end-start))
