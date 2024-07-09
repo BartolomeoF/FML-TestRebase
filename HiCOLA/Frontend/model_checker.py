@@ -35,6 +35,8 @@ G4 = read_out_dict['G4']
 mass_ratio_list = read_out_dict['mass_ratio_list']
 symbol_list = read_out_dict['symbol_list']
 H0 = 100*read_out_dict['little_h']
+cosmology_name = read_out_dict['cosmo_name']
+directory = read_out_dict['output_directory']
 
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
@@ -67,5 +69,19 @@ for i in range(N_models):
             #print('Warning: Stability conditions not satisfied: Q_S and/or c_s_sq not always > 0')
             unstable_models.append(read_out_dict['Horndeski_parameters'])
 
-print(len(stable_models))
-print(len(unstable_models))
+filename_stable = directory+f'/{cosmology_name}_stable.txt'
+filename_unstable = directory+f'/{cosmology_name}_unstable.txt'
+
+abs_directory = os.path.abspath(directory)
+loop_counter = 0
+while ( os.path.exists(filename_stable) or os.path.exists(filename_unstable)) and loop_counter < 100:
+    loop_counter += 1
+    filename_stable = sp.renamer(filename_stable)
+    filename_unstable = sp.renamer(filename_unstable)
+if loop_counter >= 100:
+    raise Exception("Counter for file renaming loop excessively high, consider changing stable and unstable output file names.")
+if loop_counter != 0:
+    print(f"Warning: stable or unstable file with same name found in \"{abs_directory}\", new filenames are \n stable: {filename_stable} \n unstable:{filename_unstable}")
+
+sp.write_model_list(stable_models, filename_stable)
+sp.write_model_list(unstable_models, filename_unstable)

@@ -142,3 +142,9 @@ def comp_almost_track(E_dS_fac, Omega_r0, Omega_m0, f_phi_value, almost, fried_R
 def comp_E_dS_max(E_dS_max_guess, Omr, Omm, f_phi, almost, fried_RHS_lambda):
     E_dS_max = fsolve(comp_almost_track, E_dS_max_guess, args=(Omr, Omm, f_phi, almost,fried_RHS_lambda))[0]
     return E_dS_max
+
+def write_model_list(data, output_filename_as_string):
+    datafile_id = open(output_filename_as_string, 'wb')    #here you open the ascii file
+    realdata = np.array(data)
+    np.savetxt(datafile_id, realdata, fmt='%.8f')    #here the ascii file is populated.
+    datafile_id.close()    #close the file
