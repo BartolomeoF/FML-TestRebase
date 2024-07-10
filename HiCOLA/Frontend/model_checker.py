@@ -46,11 +46,16 @@ read_out_dict.update(lambdified_functions)
 #----checking stability of models produced by each set of parameters----
 stable_models = []
 unstable_models = []
+background_list = []
 all_parameters = fb.generate_params(read_out_dict, N_models)
+any_stable = False
+
+#all_parameters[:, 13:] = 0
+#all_parameters[:, 12] = 0.5
 
 start = time.time()
-for i in range(N_models):
-    parameters = all_parameters[i]
+for model_n in range(N_models):
+    parameters = all_parameters[model_n]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
     background_quantities = ns.run_solver(read_out_dict)
@@ -58,39 +63,71 @@ for i in range(N_models):
     #initial numerical stability check
     if background_quantities == False:
         #print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
-        unstable_models.append(read_out_dict['Horndeski_parameters'])
+        parameters = np.insert(parameters, 0, model_n)
+        unstable_models.append(parameters)
     else:
         #stability condition check
         alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
         background_quantities.update(alphas_arr)
 
-        Q_S_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
+        Q_S_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
 
-        if stable:
-            #print('Stability conditions satisified')
-            stable_models.append(read_out_dict['Horndeski_parameters'])
+        Omega_m_arr = background_quantities['omega_m']
+        Omega_r_arr = background_quantities['omega_r']
+        Omega_lambda_arr = background_quantities['omega_l']
+        Omega_phi_arr = background_quantities['omega_phi']
+
+        if unstable==1:
+            #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
+            parameters = np.insert(parameters, 0, model_n)
+            unstable_models.append(parameters)
+        elif unstable==2:
+            #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
+            parameters = np.insert(parameters, 0, model_n)
+            unstable_models.append(parameters)
+        elif unstable==3:
+            #print('Warning: Stability condition not satisfied: Q_S not always > 0')
+            parameters = np.insert(parameters, 0, model_n)
+            unstable_models.append(parameters)
+        # elif (Omega_m_arr<-1e-6).any() or (Omega_r_arr<-1e-6).any() or (Omega_lambda_arr<-1e-6).any() or (Omega_phi_arr<-1e-6).any():
+        #     #print('Warning: Background evolution unphysical')
+        #     parameters = np.insert(parameters, 0, model_n)
+        #     unstable_models.append(parameters)
         else:
-            #print('Warning: Stability conditions not satisfied: Q_S and/or c_s_sq not always > 0')
-            unstable_models.append(read_out_dict['Horndeski_parameters'])
+            #print('Stability conditions satisified')
+            parameters = np.insert(parameters, 0, model_n)
+            stable_models.append(parameters)
+
+            a_arr = background_quantities['a']
+            E_arr = background_quantities['Hubble']  
+            phi_arr = background_quantities['scalar']
+            phi_prime_arr = background_quantities['scalar_prime']
+            arr_list = [a_arr,E_arr,phi_arr,phi_prime_arr,Omega_m_arr,Omega_r_arr,Omega_lambda_arr,Omega_phi_arr]
+            background_list.append(arr_list)
+            any_stable = True
 end = time.time()
 
 #----writing stable and unstable models to files----
 filename_stable = directory+f'/{cosmology_name}_stable.txt'
 filename_unstable = directory+f'/{cosmology_name}_unstable.txt'
+filename_expansion = directory+f'/{cosmology_name}_expansion.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
-while ( os.path.exists(filename_stable) or os.path.exists(filename_unstable)) and loop_counter < 100:
+while ( os.path.exists(filename_stable) or os.path.exists(filename_unstable) or os.path.exists(filename_expansion)) and loop_counter < 100:
     loop_counter += 1
     filename_stable = sp.renamer(filename_stable)
     filename_unstable = sp.renamer(filename_unstable)
+    filename_expansion = sp.renamer(filename_expansion)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing stable and unstable output file names.")
 if loop_counter != 0:
-    print(f"Warning: stable or unstable file with same name found in \"{abs_directory}\", new filenames are \n stable: {filename_stable} \n unstable:{filename_unstable}")
+    print(f"Warning: stable or unstable or expansion file with same name found in \"{abs_directory}\", new filenames are \n stable: {filename_stable} \n unstable:{filename_unstable} \n expansion:{filename_expansion}")
 
 sp.write_model_list(stable_models, filename_stable)
 sp.write_model_list(unstable_models, filename_unstable)
+if any_stable:
+    sp.write_files(background_list, filename_expansion)
 
 print('{} stable and {} unstable models out of {}'.format(len(stable_models), len(unstable_models), N_models))
 print('time taken = {}s'.format(end-start))

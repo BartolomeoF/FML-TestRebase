@@ -1,6 +1,13 @@
 import numpy as np
 import sympy as sym
 
+def symloguniform(low=-13.0, high=13.0, size=None):
+    x = np.random.uniform(low, high, size)
+    symlog = x.copy()
+    symlog[x<0] = np.exp(x[x<0])
+    symlog[x>0] = -np.exp(-x[x>0])
+    return symlog
+
 def define_funcs():
     """
     This function defines the Horndeski functions K, G3, and G4.
@@ -49,5 +56,5 @@ def generate_params(read_out_dict, N_models):
             parameters.remove(phi)
         parameters_tot.update(parameters)
 
-    param_vals = rng.uniform(size=(N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
+    param_vals = symloguniform(size=(N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
     return param_vals

@@ -276,6 +276,8 @@ def run_solver(read_out_dict):
         
     cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r_ini, Omega_m_ini, Omega_l_ini, parameters)
 
+    #print(cl_var_full)
+
     if cl_declaration[0] == 'odeint_parameters':
         if cl_declaration[1] == 0:
             Hubble0_closed = cl_var
@@ -469,18 +471,30 @@ def comp_stability(read_out_dict, background_quantities):
     Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
     c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
 
-    stable = False
     if (Q_S_evaluated>0).all() and (c_s_sq_evaluated>0).all():
+        unstable = False
         #print('Stability conditions satisified')
-        stable = True
-    #elif (Q_S_evaluated>0).all():
+    elif (Q_S_evaluated>0).all():
+        unstable = 2
         #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
-    #elif (c_s_sq_evaluated>0).all():
+    elif (c_s_sq_evaluated>0).all():
+        unstable = 3
         #print('Warning: Stability condition not satisfied: Q_S not always > 0')
-    #else:
+    else:
+        unstable = 1
         #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
     
-    return Q_S_evaluated, c_s_sq_evaluated, stable
+    return Q_S_evaluated, c_s_sq_evaluated, unstable
+
+def check_background(background_quantities):
+    Omega_m = background_quantities['omega_m']
+    Omega_r = background_quantities['omega_r']
+    Omega_l = background_quantities['omega_l']
+    Omega_phi = background_quantities['omega_phi']
+    if (Omega_m>0).all() and (Omega_r>0).all() and (Omega_l>0).all() and (Omega_phi>0).all():
+        return True
+    else:
+        return False
     
 def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
     z = 1/a - 1
