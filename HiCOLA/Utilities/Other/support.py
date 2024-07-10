@@ -147,7 +147,7 @@ def write_model_list(data, output_filename_as_string):
      if data != []:
         datafile_id = open(output_filename_as_string, 'wb') #here you open the ascii file    
         realdata = np.array(data)
-        np.savetxt(datafile_id, realdata, fmt=['%.0f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f'])    #here the ascii file is populated.
+        np.savetxt(datafile_id, realdata, fmt=['%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f'])    #here the ascii file is populated.
         datafile_id.close()    #close the file
 
 def write_files(datalist, output_filename_as_string):

@@ -63,7 +63,6 @@ for model_n in range(N_models):
     #initial numerical stability check
     if background_quantities == False:
         #print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
-        parameters = np.insert(parameters, 0, model_n)
         unstable_models.append(parameters)
     else:
         #stability condition check
@@ -79,23 +78,18 @@ for model_n in range(N_models):
 
         if unstable==1:
             #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
-            parameters = np.insert(parameters, 0, model_n)
             unstable_models.append(parameters)
         elif unstable==2:
             #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
-            parameters = np.insert(parameters, 0, model_n)
             unstable_models.append(parameters)
         elif unstable==3:
             #print('Warning: Stability condition not satisfied: Q_S not always > 0')
-            parameters = np.insert(parameters, 0, model_n)
             unstable_models.append(parameters)
         # elif (Omega_m_arr<-1e-6).any() or (Omega_r_arr<-1e-6).any() or (Omega_lambda_arr<-1e-6).any() or (Omega_phi_arr<-1e-6).any():
         #     #print('Warning: Background evolution unphysical')
-        #     parameters = np.insert(parameters, 0, model_n)
         #     unstable_models.append(parameters)
         else:
             #print('Stability conditions satisified')
-            parameters = np.insert(parameters, 0, model_n)
             stable_models.append(parameters)
 
             a_arr = background_quantities['a']
