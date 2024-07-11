@@ -56,6 +56,8 @@ any_stable = False
 start = time.time()
 for model_n in range(N_models):
     #print('model {} begin'.format(model_n))
+    completion = 100*model_n/N_models
+    print('{}% complete'.format(completion), end='\r')
     parameters = all_parameters[model_n]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
