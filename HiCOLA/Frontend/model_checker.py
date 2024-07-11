@@ -55,6 +55,7 @@ any_stable = False
 
 start = time.time()
 for model_n in range(N_models):
+    #print('model {} begin'.format(model_n))
     parameters = all_parameters[model_n]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
@@ -70,11 +71,6 @@ for model_n in range(N_models):
         background_quantities.update(alphas_arr)
 
         Q_S_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
-
-        Omega_m_arr = background_quantities['omega_m']
-        Omega_r_arr = background_quantities['omega_r']
-        Omega_lambda_arr = background_quantities['omega_l']
-        Omega_phi_arr = background_quantities['omega_phi']
 
         if unstable==1:
             #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
@@ -96,6 +92,19 @@ for model_n in range(N_models):
             E_arr = background_quantities['Hubble']  
             phi_arr = background_quantities['scalar']
             phi_prime_arr = background_quantities['scalar_prime']
+            Omega_m_arr = background_quantities['omega_m']
+            Omega_r_arr = background_quantities['omega_r']
+            Omega_lambda_arr = background_quantities['omega_l']
+            fried_closure_lambda = read_out_dict['fried_RHS_lambda']
+            omega_phi_lambda = read_out_dict['omega_phi_lambda']
+            cl_declaration = read_out_dict['closure_declaration']
+            [E0, phi0, phi_prime0] = read_out_dict['initial_conditions']
+
+            E_cl_arr = ns.comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_lambda_arr, a_arr, parameters)
+            Omega_phi_arr = []
+            for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_lambda_arr, Omega_m_arr, Omega_r_arr):
+                Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
+
             arr_list = [a_arr,E_arr,phi_arr,phi_prime_arr,Omega_m_arr,Omega_r_arr,Omega_lambda_arr,Omega_phi_arr]
             background_list.append(arr_list)
             any_stable = True

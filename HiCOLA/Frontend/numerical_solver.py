@@ -186,6 +186,19 @@ def comp_param_close(fried_closure_lambda, cl_declaration, E0, phi0, phi_prime0,
 
     return cl_variable0, cl_variable
 
+def comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi, phi_prime, Omega_r, Omega_m, Omega_l, a_arr, parameters): #calling the closure-fixed parameter "k1" is arbitrary, the choice of which parameter to fix is determined by lambdification or fried_RHS
+    cl_dec = cl_declaration.copy()
+    cl_dec[1] = 0
+    E_cl = np.zeros(len(a_arr))
+
+    for a in a_arr:
+        full = fsolve(fried_RHS_wrapper, E0, args=(cl_dec, fried_closure_lambda, E0, phi[a_arr==a], phi_prime[a_arr==a], Omega_r[a_arr==a],Omega_m[a_arr==a], Omega_l[a_arr==a],parameters), xtol=1e-6,full_output=True) #make sure arguments match lambdification line in run_builder.py
+        #if full[2] != 1: print(full[3])
+        E_cl[a_arr==a] = full[0][0]
+        E0 = E_cl[a_arr==a]
+
+    return E_cl
+
 def comp_primes(x, Y, E0, Omega_r0, Omega_m0, Omega_l0, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold=1e-3,GR_flag=False): #x, Y swapped for solve_ivp ###ADD LAMBDA FUNCTION AS ARGUMENT###
 
 

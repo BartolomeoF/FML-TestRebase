@@ -21,7 +21,7 @@ for phi in phi_list:
     plt.plot(z, phi, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('phi')
+plt.ylabel(r'$\phi$')
 plt.xscale('log')
 plt.show()
 
@@ -30,7 +30,7 @@ for phiprime in phiprime_list:
     plt.plot(z, phiprime, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('phiprime')
+plt.ylabel(r'$\phi^{\prime}$')
 plt.xscale('log')
 plt.show()
 
@@ -49,7 +49,7 @@ for Omega_m in Omega_m_list:
     plt.plot(z, Omega_m, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('Omega_m')
+plt.ylabel(r'$\Omega_m$')
 plt.xscale('log')
 plt.show()
 
@@ -58,7 +58,7 @@ for Omega_r in Omega_r_list:
     plt.plot(z, Omega_r, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('Omega_r')
+plt.ylabel(r'$\Omega_r$')
 plt.xscale('log')
 plt.show()
 
@@ -67,7 +67,7 @@ for Omega_phi in Omega_phi_list:
     plt.plot(z, Omega_phi, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('Omega_phi')
+plt.ylabel(r'$\Omega_{\phi}$')
 plt.xscale('log')
 plt.show()
 
@@ -84,6 +84,6 @@ for Omega_lambda in Omega_lambda_list:
     plt.plot(z, Omega_lambda, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel('Omega_lambda')
+plt.ylabel(r'$\Omega_{\Lambda}$')
 plt.xscale('log')
 plt.show()
