@@ -80,3 +80,12 @@ def generate_params(read_out_dict, N_models):
 
     param_vals = symloguniform(size=(N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
     return param_vals
+            
+def try_solver(run_solver, read_out_dict):
+    try:
+        background_quantities = run_solver(read_out_dict)
+    except KeyboardInterrupt:
+        print(" Skipping model")
+        background_quantities = False
+    finally:
+        return background_quantities

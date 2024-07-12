@@ -66,7 +66,7 @@ for model_n in range(N_models):
     parameters = all_parameters[model_n]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
-    background_quantities = ns.run_solver(read_out_dict)
+    background_quantities = fb.try_solver(ns.run_solver, read_out_dict)
 
     #initial numerical stability check
     if background_quantities == False:
