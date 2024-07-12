@@ -27,7 +27,12 @@ read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
-Horndeski_funcs = fb.define_funcs()
+reduced = read_out_dict['reduced_flag']
+
+if reduced == True:
+    Horndeski_funcs = fb.define_funcs_reduced()
+else:
+    Horndeski_funcs = fb.define_funcs()
 read_out_dict.update(Horndeski_funcs)
 
 K = read_out_dict['K']

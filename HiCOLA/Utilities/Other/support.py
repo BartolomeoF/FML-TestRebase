@@ -145,9 +145,10 @@ def comp_E_dS_max(E_dS_max_guess, Omr, Omm, f_phi, almost, fried_RHS_lambda):
 
 def write_model_list(data, output_filename_as_string):
      if data != []:
-        datafile_id = open(output_filename_as_string, 'wb') #here you open the ascii file    
+        datafile_id = open(output_filename_as_string, 'wb') #here you open the ascii file  
+        format_list = list(np.repeat('%.8f',len(data[0])))  
         realdata = np.array(data)
-        np.savetxt(datafile_id, realdata, fmt=['%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f', '%.8f'])    #here the ascii file is populated.
+        np.savetxt(datafile_id, realdata, fmt=format_list)    #here the ascii file is populated.
         datafile_id.close()    #close the file
 
 def write_files(datalist, output_filename_as_string):

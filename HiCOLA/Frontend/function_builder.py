@@ -10,7 +10,7 @@ def symloguniform(low=-13.0, high=13.0, size=None):
 
 def define_funcs():
     """
-    This function defines the Horndeski functions K, G3, and G4.
+    This function defines the Horndeski functions K, G3, and G4 using 15 free parameters.
 
     Returns:
     out (dict): A dictionary containing the defined Horndeski functions and their corresponding symbols.
@@ -25,6 +25,28 @@ def define_funcs():
     symbol_list = [k, k_phi, k_X, k_phiphi, k_phiX, k_XX,
                     g_3, g_3phi, g_3X, g_3phiphi, g_3phiX, g_3XX,
                     g_4, g_4phi, g_4phiphi]
+    func_list = [K, G3, G4]
+    out = {'symbol_list':symbol_list, 'func_list':func_list} #func_list used by generate_params
+    out.update(Horndeski_functions)
+    return out
+
+def define_funcs_reduced():
+    """
+    This function defines the Horndeski functions K, G3, and G4 using 5 free parameters.
+
+    Returns:
+    out (dict): A dictionary containing the defined Horndeski functions and their corresponding symbols.
+    """
+    K, G3, G4, k_phi, k_X, g_3phi, g_3X, g_4phi, phi, X, n, m = sym.symbols(r'K G_{3} G_{4} k_{\phi} k_{X} g_{3\phi} g_{3X} g_{4\phi} phi X n m')
+
+    K = k_phi*phi + k_X*X
+    G3 = g_3phi*phi + g_3X*X
+    G4 = 0.5 + g_4phi*phi
+
+    Horndeski_functions = {'K':K, 'G3':G3, 'G4':G4} #to overwrite existing funcs produced by dummy parameters
+    symbol_list = [k_phi, k_X,
+                    g_3phi, g_3X,
+                    g_4phi]
     func_list = [K, G3, G4]
     out = {'symbol_list':symbol_list, 'func_list':func_list} #func_list used by generate_params
     out.update(Horndeski_functions)

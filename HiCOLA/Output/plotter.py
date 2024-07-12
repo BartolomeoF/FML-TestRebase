@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import os
 
 a_LCDM = E_LCDM = EprimeE_LCDM = Omega_m_LCDM = Omega_r_LCDM = Omega_l_LCDM = 1
-#a_LCDM, E_LCDM, EprimeE_LCDM, Omega_m_LCDM, Omega_r_LCDM, Omega_l_LCDM = np.loadtxt('LCDM.txt', unpack=True)
+a_LCDM, E_LCDM, EprimeE_LCDM, Omega_m_LCDM, Omega_r_LCDM, Omega_l_LCDM = np.loadtxt('LCDM.txt', unpack=True)
 
-filename ='WMAP_model_1_expansion.txt' #'{cosmology_name}_model_1_expansion.txt'
+filename ='WMAP_model_1_expansion_4.txt' #'{cosmology_name}_model_1_expansion.txt'
 
 a_list, E_list, phi_list, phiprime_list, Omega_m_list, Omega_r_list, Omega_lambda_list, Omega_phi_list = [], [], [], [], [], [], [], []
 n = 1
@@ -35,11 +35,13 @@ for phiprime in phiprime_list:
 plt.xlabel('z')
 plt.ylabel(r'$\phi^{\prime}$')
 plt.xscale('log')
+plt.yscale('log')
 plt.show()
 
 plt.figure(dpi=300)
 for E in E_list:
-    plt.plot(z, E/E_LCDM, label=r'$f_{\phi} = 1.0$')
+    if np.max(abs(E-E_LCDM)/E_LCDM)<0.25:
+        plt.plot(z, E/E_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel('E')
@@ -49,16 +51,19 @@ plt.show()
 
 plt.figure(dpi=300)
 for Omega_m in Omega_m_list:
-    plt.plot(z, Omega_m/Omega_m_LCDM, label=r'$f_{\phi} = 1.0$')
+    if np.max(abs(Omega_m-Omega_m_LCDM)/Omega_m_LCDM)<0.25:
+        plt.plot(z, Omega_m/Omega_m_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel(r'$\Omega_m$')
 plt.xscale('log')
+plt.ylim(-0.05, 1.5)
 plt.show()
 
 plt.figure(dpi=300)
-for Omega_r in Omega_r_list:    
-    plt.plot(z, Omega_r/Omega_r_LCDM, label=r'$f_{\phi} = 1.0$')
+for Omega_r in Omega_r_list:
+    if np.max(abs(Omega_r-Omega_r_LCDM)/Omega_r_LCDM)<0.25:    
+        plt.plot(z, Omega_r/Omega_r_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel(r'$\Omega_r$')
@@ -72,7 +77,7 @@ for Omega_phi in Omega_phi_list:
 plt.xlabel('z')
 plt.ylabel(r'$\Omega_{\phi}$')
 plt.xscale('log')
-plt.ylim(bottom=-5, top=2.5)
+plt.ylim(bottom=-1.5, top=1.5)
 plt.show()
 
 plt.figure(dpi=300)
