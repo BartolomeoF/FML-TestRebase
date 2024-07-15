@@ -84,8 +84,8 @@ def generate_params(read_out_dict, N_models):
 def try_solver(run_solver, read_out_dict):
     try:
         background_quantities = run_solver(read_out_dict)
-    except KeyboardInterrupt:
-        print(" Skipping model")
+    except Exception as ex:
+        print('Exception: ({}) occured due to timeout event in solver.'.format(ex))
         background_quantities = False
     finally:
         return background_quantities
