@@ -2,10 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-a_LCDM = E_LCDM = EprimeE_LCDM = Omega_m_LCDM = Omega_r_LCDM = Omega_l_LCDM = 1
 a_LCDM, E_LCDM, EprimeE_LCDM, Omega_m_LCDM, Omega_r_LCDM, Omega_l_LCDM = np.loadtxt('LCDM.txt', unpack=True)
 
-filename ='WMAP_model_1_expansion.txt' #'{cosmology_name}_model_1_expansion.txt'
+filename ='WMAP_model_1_expansion_2.txt' #'{cosmology_name}_model_1_expansion.txt'
 
 a_list, E_list, phi_list, phiprime_list, Omega_m_list, Omega_r_list, Omega_lambda_list, Omega_phi_list = [], [], [], [], [], [], [], []
 n = 1
@@ -17,9 +16,8 @@ while os.path.exists(filename):
 
 #converting scale factor to redshift
 z = 1/a_list[0] - 1
-#omega_phi_cl = 1 - (Omega_m + Omega_r + Omega_lambda)
 
-tolerence = 0.25
+#a_LCDM = E_LCDM = EprimeE_LCDM = Omega_m_LCDM = Omega_r_LCDM = Omega_l_LCDM = 1
 
 plt.figure(dpi=300)
 for phi in phi_list:
@@ -42,8 +40,7 @@ plt.show()
 
 plt.figure(dpi=300)
 for E in E_list:
-    if np.max(abs(E-E_LCDM)/E_LCDM)<tolerence:
-        plt.plot(z, E/E_LCDM, label=r'$f_{\phi} = 1.0$')
+    plt.plot(z, E/E_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel('E')
@@ -53,8 +50,7 @@ plt.show()
 
 plt.figure(dpi=300)
 for Omega_m in Omega_m_list:
-    if np.max(abs(Omega_m-Omega_m_LCDM)/Omega_m_LCDM)<tolerence:
-        plt.plot(z, Omega_m/Omega_m_LCDM, label=r'$f_{\phi} = 1.0$')
+    plt.plot(z, Omega_m/Omega_m_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel(r'$\Omega_m$')
@@ -63,9 +59,8 @@ plt.ylim(-0.05, 1.5)
 plt.show()
 
 plt.figure(dpi=300)
-for Omega_r in Omega_r_list:
-    if np.max(abs(Omega_r-Omega_r_LCDM)/Omega_r_LCDM)<tolerence:    
-        plt.plot(z, Omega_r/Omega_r_LCDM, label=r'$f_{\phi} = 1.0$')
+for Omega_r in Omega_r_list: 
+    plt.plot(z, Omega_r/Omega_r_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
 plt.ylabel(r'$\Omega_r$')

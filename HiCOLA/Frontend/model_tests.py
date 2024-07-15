@@ -6,5 +6,5 @@ def consistency_check(read_out_dict, background_quantities, tolerance):
     E_LCDM = LCDM[0]
     E = background_quantities['Hubble']
 
-    consistent = (abs(1-E/E_LCDM)).all()<(tolerance)
+    consistent = np.max(abs(1-E/E_LCDM))<tolerance
     return consistent

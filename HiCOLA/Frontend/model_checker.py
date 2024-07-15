@@ -75,7 +75,7 @@ for model_n in range(N_models):
         unstable_models.append(parameters)
     else:
         #consistency check
-        consistent = mt.consistency_check(read_out_dict, background_quantities, 0.30)
+        consistent = mt.consistency_check(read_out_dict, background_quantities, 0.2)
 
         if consistent:
             #print('Consistent')
