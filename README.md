@@ -1,11 +1,12 @@
-# Hi-COLA
+# Hi-COLA/Duncan
 
-Hi-COLA is a package that runs fast, approximate N-body simulations of non-linear structure formation in reduced Horndeski gravity (Horndeski theories with luminal gravitational waves). 
+Please see 'README.md' in the Hi-COLA_public branch for general information on Hi-COLA.
 
-Hi-COLA is not hard-coded to solve specific Horndeski theories, but is designed to be generic with respect to the reduced Horndeski class. Given an input Lagrangian, Hi-COLA's frontend dynamically constructs the appropriate field equations and consistently solves for the cosmological background, linear growth, and screened fifth force of that theory. This is passed to the backend, an adaptation of the FML library, where a hybrid N-body simulation at significantly reduced computational and temporal cost compared to traditional N-body codes is run. By analysing the particle snapshots, one is able to study the formation of structure through statistics like the matter power spectrum.
+This branch contains an additional executable python file and modifications to the existing file: 'generate_simulation_input.py' within the Hi-COLA Frontend. 
 
-See the Documentation folder for guidance on how to install and use Hi-COLA. There you will find both a quickstart guide and a more detailed user manual.
+Modifications to 'generate_simulation_input.py' allow solutions to cosmological background properties to be solved forwards in time starting from high redshift. Additional quantities including the effective equation of state and dark energy equation of state are computed as well as the three property functions used to describe the evolution history of the cosmological background. Simple parameterisations for the property functions are evaluated and compared to the full solutions. A stability check based on the conditions that Q_s > 0 and c_s^2 > 0 can be performed, computed using the property functions.
 
-Also see [our paper](https://iopscience.iop.org/article/10.1088/1475-7516/2023/03/040) [(pre-print version)](https://arxiv.org/abs/2209.01666), where we detail the work gone into creating the first version of Hi-COLA. We encourage the community to use Hi-COLA for their own research, and request that you cite us as detailed in the user manual (a handy bibtex is also provided there). Hi-COLA is provided under a [CC BY 4.0 licence](https://creativecommons.org/licenses/by/4.0/).
+The new executable file named 'model_checker.py' can sort models generated using random parameters into 'stable' or 'unstable' categories. The conditions that need to be met for solutions to be classified as stable include numerical continuity followed by: consistency with the Hubble parameter of LCDM within 20% and stability which is true if Q_s > 0 and c_s^2 > 0.
 
-Hi-COLA remains under active development, with further extensions of the code and applications planned. You can contact the Hi-COLA team at team.hicola@gmail.com .
+To run 'generate_simulation_input.py' the 'horndeski_parameters.ini' and 'numerical_parameters.ini' files are required and can be modified.
+To run 'model_checker.py' the 'horndeski_generic.ini' and 'numerical_parameters.ini' files are required, and can be modified, as well as the number of models to be generated.
