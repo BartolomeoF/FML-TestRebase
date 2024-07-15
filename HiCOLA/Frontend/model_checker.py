@@ -3,6 +3,7 @@ import sympy as sym
 import HiCOLA.Frontend.numerical_solver as ns
 import HiCOLA.Frontend.expression_builder as eb
 import HiCOLA.Frontend.function_builder as fb
+import HiCOLA.Frontend.model_tests as mt
 from HiCOLA.Utilities.Other import support as sp
 from HiCOLA.Frontend.read_parameters import read_in_parameters
 import os
@@ -48,7 +49,7 @@ directory = read_out_dict['output_directory']
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
 
-#----checking stability of models produced by each set of parameters----
+#----checking consistency and stability of models produced by each set of parameters----
 stable_models = []
 unstable_models = []
 background_list = []
@@ -73,48 +74,52 @@ for model_n in range(N_models):
         #print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
         unstable_models.append(parameters)
     else:
-        #stability condition check
-        alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
-        background_quantities.update(alphas_arr)
+        #consistency check
+        consistent = mt.consistency_check(read_out_dict, background_quantities, 0.30)
 
-        Q_S_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
+        if consistent:
+            #print('Consistent')
+            alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
+            background_quantities.update(alphas_arr)
 
-        if unstable==1:
-            #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
-            unstable_models.append(parameters)
-        elif unstable==2:
-            #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
-            unstable_models.append(parameters)
-        elif unstable==3:
-            #print('Warning: Stability condition not satisfied: Q_S not always > 0')
-            unstable_models.append(parameters)
-        # elif (Omega_m_arr<-1e-6).any() or (Omega_r_arr<-1e-6).any() or (Omega_lambda_arr<-1e-6).any() or (Omega_phi_arr<-1e-6).any():
-        #     #print('Warning: Background evolution unphysical')
-        #     unstable_models.append(parameters)
+            #stability condition check
+            Q_S_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
+
+            if unstable==1:
+                #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
+                unstable_models.append(parameters)
+            elif unstable==2:
+                #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
+                unstable_models.append(parameters)
+            elif unstable==3:
+                #print('Warning: Stability condition not satisfied: Q_S not always > 0')
+                unstable_models.append(parameters)
+            else:
+                #print('Stability conditions satisified')
+                stable_models.append(parameters)
+
+                a_arr = background_quantities['a']
+                E_arr = background_quantities['Hubble']  
+                phi_arr = background_quantities['scalar']
+                phi_prime_arr = background_quantities['scalar_prime']
+                Omega_m_arr = background_quantities['omega_m']
+                Omega_r_arr = background_quantities['omega_r']
+                Omega_lambda_arr = background_quantities['omega_l']
+                fried_closure_lambda = read_out_dict['fried_RHS_lambda']
+                omega_phi_lambda = read_out_dict['omega_phi_lambda']
+                cl_declaration = read_out_dict['closure_declaration']
+                [E0, phi0, phi_prime0] = read_out_dict['initial_conditions']
+
+                E_cl_arr = ns.comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_lambda_arr, a_arr, parameters)
+                Omega_phi_arr = []
+                for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_lambda_arr, Omega_m_arr, Omega_r_arr):
+                    Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
+
+                arr_list = [a_arr,E_arr,phi_arr,phi_prime_arr,Omega_m_arr,Omega_r_arr,Omega_lambda_arr,Omega_phi_arr]
+                background_list.append(arr_list)
+                any_stable = True
         else:
-            #print('Stability conditions satisified')
-            stable_models.append(parameters)
-
-            a_arr = background_quantities['a']
-            E_arr = background_quantities['Hubble']  
-            phi_arr = background_quantities['scalar']
-            phi_prime_arr = background_quantities['scalar_prime']
-            Omega_m_arr = background_quantities['omega_m']
-            Omega_r_arr = background_quantities['omega_r']
-            Omega_lambda_arr = background_quantities['omega_l']
-            fried_closure_lambda = read_out_dict['fried_RHS_lambda']
-            omega_phi_lambda = read_out_dict['omega_phi_lambda']
-            cl_declaration = read_out_dict['closure_declaration']
-            [E0, phi0, phi_prime0] = read_out_dict['initial_conditions']
-
-            E_cl_arr = ns.comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_lambda_arr, a_arr, parameters)
-            Omega_phi_arr = []
-            for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_lambda_arr, Omega_m_arr, Omega_r_arr):
-                Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
-
-            arr_list = [a_arr,E_arr,phi_arr,phi_prime_arr,Omega_m_arr,Omega_r_arr,Omega_lambda_arr,Omega_phi_arr]
-            background_list.append(arr_list)
-            any_stable = True
+            unstable_models.append(parameters)
 end = time.time()
 
 #----writing stable and unstable models to files----

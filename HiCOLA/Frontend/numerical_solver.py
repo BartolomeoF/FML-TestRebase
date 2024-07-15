@@ -108,8 +108,9 @@ def comp_Omega_m_prime(Omega_m, E, E_prime):
     Omega_m_prime = -Omega_m*(3.+2.*E_prime_E)
     return Omega_m_prime
 
-def comp_LCDM(read_out_dict, Omega_r0, Omega_m0):
+def comp_LCDM(read_out_dict):
     [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
+    [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
 
     z_final = 0.
     x_ini = np.log(1./(1.+z_max))
