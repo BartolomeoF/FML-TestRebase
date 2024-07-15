@@ -1128,7 +1128,7 @@ def Pde(G3, G4, K,
     P_DE = H_0**2*(term1 - 2*X*term2 - term3)/M_eff_sq
     return P_DE
 
-def Q_S(M_eff_sq = 'M_{eff}',
+def Q_s(M_eff_sq = 'M_{eff}',
         E = 'E',
         phi = 'phi',
         phiprime = 'phiprime',
@@ -1273,11 +1273,11 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0):
     P_DE_lamb = sym.lambdify([E,Eprime,phi,phiprime,phiprimeprime, *symbol_list], P_DE_func, "scipy")
 
 
-    Q_S_func = Q_S()
-    Q_S_func = Q_S_func.subs(alphaB, alpha_B_func)
-    Q_S_func = Q_S_func.subs(alphaK, alpha_K_func)
-    Q_S_func = Q_S_func.subs(M_eff_sq,M_star_sqrd_func)
-    Q_S_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], Q_S_func, "scipy")
+    Q_s_func = Q_s()
+    Q_s_func = Q_s_func.subs(alphaB, alpha_B_func)
+    Q_s_func = Q_s_func.subs(alphaK, alpha_K_func)
+    Q_s_func = Q_s_func.subs(M_eff_sq,M_star_sqrd_func)
+    Q_s_lamb = sym.lambdify([E,phi,phiprime, *symbol_list], Q_s_func, "scipy")
 
     c_s_sq_func = c_s_sq()
     c_s_sq_func = c_s_sq_func.subs(alphaM, alpha_M_func)
@@ -1291,5 +1291,5 @@ def create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0):
                              'A_lambda':A_lambda, 'B2_lambda':B2_lambda, 'coupling_factor':coupling_fac, 'alpha0_lambda':alpha0_lamb, 'alpha1_lambda':alpha1_lamb,
                              'alpha2_lambda':alpha2_lamb, 'beta0_lambda':beta0_lamb, 'calB_lambda':calB_lamb, 'calC_lambda':calC_lamb, 
                              'M_star_sqrd_lambda':M_star_sqrd_lamb, 'alpha_M_lambda':alpha_M_lamb, 'alpha_B_lambda':alpha_B_lamb, 'alpha_K_lambda':alpha_K_lamb,
-                             'rho_DE_lambda':rho_DE_lamb, 'P_DE_lambda':P_DE_lamb, 'Q_S_lambda':Q_S_lamb, 'c_s_sq_lambda':c_s_sq_lamb}
+                             'rho_DE_lambda':rho_DE_lamb, 'P_DE_lambda':P_DE_lamb, 'Q_s_lambda':Q_s_lamb, 'c_s_sq_lambda':c_s_sq_lamb}
     return lambda_functions_dict

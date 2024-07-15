@@ -440,6 +440,10 @@ def comp_alphas(read_out_dict, background_quantities):
 
 #based on already calculated background evolution only
 def comp_w_phi(read_out_dict, background_quantities):
+    """
+    Computes equation of state for scalar field using the Friedman equations. 
+    Code equivalent of 3.5 in https://iopscience.iop.org/article/10.1088/1475-7516/2014/07/050.
+    """
     E = background_quantities['Hubble']
     E_prime = background_quantities['Hubble_prime']
     Omega_m = background_quantities['omega_m']
@@ -456,6 +460,9 @@ def comp_w_phi(read_out_dict, background_quantities):
 
 #based on P and rho funcs of background evolution
 def comp_w_phi2(read_out_dict, background_quantities):
+    """
+    Computes equation of state for scalar field using expressions for rho and P in terms of Horndeski functions.
+    """
     P_phi_lamb = read_out_dict['P_DE_lambda']
     rho_phi_lamb = read_out_dict['rho_DE_lambda']
     parameters = read_out_dict['Horndeski_parameters']
@@ -472,13 +479,19 @@ def comp_w_phi2(read_out_dict, background_quantities):
     return w_phi, P_phi_evaluated, rho_phi_evaluated
 
 def comp_w_eff(background_quantities):
+    """
+    Computes effective equation of state.
+    """
     EprimeE = background_quantities['E_prime_E']
     w_eff = -1-EprimeE*2/3
     return w_eff
 
 def comp_stability(read_out_dict, background_quantities):
+    """
+    Computes Q_s and c_s^2*D and checks stability conditions.
+    """
     parameters = read_out_dict['Horndeski_parameters']
-    Q_S_lamb = read_out_dict['Q_S_lambda']
+    Q_s_lamb = read_out_dict['Q_s_lambda']
     c_s_sq_lamb = read_out_dict['c_s_sq_lambda']
 
     a = background_quantities['a']
@@ -493,35 +506,28 @@ def comp_stability(read_out_dict, background_quantities):
     lna = np.log(a)
     alphaBprime = np.gradient(alpha_B_evaluated, lna)
 
-    Q_S_evaluated = Q_S_lamb(E, phi, phi_prime, *parameters)
+    Q_s_evaluated = Q_s_lamb(E, phi, phi_prime, *parameters)
     c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
 
-    if (Q_S_evaluated>0).all() and (c_s_sq_evaluated>0).all():
+    if (Q_s_evaluated>0).all() and (c_s_sq_evaluated>0).all():
         unstable = False
         #print('Stability conditions satisified')
-    elif (Q_S_evaluated>0).all():
+    elif (Q_s_evaluated>0).all():
         unstable = 2
         #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
     elif (c_s_sq_evaluated>0).all():
         unstable = 3
-        #print('Warning: Stability condition not satisfied: Q_S not always > 0')
+        #print('Warning: Stability condition not satisfied: Q_s not always > 0')
     else:
         unstable = 1
-        #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
+        #print('Warning: Stability conditions not satisfied: Q_s and c_s_sq not always > 0')
     
-    return Q_S_evaluated, c_s_sq_evaluated, unstable
-
-def check_background(background_quantities):
-    Omega_m = background_quantities['omega_m']
-    Omega_r = background_quantities['omega_r']
-    Omega_l = background_quantities['omega_l']
-    Omega_phi = background_quantities['omega_phi']
-    if (Omega_m>0).all() and (Omega_r>0).all() and (Omega_l>0).all() and (Omega_phi>0).all():
-        return True
-    else:
-        return False
+    return Q_s_evaluated, c_s_sq_evaluated, unstable
     
 def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
+    """
+    Function used for the first parameterisation of property functions.
+    """
     z = 1/a - 1
 
     Omega_l = comp_Omega_L_LCDM(z, Omega_r0, Omega_m0)
@@ -530,12 +536,18 @@ def alpha_X1(a, alpha_X0, Omega_m0, Omega_r0):
     return alph_X
 
 def alpha_X2(a, alpha_M0, alpha_B0, alpha_K0, q):
+    """
+    Function used for the second parameterisation of property functions.
+    """
     alph_M = alpha_M0*a**q
     alph_B = alpha_B0*a**q
     alph_K = alpha_K0*a**q
     return np.concatenate((alph_M, alph_B, alph_K))
 
 def alpha_X3(a,  alpha_X0, q_X):
+    """
+    Function used for the third parameterisation of property functions.
+    """
     alph_X = alpha_X0*a**q_X
     return alph_X
 
@@ -550,6 +562,9 @@ def r_chi2(y, y_model):
         return chisq/len(y)
 
 def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    """
+    Finds best fit parameters for the first parameterisation and evaluates goodness of fit using Bayesian information criterion (BIC).
+    """
     z_arr = 1/a_arr - 1
     a_fit = a_arr[z_arr<z_max]
     alpha_M_fit = alpha_M_arr[z_arr<z_max]
@@ -576,6 +591,9 @@ def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, al
     return model_vals, model_params, fit_goodness
 
 def parameterise2(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    """
+    Finds best fit parameters for the second parameterisation and evaluates goodness of fit using Bayesian information criterion (BIC).
+    """
     z_arr = 1/a_arr - 1
     a_fit = a_arr[z_arr<z_max]
     alpha_M_fit = alpha_M_arr[z_arr<z_max]
@@ -599,6 +617,9 @@ def parameterise2(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
     return model_vals, model_params, fit_goodness
 
 def parameterise3(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
+    """
+    Finds best fit parameters for the third parameterisation and evaluates goodness of fit using Bayesian information criterion (BIC).
+    """
     z_arr = 1/a_arr - 1
     a_fit = a_arr[z_arr<z_max]
     alpha_M_fit = alpha_M_arr[z_arr<z_max]

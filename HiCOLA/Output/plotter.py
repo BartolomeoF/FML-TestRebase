@@ -51,7 +51,7 @@ for E in E_list:
     plt.plot(z, E/E_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel(r'$E [E_{\Lambda CDM}]$')
+plt.ylabel(r'$E/E_{\Lambda CDM}$')
 plt.xscale('log')
 plt.show()
 
@@ -60,7 +60,7 @@ for Omega_m in Omega_m_list:
     plt.plot(z, Omega_m/Omega_m_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel(r'$\Omega_m [\Omega_{m,\Lambda CDM}]$')
+plt.ylabel(r'$\Omega_m/\Omega_{m,\Lambda CDM}$')
 plt.xscale('log')
 plt.show()
 
@@ -69,7 +69,7 @@ for Omega_r in Omega_r_list:
     plt.plot(z, Omega_r/Omega_r_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel(r'$\Omega_r [\Omega_{r,\Lambda CDM}]$')
+plt.ylabel(r'$\Omega_r/\Omega_{r,\Lambda CDM}$')
 plt.xscale('log')
 plt.show()
 
@@ -78,6 +78,6 @@ for Omega_lambda in Omega_lambda_list:
     plt.plot(z, Omega_lambda/Omega_l_LCDM, label=r'$f_{\phi} = 1.0$')
 #plt.legend(fontsize='large')
 plt.xlabel('z')
-plt.ylabel(r'$\Omega_{\Lambda} [\Omega_{\Lambda,\Lambda CDM}]$')
+plt.ylabel(r'$\Omega_{\Lambda}/\Omega_{\Lambda,\Lambda CDM}$')
 plt.xscale('log')
 plt.show()

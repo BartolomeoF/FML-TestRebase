@@ -13,6 +13,7 @@ import time
 symbol_decl = eb.declare_symbols()
 exec(symbol_decl)
 
+#command line parameters
 parser = ArgumentParser(prog='Model_Checker')
 parser.add_argument('input_ini_filenames', nargs=2)
 parser.add_argument('number_of_models', type=int)
@@ -24,12 +25,13 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 N_models = args.number_of_models
 
+#----general set up for all models----
+#reading in parameters from files
 read_out_dict = read_in_parameters(Horndeski_path, numerical_path)
 odeint_parameter_symbols = [E, phi, phiprime, omegar, omegam]
 read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 reduced = read_out_dict['reduced_flag']
-
 if reduced == True:
     Horndeski_funcs = fb.define_funcs_reduced()
 else:
@@ -45,19 +47,18 @@ H0 = 100*read_out_dict['little_h']
 cosmology_name = read_out_dict['cosmo_name']
 directory = read_out_dict['output_directory']
 
-#----producing lambdified functions for all models----
+#producing lambdified functions
 lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, H0)
 read_out_dict.update(lambdified_functions)
+
+#generating random parameters
+all_parameters = fb.generate_params(read_out_dict, N_models)
 
 #----checking consistency and stability of models produced by each set of parameters----
 stable_models = []
 unstable_models = []
 background_list = []
-all_parameters = fb.generate_params(read_out_dict, N_models)
 any_stable = False
-
-#all_parameters[:, 13:] = 0
-#all_parameters[:, 12] = 0.5
 
 start = time.time()
 for model_n in range(N_models):
@@ -67,7 +68,7 @@ for model_n in range(N_models):
     parameters = all_parameters[model_n]
     read_out_dict.update({'Horndeski_parameters':parameters})
 
-    background_quantities = fb.try_solver(ns.run_solver, read_out_dict)
+    background_quantities = mt.try_solver(ns.run_solver, read_out_dict)
 
     #initial numerical stability check
     if background_quantities == False:
@@ -83,19 +84,19 @@ for model_n in range(N_models):
             background_quantities.update(alphas_arr)
 
             #stability condition check
-            Q_S_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
+            Q_s_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
 
             if unstable==1:
-                #print('Warning: Stability conditions not satisfied: Q_S and c_s_sq not always > 0')
+                #print('Warning: Stability conditions not satisfied: Q_s and c_s_sq not always > 0')
                 unstable_models.append(parameters)
             elif unstable==2:
                 #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
                 unstable_models.append(parameters)
             elif unstable==3:
-                #print('Warning: Stability condition not satisfied: Q_S not always > 0')
+                #print('Warning: Stability condition not satisfied: Q_s not always > 0')
                 unstable_models.append(parameters)
             else:
-                #print('Stability conditions satisified')
+                #print('Stability conditions satisfied')
                 stable_models.append(parameters)
 
                 a_arr = background_quantities['a']
@@ -110,6 +111,7 @@ for model_n in range(N_models):
                 cl_declaration = read_out_dict['closure_declaration']
                 [E0, phi0, phi_prime0] = read_out_dict['initial_conditions']
 
+                #computing Omega_phi from E_closure
                 E_cl_arr = ns.comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_lambda_arr, a_arr, parameters)
                 Omega_phi_arr = []
                 for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_lambda_arr, Omega_m_arr, Omega_r_arr):

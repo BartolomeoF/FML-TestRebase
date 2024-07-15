@@ -134,11 +134,11 @@ rho_phi_arr = DE_arr[2]
 w_eff_arr = ns.comp_w_eff(background_quantities)
 
 #----Checking stability conditions----
-Q_S_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
+Q_s_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
 if stable:
     print('Stability conditions satisified')
 else:
-    print('Warning: Stability conditions not satisfied: Q_S and/or c_s_sq not always > 0')
+    print('Warning: Stability conditions not satisfied: Q_s and/or c_s_sq not always > 0')
 
 #----Alpha parameterisation----
 z_max = 3
@@ -213,10 +213,10 @@ sp.write_data_flex([a_arr,chioverdelta_arr,coupling_factor_arr],filename_force)
 sp.write_data_flex([a_arr, M_star_sqrd_arr, alpha_M_arr, alpha_B_arr, alpha_K_arr, alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr, alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr, alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr],filename_properties)
 sp.write_data_flex([a_arr,E_LCDM_arr,E_prime_E_LCDM_arr,Omega_m_LCDM_arr,Omega_r_LCDM_arr,Omega_l_LCDM_arr],filename_LCDM)
 
-if (isinstance(Q_S_arr, np.ndarray) and isinstance(c_s_sq_arr, np.ndarray)):
-    sp.write_data_flex([a_arr, Q_S_arr, c_s_sq_arr], filename_stability)
-elif isinstance(Q_S_arr, np.ndarray):
-    sp.write_data_flex([a_arr, Q_S_arr], filename_stability)
+if (isinstance(Q_s_arr, np.ndarray) and isinstance(c_s_sq_arr, np.ndarray)):
+    sp.write_data_flex([a_arr, Q_s_arr, c_s_sq_arr], filename_stability)
+elif isinstance(Q_s_arr, np.ndarray):
+    sp.write_data_flex([a_arr, Q_s_arr], filename_stability)
 elif isinstance(c_s_sq_arr, np.ndarray):
     sp.write_data_flex([a_arr, c_s_sq_arr], filename_stability)
    

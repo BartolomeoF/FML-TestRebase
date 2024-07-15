@@ -1,7 +1,19 @@
 import numpy as np
 import sympy as sym
 
-def symloguniform(low=-13.0, high=13.0, size=None):
+def symloguniform(size, low=-13.0, high=13.0):
+    """
+    Generate random samples from a symmetric logarithmic uniform distribution. Whole distribution ranges from -1 to 1 but is split into positive and 
+    negative components with intervals of (exp(low), 1) and (-1, -exp(-high)), meaning no values in the interval (-exp(-high), exp(low)) can be generated.
+
+    Parameters:
+    size (int or tuple of ints): Output shape.
+    low (float, optional): The lower bound of the distribution for the positive outputs. Default is -13.0 corresponding to a lowest value of ~2e-6.
+    high (float, optional): The upper bound of the distribution for the negative outputs. Default is 13.0 corresponding to a highest value of ~-2e-6.
+
+    Returns:
+    ndarray: A numpy array containing the random samples from the symmetric logarithmic uniform distribution.
+    """
     x = np.random.uniform(low, high, size)
     symlog = x.copy()
     symlog[x<0] = np.exp(x[x<0])
@@ -78,14 +90,5 @@ def generate_params(read_out_dict, N_models):
             parameters.remove(phi)
         parameters_tot.update(parameters)
 
-    param_vals = symloguniform(size=(N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
+    param_vals = symloguniform((N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
     return param_vals
-            
-def try_solver(run_solver, read_out_dict):
-    try:
-        background_quantities = run_solver(read_out_dict)
-    except Exception as ex:
-        print('Exception: ({}) occured due to timeout event in solver.'.format(ex))
-        background_quantities = False
-    finally:
-        return background_quantities
