@@ -1,5 +1,10 @@
 import numpy as np
 import sympy as sym
+import HiCOLA.Frontend.numerical_solver as ns
+import HiCOLA.Frontend.model_tests as mt
+import emcee
+import matplotlib.pyplot as plt
+from pathos.multiprocessing import ProcessingPool
 
 def symloguniform(size, low=-13.0, high=13.0):
     """
@@ -92,3 +97,60 @@ def generate_params(read_out_dict, N_models):
 
     param_vals = symloguniform((N_models, len(parameters_tot))) #generating 'N_models' random sets of parameters
     return param_vals
+
+def model_E(theta, read_out_dict):
+    k_phi, k_X, g_3phi, g_3X, g_4phi = theta
+
+    parameters = k_phi, k_X, g_3phi, g_3X, g_4phi
+    read_out_dict.update({'Horndeski_parameters':parameters})
+    background_quantities = mt.try_solver(ns.run_solver, read_out_dict)
+    E = background_quantities['Hubble']
+    return E
+
+def log_likelihood(theta, read_out_dict, E, E_err):
+    return -0.5*np.sum(((1-E/model_E(theta, read_out_dict))/E_err)**2)
+
+def prior(theta):
+    k_phi, k_X, g_3phi, g_3X, g_4phi = theta
+    if -1 < k_phi < 1 and -1 < k_X < 1 and -1 < g_3phi < 1 and -1 < g_3X < 1 and -1 < g_4phi < 1:
+        return 0.0
+    return -np.inf
+
+def probability(theta, read_out_dict, E, E_err):
+    p = prior(theta)
+    if not np.isfinite(p):
+        return -np.inf
+    return p + log_likelihood(theta, read_out_dict, E, E_err)
+
+def create_prob_glob(read_out_dict, E, E_err):
+    def probability_global(theta):
+        p = prior(theta)
+        if not np.isfinite(p):
+            return -np.inf
+        return p + log_likelihood(theta, read_out_dict, E, E_err)
+    return probability_global
+
+def main(p0, nwalkers, niter, dim, probability, data):
+    #with ProcessingPool() as pool:
+    sampler = emcee.EnsembleSampler(nwalkers, dim, probability, args=data)
+
+    # print('Running burn-in...')
+    # p0, _, _ = sampler.run_mcmc(p0, 100, progress = True)
+    # sampler.reset()
+
+    print('Running production...')
+    pos, prob, state = sampler.run_mcmc(p0, niter, progress = True)
+
+    return sampler, pos, prob, state
+
+def plotter(sampler, read_out_dict, z, E):
+    print('Creating figure...')
+    rng = np.random.default_rng()
+    samples = sampler.flatchain
+    for theta in samples:
+        plt.plot(z, model_E(theta, read_out_dict)/E, color='r', alpha=0.1)
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    plt.xlabel('z')
+    plt.ylabel('E/E_LCDM')
+    plt.xscale('log')
+    plt.savefig('MCMC.png')

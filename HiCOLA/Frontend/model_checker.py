@@ -9,6 +9,7 @@ from HiCOLA.Frontend.read_parameters import read_in_parameters
 import os
 from argparse import ArgumentParser
 import time
+from tqdm import tqdm
 
 symbol_decl = eb.declare_symbols()
 exec(symbol_decl)

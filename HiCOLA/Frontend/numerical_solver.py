@@ -344,7 +344,7 @@ def run_solver(read_out_dict):
 
     #simple check for numerical discontinuity which returns Hubble as zero and scalar as False if one is found
     if len(Hubble_arr) != len(a_arr):
-        Hubble_arr = np.zeros(len(a_arr))
+        Hubble_arr = -np.inf*np.ones(len(a_arr))
         result = {'Hubble':Hubble_arr, 'scalar':False}
         return result
     
