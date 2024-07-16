@@ -71,7 +71,7 @@ for model_n in range(N_models):
     background_quantities = mt.try_solver(ns.run_solver, read_out_dict)
 
     #initial numerical stability check
-    if background_quantities == False:
+    if isinstance(background_quantities['scalar'], bool): #scalar is set to False if a numerical discontinuity occurs
         #print('Warning: The number of steps in some ODE solution(s) is not 1000 due to a numerical discontinuity')
         unstable_models.append(parameters)
     else:

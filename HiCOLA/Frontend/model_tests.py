@@ -20,7 +20,7 @@ def try_solver(run_solver, read_out_dict):
         background_quantities = run_solver(read_out_dict)
     except Exception as ex:
         print('Exception: ({}) occurred due to timeout event in solver.'.format(ex))
-        background_quantities = False
+        background_quantities = {'scalar':False}
     finally:
         return background_quantities
 

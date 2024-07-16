@@ -342,10 +342,12 @@ def run_solver(read_out_dict):
     Omega_m_arr = ans[:,4]
     Omega_l_arr = ans[:,5]
 
-    #simple check for numerical discontinuity which returns False if one is found
-    if len(Hubble_arr) != 1000:
-        return False
-
+    #simple check for numerical discontinuity which returns Hubble as zero and scalar as False if one is found
+    if len(Hubble_arr) != len(a_arr):
+        Hubble_arr = np.zeros(len(a_arr))
+        result = {'Hubble':Hubble_arr, 'scalar':False}
+        return result
+    
     E_prime_E_LCDM_arr = [comp_E_prime_E_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_LCDM_arr = [comp_Omega_DE_LCDM(xv, Omega_r0, Omega_m0) for xv in x_arr_inv]
     Omega_DE_prime_LCDM_arr = [comp_Omega_DE_prime_LCDM(E_prime_E_LCDMv, Omega_DE_LCDMv) for E_prime_E_LCDMv, Omega_DE_LCDMv in zip(E_prime_E_LCDM_arr, Omega_DE_LCDM_arr)]
