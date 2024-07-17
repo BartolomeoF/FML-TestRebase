@@ -103,7 +103,7 @@ def model_E(theta, read_out_dict):
 
     parameters = k_phi, k_X, g_3phi, g_3X, g_4phi
     read_out_dict.update({'Horndeski_parameters':parameters})
-    background_quantities = mt.try_solver(ns.run_solver, read_out_dict)
+    background_quantities = mt.try_solver(ns.run_solver_lite, read_out_dict)
     E = background_quantities['Hubble']
     return E
 

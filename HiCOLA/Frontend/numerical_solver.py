@@ -414,6 +414,107 @@ def run_solver(read_out_dict):
     result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration})
 
     return result
+    
+def run_solver_lite(read_out_dict):
+    [Omega_r0, Omega_m0, Omega_l0] = read_out_dict['cosmological_parameters']
+    [Hubble0, phi0, phi_prime0] = read_out_dict['initial_conditions']
+    [Npoints, z_max, suppression_flag, threshold, GR_flag] = read_out_dict['simulation_parameters']
+    parameters = read_out_dict['Horndeski_parameters']
+
+    E_prime_E_lambda = read_out_dict['E_prime_E_lambda']
+    E_prime_E_safelambda = read_out_dict['E_prime_E_safelambda']
+    phi_primeprime_lambda = read_out_dict['phi_primeprime_lambda']
+    phi_primeprime_safelambda = read_out_dict['phi_primeprime_safelambda']
+    A_lambda = read_out_dict['A_lambda']
+    fried_RHS_lambda = read_out_dict['fried_RHS_lambda']
+    cl_declaration = read_out_dict['closure_declaration']
+
+    z_final = 0.
+    x_ini = np.log(1./(1.+z_max))
+    x_final = np.log(1./(1.+z_final))
+    x_arr = np.linspace(x_ini, x_final, Npoints)
+    a_arr = [np.exp(x) for x in x_arr]
+    if read_out_dict['forwards_flag'] is True:
+        x_arr_inv = x_arr
+        a_arr_inv = a_arr
+        x_ini = np.log(1./(1.+z_final))
+        x_final = np.log(1./(1.+z_max))
+
+        #omega_i(z=z_max) for forward solver ICs
+        Omega_l_ini = Omega_l0/Hubble0/Hubble0
+        Omega_m_ini = Omega_m0*((1+z_max)**3.)/Hubble0/Hubble0
+        Omega_r_ini = Omega_r0*((1+z_max)**4)/Hubble0/Hubble0
+    else:
+        x_arr_inv = x_arr[::-1]
+        a_arr_inv = a_arr[::-1]
+
+        Omega_l_ini = Omega_l0
+        Omega_m_ini = Omega_m0
+        Omega_r_ini = Omega_r0
+
+    if GR_flag is True:
+        phi_prime0 = 0.
+        
+    cl_var, cl_var_full = comp_param_close(fried_RHS_lambda, cl_declaration, Hubble0, phi0, phi_prime0, Omega_r_ini, Omega_m_ini, Omega_l_ini, parameters)
+
+    if cl_declaration[0] == 'odeint_parameters':
+        if cl_declaration[1] == 0:
+            Hubble0_closed = cl_var
+            Y0 = [phi0, phi_prime0,Hubble0_closed,Omega_r_ini,Omega_m_ini, Omega_l_ini]
+        if cl_declaration[1] == 1:
+            phi0_closed = cl_var
+            Y0 = [phi0_closed, phi_prime0, Hubble0, Omega_r_ini,Omega_m_ini, Omega_l_ini]
+        if cl_declaration[1] == 2:
+            phi_prime0_closed = cl_var
+            if 1.-Omega_r0 - Omega_m0 == Omega_l0:
+                    phi_prime0_closed = 0.
+            Y0 = [phi0, phi_prime0_closed,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
+        if cl_declaration[1] == 3:
+            Omega_r_ini_closed = cl_var
+            Y0 =[phi0, phi_prime0,Hubble0,Omega_r_ini_closed,Omega_m_ini, Omega_l_ini]
+        if cl_declaration[1] == 4:
+            Omega_m_ini_closed = cl_var
+            Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini_closed, Omega_l_ini]
+        #print('Closure parameter is '+ str(odeint_parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
+    if cl_declaration[0] == 'parameters':
+        parameters[cl_declaration[1]] = cl_var
+        Y0 = [phi0, phi_prime0,Hubble0,Omega_r_ini,Omega_m_ini, Omega_l_ini]
+        #print('Closure parameter is '+ str(parameter_symbols[cl_declaration[1]])+' = ' +str(cl_var))
+    # print('Y0 is '+str(Y0))
+
+    max_time = 10.0
+    start_time = time.time()
+    timeout = make_timeout(start_time, max_time)
+
+    if suppression_flag is True:
+        with stdout_redirected():
+            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10, events=timeout)#, hmax=hmaxv) #k1=-6, g1 = 2
+    else:
+        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10, events=timeout)#, hmax=hmaxv)
+
+    ans = ans["y"].T
+    phi_arr = ans[:,0]
+    phi_prime_arr = ans[:,1]
+    Hubble_arr = ans[:,2]
+    Omega_r_arr = ans[:,3]
+    Omega_m_arr = ans[:,4]
+    Omega_l_arr = ans[:,5]
+
+    #simple check for numerical discontinuity which returns Hubble as zero and scalar as False if one is found
+    if len(Hubble_arr) != len(a_arr):
+        Hubble_arr = -np.inf*np.ones(len(a_arr))
+        result = {'Hubble':Hubble_arr, 'scalar':False}
+        return result
+
+    solution_arrays = {'a':a_arr_inv, 'Hubble':Hubble_arr, 'scalar':phi_arr,'scalar_prime':phi_prime_arr}
+    cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr}
+    result = {}
+
+    for i in [solution_arrays, cosmological_density_arrays]:
+        result.update(i)
+    result.update({'closure_value':cl_var, 'closure_declaration':cl_declaration})
+
+    return result
 
 def comp_alphas(read_out_dict, background_quantities):
     M_star_sqrd_lamb = read_out_dict['M_star_sqrd_lambda']
