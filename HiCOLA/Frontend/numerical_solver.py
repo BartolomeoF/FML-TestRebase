@@ -488,9 +488,9 @@ def run_solver_lite(read_out_dict):
 
     if suppression_flag is True:
         with stdout_redirected():
-            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10, events=timeout)#, hmax=hmaxv) #k1=-6, g1 = 2
+            ans = solve_ivp(comp_primes,[x_final, x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-8, events=timeout)#, hmax=hmaxv) #k1=-6, g1 = 2
     else:
-        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-10, events=timeout)#, hmax=hmaxv)
+        ans = solve_ivp(comp_primes,[x_final,x_ini], Y0, t_eval=x_arr_inv, method='Radau', args=(Hubble0, Omega_r_ini, Omega_m_ini, Omega_l_ini, E_prime_E_lambda, E_prime_E_safelambda, phi_primeprime_lambda, phi_primeprime_safelambda, A_lambda, cl_declaration, parameters,threshold,GR_flag), rtol = 1e-8, events=timeout)#, hmax=hmaxv)
 
     ans = ans["y"].T
     phi_arr = ans[:,0]
