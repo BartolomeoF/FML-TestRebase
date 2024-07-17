@@ -62,16 +62,18 @@ E_LCDM = ns.comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
 
 E_err = 0.2
 data = (read_out_dict, E_LCDM, E_err)
-nwalkers = 10
-niter = 20
-initial = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+nwalkers = 50
+niter = 200
+initial = np.array([-0.00078507, -0.01592667, -0.01252403, -0.00750742, -0.00913699]) #if using final value of last chain don't need burn in
 dim = len(initial)
 rng = np.random.default_rng()
 p0 = [np.array(initial) + 1e-7 * rng.standard_normal(dim) for i in range(nwalkers)]
 
-sampler, pos, prob, state = fb.main(p0, nwalkers, niter, dim, fb.probability, data)
+probability = fb.create_prob_glob(read_out_dict, E_LCDM, E_err)
 
-fb.plotter(sampler, read_out_dict, z_arr, E_LCDM)
+sampler, pos, prob, state = fb.main(p0, nwalkers, niter, dim, probability)
+
+#fb.plotter(sampler, read_out_dict, z_arr, E_LCDM)
 
 samples = sampler.flatchain
 probs = sampler.flatlnprobability

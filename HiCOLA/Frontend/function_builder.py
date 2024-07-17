@@ -130,12 +130,12 @@ def create_prob_glob(read_out_dict, E, E_err):
         return p + log_likelihood(theta, read_out_dict, E, E_err)
     return probability_global
 
-def main(p0, nwalkers, niter, dim, probability, data):
+def main(p0, nwalkers, niter, dim, probability):
     #with ProcessingPool() as pool:
-    sampler = emcee.EnsembleSampler(nwalkers, dim, probability, args=data)
+    sampler = emcee.EnsembleSampler(nwalkers, dim, probability)
 
     # print('Running burn-in...')
-    # p0, _, _ = sampler.run_mcmc(p0, 100, progress = True)
+    # p0, _, _ = sampler.run_mcmc(p0, 50, progress = True)
     # sampler.reset()
 
     print('Running production...')
@@ -147,7 +147,7 @@ def plotter(sampler, read_out_dict, z, E):
     print('Creating figure...')
     rng = np.random.default_rng()
     samples = sampler.flatchain
-    for theta in samples:
+    for theta in samples[rng.integers(len(samples), size=20)]:
         plt.plot(z, model_E(theta, read_out_dict)/E, color='r', alpha=0.1)
     plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.xlabel('z')
