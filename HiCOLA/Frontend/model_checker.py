@@ -107,16 +107,7 @@ for model_n in range(N_models):
                 Omega_m_arr = background_quantities['omega_m']
                 Omega_r_arr = background_quantities['omega_r']
                 Omega_lambda_arr = background_quantities['omega_l']
-                fried_closure_lambda = read_out_dict['fried_RHS_lambda']
-                omega_phi_lambda = read_out_dict['omega_phi_lambda']
-                cl_declaration = read_out_dict['closure_declaration']
-                [E0, phi0, phi_prime0] = read_out_dict['initial_conditions']
-
-                #computing Omega_phi from E_closure
-                E_cl_arr = ns.comp_E_closure(fried_closure_lambda, cl_declaration, E0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_lambda_arr, a_arr, parameters)
-                Omega_phi_arr = []
-                for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_lambda_arr, Omega_m_arr, Omega_r_arr):
-                    Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
+                Omega_phi_arr = background_quantities['omega_phi']
 
                 arr_list = [a_arr,E_arr,phi_arr,phi_prime_arr,Omega_m_arr,Omega_r_arr,Omega_lambda_arr,Omega_phi_arr]
                 background_list.append(arr_list)

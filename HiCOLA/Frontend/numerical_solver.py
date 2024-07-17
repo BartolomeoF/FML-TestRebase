@@ -367,8 +367,9 @@ def run_solver(read_out_dict):
     for Ev, phiv, phi_primev,  in zip(Hubble_arr,phi_arr,phi_prime_arr):
         A_arr.append(A_lambda(Ev, phiv, phi_primev, *parameters))
 
+    E_cl_arr = comp_E_closure(fried_RHS_lambda, cl_declaration, Hubble0, phi_arr, phi_prime_arr, Omega_r_arr, Omega_m_arr, Omega_l_arr, a_arr, parameters)
     Omega_phi_arr = []
-    for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(Hubble_arr,phi_arr,phi_prime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr):
+    for Ev, phiv, phiprimev, omegalv, omegamv, omegarv in zip(E_cl_arr,phi_arr,phi_prime_arr, Omega_l_arr, Omega_m_arr, Omega_r_arr):
         Omega_phi_arr.append(omega_phi_lambda(Ev,phiv,phiprimev,omegalv, omegamv, omegarv,*parameters))
 
 
