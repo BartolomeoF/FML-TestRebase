@@ -89,7 +89,7 @@ print(f'scalar0 = {phi0}')
 print(f'scalar_prime0 = {phi_prime0}')
 
 background_quantities = ns.run_solver(read_out_dict)
-if background_quantities == False: 
+if isinstance(background_quantities['scalar'], bool): 
     print('Warning: The number of elements in some ODE solution(s) is not 1000 due to a numerical discontinuity')
 a_arr = background_quantities['a']
 UE_arr = background_quantities['Hubble']

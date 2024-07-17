@@ -23,9 +23,14 @@ def read_in_parameters(horndeski_path, numerical_path):
 
     threshold_value = numerical_read.as_float('threshold')
 
-    reduced_flag = horndeski_read.as_bool('reduced_flag')
-
     simulation_parameters = [Npoints, max_redshift, suppression_flag, threshold_value, GR_flag]
+
+    for key in horndeski_read:
+        check = 'reduced_flag'
+        if key == check:
+            reduced_flag = horndeski_read.as_bool(key)
+            reduced_flag = {'reduced_flag':reduced_flag}
+            read_out.update(reduced_flag)
 
     if numerical_read["Omega_m0"] == "None":
         Omega_b0h2 = numerical_read.as_float("Omega_b0h2")
@@ -123,9 +128,6 @@ def read_in_parameters(horndeski_path, numerical_path):
 
     little_h = {'little_h':h}
     read_out.update(little_h)
-
-    reduced_flag = {'reduced_flag':reduced_flag}
-    read_out.update(reduced_flag)
 
     return read_out
 
