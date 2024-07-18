@@ -134,8 +134,8 @@ rho_phi_arr = DE_arr[2]
 w_eff_arr = ns.comp_w_eff(background_quantities)
 
 #----Checking stability conditions----
-Q_s_arr, c_s_sq_arr, stable = ns.comp_stability(read_out_dict, background_quantities)
-if stable:
+Q_s_arr, c_s_sq_arr, unstable = ns.comp_stability(read_out_dict, background_quantities)
+if unstable==False:
     print('Stability conditions satisified')
 else:
     print('Warning: Stability conditions not satisfied: Q_s and/or c_s_sq not always > 0')
