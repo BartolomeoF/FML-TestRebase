@@ -105,10 +105,21 @@ def model_E(theta, read_out_dict):
     read_out_dict.update({'Horndeski_parameters':parameters})
     background_quantities = mt.try_solver(ns.run_solver_lite, read_out_dict)
     E = background_quantities['Hubble']
-    return E
+
+    if not isinstance(background_quantities['scalar'], bool):#i.e. if there is no numerical discontinuity
+        #computing whether stability conditions are satisfied
+        alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
+        background_quantities.update(alphas_arr)
+        unstable = ns.comp_stability(read_out_dict, background_quantities)[2]
+        return E, unstable
+    
+    return E, True
 
 def log_likelihood(theta, read_out_dict, E, E_err):
-    return -0.5*np.sum(((1-E/model_E(theta, read_out_dict))/E_err)**2)
+    mod_E, unstable = model_E(theta, read_out_dict)
+    if unstable:
+        return -np.inf
+    return -0.5*np.sum(((1-E/mod_E)/E_err)**2)
 
 def prior(theta):
     k_phi, k_X, g_3phi, g_3X, g_4phi = theta
@@ -148,7 +159,7 @@ def plotter(sampler, read_out_dict, z, E):
     rng = np.random.default_rng()
     samples = sampler.flatchain
     for theta in samples[rng.integers(len(samples), size=20)]:
-        plt.plot(z, model_E(theta, read_out_dict)/E, color='r', alpha=0.1)
+        plt.plot(z, model_E(theta, read_out_dict)[0]/E, color='r', alpha=0.1)
     plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.xlabel('z')
     plt.ylabel('E/E_LCDM')

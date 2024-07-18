@@ -505,8 +505,13 @@ def run_solver_lite(read_out_dict):
         Hubble_arr = -np.inf*np.ones(len(a_arr))
         result = {'Hubble':Hubble_arr, 'scalar':False}
         return result
+    
+    E_prime_E_arr = []
+    for Omega_rv, Omega_lv, Ev, phiv, phi_primev in zip(Omega_r_arr, Omega_l_arr, Hubble_arr, phi_arr, phi_prime_arr): 
+        E_prime_E_arr.append(E_prime_E_lambda(Ev,phiv, phi_primev,Omega_rv, Omega_lv, *parameters))
+    Hubble_prime_arr = [E_prime_Ev*Ev for E_prime_Ev, Ev in zip(E_prime_E_arr, Hubble_arr)]
 
-    solution_arrays = {'a':a_arr_inv, 'Hubble':Hubble_arr, 'scalar':phi_arr,'scalar_prime':phi_prime_arr}
+    solution_arrays = {'a':a_arr_inv, 'Hubble':Hubble_arr, 'Hubble_prime':Hubble_prime_arr, 'scalar':phi_arr,'scalar_prime':phi_prime_arr}
     cosmological_density_arrays = {'omega_m':Omega_m_arr,'omega_r':Omega_r_arr,'omega_l':Omega_l_arr}
     result = {}
 
@@ -613,13 +618,13 @@ def comp_stability(read_out_dict, background_quantities):
     Q_s_evaluated = Q_s_lamb(E, phi, phi_prime, *parameters)
     c_s_sq_evaluated = c_s_sq_lamb(E, Eprime, phi, phi_prime, Omega_m, Omega_r, alphaBprime, *parameters)
 
-    if (Q_s_evaluated>0).all() and (c_s_sq_evaluated>0).all():
+    if (Q_s_evaluated>-1e-6).all() and (c_s_sq_evaluated>-1e-6).all():
         unstable = False
         #print('Stability conditions satisified')
-    elif (Q_s_evaluated>0).all():
+    elif (Q_s_evaluated>-1e-6).all():
         unstable = 2
         #print('Warning: Stability condition not satisfied: c_s_sq not always > 0')
-    elif (c_s_sq_evaluated>0).all():
+    elif (c_s_sq_evaluated>-1e-6).all():
         unstable = 3
         #print('Warning: Stability condition not satisfied: Q_s not always > 0')
     else:
