@@ -60,11 +60,11 @@ a_arr = np.array(a_arr)
 z_arr = 1/a_arr - 1
 E_LCDM = ns.comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
 
-E_err = 0.2
+E_err = 0.15/(0.5 + np.exp(-0.001*z_arr**3))
 data = (read_out_dict, E_LCDM, E_err)
-nwalkers = 50
-niter = 200
-initial = np.array([-0.00078507, -0.01592667, -0.01252403, -0.00750742, -0.00913699]) #if using final value of last chain don't need burn in
+nwalkers = 100
+niter = 500
+initial = np.array([0.0, 0.0, 0.0, 0.0, 0.0]) #if using final value of last chain don't need burn in
 dim = len(initial)
 rng = np.random.default_rng()
 p0 = [np.array(initial) + 1e-7 * rng.standard_normal(dim) for i in range(nwalkers)]
@@ -92,5 +92,7 @@ if loop_counter >= 100:
 if loop_counter != 0:
     print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs}")
 
+probs = probs[::-1]
+
 sp.write_model_list(samples, filename_samples)
-sp.write_data_flex([probs], filename_probs)
+sp.write_data_flex([probs], filename_probs) #writes reverse

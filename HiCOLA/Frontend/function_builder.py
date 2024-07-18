@@ -134,9 +134,9 @@ def main(p0, nwalkers, niter, dim, probability):
     #with ProcessingPool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, dim, probability)
 
-    # print('Running burn-in...')
-    # p0, _, _ = sampler.run_mcmc(p0, 50, progress = True)
-    # sampler.reset()
+    print('Running burn-in...')
+    p0, _, _ = sampler.run_mcmc(p0, 100, progress = True)
+    sampler.reset()
 
     print('Running production...')
     pos, prob, state = sampler.run_mcmc(p0, niter, progress = True)
