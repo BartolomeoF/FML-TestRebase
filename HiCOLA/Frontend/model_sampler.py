@@ -62,8 +62,8 @@ E_LCDM = ns.comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
 
 E_err = 0.15/(0.5 + np.exp(-0.001*z_arr**3))
 data = (read_out_dict, E_LCDM, E_err)
-nwalkers = 100
-niter = 500
+nwalkers = 200
+niter = 1000
 initial = np.array([0.0, 0.0, 0.0, 0.0, 0.0]) #if using final value of last chain don't need burn in
 dim = len(initial)
 rng = np.random.default_rng()
@@ -80,13 +80,15 @@ probs = sampler.flatlnprobability
 
 filename_samples = directory+f'/samples.txt'
 filename_probs = directory+f'/probabilities.txt'
+filename_posterior = directory+f'/posterior-input.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
-while (os.path.exists(filename_samples) or os.path.exists(filename_probs)) and loop_counter < 100:
+while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.path.exists(filename_posterior)) and loop_counter < 100:
     loop_counter += 1
     filename_samples = sp.renamer(filename_samples)
     filename_probs = sp.renamer(filename_probs)
+    filename_posterior = sp.renamer(filename_posterior)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing samples and probs output file names.")
 if loop_counter != 0:
@@ -96,3 +98,10 @@ probs = probs[::-1]
 
 sp.write_model_list(samples, filename_samples)
 sp.write_data_flex([probs], filename_probs) #writes reverse
+
+#finding most likely model and posterior spread
+theta_max = samples[np.argmax(probs)]
+best_fit_model = fb.model_E(theta_max, read_out_dict)[0]
+med_model, spread = fb.sample_walkers(100, samples, read_out_dict)
+
+sp.write_data_flex([z_arr, E_LCDM, best_fit_model, med_model, spread], filename_posterior)

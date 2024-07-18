@@ -165,3 +165,15 @@ def plotter(sampler, read_out_dict, z, E):
     plt.ylabel('E/E_LCDM')
     plt.xscale('log')
     plt.savefig('MCMC.png')
+
+def sample_walkers(nsamples, chain, read_out_dict):
+    models = []
+    rng = np.random.default_rng()
+    draw = rng.integers(0,len(chain),size=nsamples)
+    thetas = chain[draw]
+    for i in thetas:
+        mod = model_E(i, read_out_dict)[0]
+        models.append(mod)
+    spread = np.std(models,axis=0)
+    med_model = np.median(models,axis=0)
+    return med_model,spread
