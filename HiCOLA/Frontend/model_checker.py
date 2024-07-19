@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sym
 import HiCOLA.Frontend.numerical_solver as ns
 import HiCOLA.Frontend.expression_builder as eb
-import HiCOLA.Frontend.function_builder as fb
+import HiCOLA.Frontend.model_builder as mb
 import HiCOLA.Frontend.model_tests as mt
 from HiCOLA.Utilities.Other import support as sp
 from HiCOLA.Frontend.read_parameters import read_in_parameters
@@ -34,9 +34,9 @@ read_out_dict.update({'odeint_parameter_symbols':odeint_parameter_symbols})
 
 reduced = read_out_dict['reduced_flag']
 if reduced == True:
-    Horndeski_funcs = fb.define_funcs_reduced()
+    Horndeski_funcs = mb.define_funcs_reduced()
 else:
-    Horndeski_funcs = fb.define_funcs()
+    Horndeski_funcs = mb.define_funcs()
 read_out_dict.update(Horndeski_funcs)
 
 K = read_out_dict['K']
@@ -53,7 +53,7 @@ lambdified_functions = eb.create_Horndeski(K,G3,G4,symbol_list,mass_ratio_list, 
 read_out_dict.update(lambdified_functions)
 
 #generating random parameters
-all_parameters = fb.generate_params(read_out_dict, N_models)
+all_parameters = mb.generate_params(read_out_dict, N_models)
 
 #----checking consistency and stability of models produced by each set of parameters----
 stable_models = []
