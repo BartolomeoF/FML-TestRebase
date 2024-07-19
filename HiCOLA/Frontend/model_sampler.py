@@ -18,6 +18,7 @@ parser = ArgumentParser(prog='Model_Sampler')
 parser.add_argument('input_ini_filenames', nargs=2)
 parser.add_argument('number_of_walkers', type=int)
 parser.add_argument('number_of_iterations', type=int)
+parser.add_argument('--no_burn_in', action='store_true', default=False)
 
 args = parser.parse_args()
 print(args)
@@ -26,6 +27,7 @@ Horndeski_path = filenames[0]
 numerical_path = filenames[1]
 nwalkers = args.number_of_walkers
 niter = args.number_of_iterations
+noburnin = args.no_burn_in
 
 #----general set up for all models----
 #reading in parameters from files
@@ -66,18 +68,18 @@ z_arr = 1/a_arr - 1
 
 E_LCDM = ns.comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
 
-#----MCMC----
+#----sampling parameter space with MCMC----
 #setting MCMC parameters
 E_err = 0.15/(0.5 + np.exp(-0.001*z_arr**3))
 data = (read_out_dict, E_LCDM, E_err)
-initial = np.array([0.0, 0.0, 0.0, 0.0, 0.0]) #if using final value of last chain don't need burn in
+initial = np.array([1.4557e-04, -1.8268e-04,  1.0545e-04,  9.4000e-07,  7.3380e-05]) #if using final value of last chain don't need burn in
 dim = len(initial)
 rng = np.random.default_rng()
 p0 = [np.array(initial) + 1e-7 * rng.standard_normal(dim) for i in range(nwalkers)]
-probability = mb.create_prob_glob(read_out_dict, E_LCDM, E_err)
+log_probability = mb.create_prob_glob(read_out_dict, E_LCDM, E_err)
 
 #running MCMC
-sampler, pos, prob, state = mb.main(p0, nwalkers, niter, dim, probability)
+sampler, pos, prob, state = mb.main(p0, nwalkers, niter, dim, log_probability, noburnin)
 
 samples = sampler.flatchain
 probs = sampler.flatlnprobability
@@ -102,7 +104,7 @@ while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing samples and probs output file names.")
 if loop_counter != 0:
-    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs}")
+    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs} \n posterior: {filename_posterior}")
 
 probs = probs[::-1]
 sp.write_model_list(samples, filename_samples)

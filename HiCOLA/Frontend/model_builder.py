@@ -143,7 +143,7 @@ def log_likelihood(theta, read_out_dict, E, E_err):
         return -np.inf
     return -0.5*np.sum(((1-E/mod_E)/E_err)**2)
 
-def prior(theta):
+def log_prior(theta):
     """
     Parameters:
     theta (tuple): Contains the Horndeski parameters being sampled.
@@ -165,16 +165,16 @@ def create_prob_glob(read_out_dict, E, E_err):
     E_err (float): The weighting on the model values of E.
 
     Returns:
-    probability_global (function): A function that combines the results of log_likelihood and priors for a given set of Horndeski parameters.
+    log_probability_global (function): A function that combines the results of log_likelihood and log_prior for a given set of Horndeski parameters.
     """
-    def probability_global(theta):
-        p = prior(theta)
+    def log_probability_global(theta):
+        p = log_prior(theta)
         if not np.isfinite(p):
             return -np.inf
         return p + log_likelihood(theta, read_out_dict, E, E_err)
-    return probability_global
+    return log_probability_global
 
-def main(p0, nwalkers, niter, dim, probability):
+def main(p0, nwalkers, niter, dim, probability, noburnin):
     """
     Parameters:
     p0 (ndarray): Initial guess for the parameters.
@@ -182,6 +182,7 @@ def main(p0, nwalkers, niter, dim, probability):
     niter (int): Number of iterations.
     dim (int): Dimensionality of the parameter space.
     probability (function): A function that combines the results of log_likelihood and priors for a given set of Horndeski parameters.
+    noburnin (bool): Indicates whether to run a burn-in period (False) or not (True).
 
     Returns:
     sampler (emcee.EnsembleSampler): An instance of the EnsembleSampler class from the emcee package.
@@ -192,9 +193,10 @@ def main(p0, nwalkers, niter, dim, probability):
     #with ProcessingPool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, dim, probability)
 
-    print('Running burn-in...')
-    p0, _, _ = sampler.run_mcmc(p0, 100, progress = True)
-    sampler.reset()
+    if noburnin==False:
+        print('Running burn-in...')
+        p0, _, _ = sampler.run_mcmc(p0, 100, progress = True)
+        sampler.reset()
 
     print('Running production...')
     pos, prob, state = sampler.run_mcmc(p0, niter, progress = True)
