@@ -2,8 +2,7 @@ import numpy as np
 import sympy as sym
 import HiCOLA.Frontend.numerical_solver as ns
 import HiCOLA.Frontend.expression_builder as eb
-import HiCOLA.Frontend.model_builder as mb
-import HiCOLA.Frontend.model_tests as mt
+import HiCOLA.Utilities.ModelEvaluation.model_builder as mb
 from HiCOLA.Utilities.Other import support as sp
 from HiCOLA.Frontend.read_parameters import read_in_parameters
 import os
@@ -72,7 +71,7 @@ E_LCDM = ns.comp_E_LCDM(z_arr, Omega_r0, Omega_m0)
 #setting MCMC parameters
 E_err = 0.15/(0.5 + np.exp(-0.001*z_arr**3))
 data = (read_out_dict, E_LCDM, E_err)
-initial = np.array([1.4557e-04, -1.8268e-04,  1.0545e-04,  9.4000e-07,  7.3380e-05]) #if using final value of last chain don't need burn in
+initial = np.array([0.0, 0.0, 0.0 ,0.0, 0.0]) #if using final value of last chain don't need burn in
 dim = len(initial)
 rng = np.random.default_rng()
 p0 = [np.array(initial) + 1e-7 * rng.standard_normal(dim) for i in range(nwalkers)]

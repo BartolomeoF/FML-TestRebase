@@ -1,10 +1,9 @@
 import numpy as np
 import sympy as sym
 import HiCOLA.Frontend.numerical_solver as ns
-import HiCOLA.Frontend.model_tests as mt
+import HiCOLA.Utilities.ModelEvaluation.model_tests as mt
 import emcee
 import matplotlib.pyplot as plt
-from pathos.multiprocessing import ProcessingPool
 
 def symloguniform(size, low=-13.0, high=13.0):
     """
@@ -190,7 +189,6 @@ def main(p0, nwalkers, niter, dim, probability, noburnin):
     prob (ndarray): The log-probabilities of the walkers.
     state (dict): The state dictionary containing the current state of the MCMC sampling.
     """
-    #with ProcessingPool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, dim, probability)
 
     if noburnin==False:

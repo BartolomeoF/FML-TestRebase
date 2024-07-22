@@ -2,8 +2,8 @@ import numpy as np
 import sympy as sym
 import HiCOLA.Frontend.numerical_solver as ns
 import HiCOLA.Frontend.expression_builder as eb
-import HiCOLA.Frontend.model_builder as mb
-import HiCOLA.Frontend.model_tests as mt
+import HiCOLA.Utilities.ModelEvaluation.model_builder as mb
+import HiCOLA.Utilities.ModelEvaluation.model_tests as mt
 from HiCOLA.Utilities.Other import support as sp
 from HiCOLA.Frontend.read_parameters import read_in_parameters
 import os
