@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 samples = np.loadtxt('samples.txt')
 probabilities = np.loadtxt('probabilities.txt')
 z, E_LCDM, best_fit_model, med_model, spread = np.loadtxt('posterior-input.txt', unpack=True)
+best_models = np.loadtxt('best-models.txt')
 
 theta_max = samples[np.argmax(probabilities)]
 
@@ -27,6 +28,7 @@ plt.show()
 plt.plot(z, best_fit_model/E_LCDM, label='Highest likelihood model')
 plt.plot(z, med_model/E_LCDM, label='Median model')
 plt.fill_between(z, (med_model-spread)/E_LCDM, (med_model+spread)/E_LCDM, color='grey', alpha=0.5, label=r'$1\sigma$ Posterior Spread')
+plt.plot(z, (best_models.T/E_LCDM).T)
 plt.legend()
 plt.legend()
 plt.xscale('log')

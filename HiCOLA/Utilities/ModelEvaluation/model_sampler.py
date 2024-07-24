@@ -83,15 +83,19 @@ sampler, pos, prob, state = mb.main(p0, nwalkers, niter, dim, log_probability, n
 samples = sampler.flatchain
 probs = sampler.flatlnprobability
 
-#finding most likely model and posterior spread
-theta_max = samples[np.argmax(probs)]
-best_fit_model = mb.model_E(theta_max, read_out_dict)[0]
+#finding 25 most likely model and posterior spread
+theta_max = samples[np.argsort(probs)[:-26:-1]]
+best_fit_models = []
+for theta in theta_max[:-1]:
+    best_fit_models.append(mb.model_E(theta, read_out_dict)[0])
+best_fit_model = mb.model_E(theta_max[-1], read_out_dict)[0]
 med_model, spread = mb.sample_walkers(100, samples, read_out_dict)
 
 #----writing samples and probabilities to files----
 filename_samples = directory+f'/samples.txt'
 filename_probs = directory+f'/probabilities.txt'
 filename_posterior = directory+f'/posterior-input.txt'
+filename_best = directory+f'/best-models.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
@@ -100,12 +104,13 @@ while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.
     filename_samples = sp.renamer(filename_samples)
     filename_probs = sp.renamer(filename_probs)
     filename_posterior = sp.renamer(filename_posterior)
+    filename_best = sp.renamer(filename_best)
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing samples and probs output file names.")
 if loop_counter != 0:
-    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs} \n posterior: {filename_posterior}")
+    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs} \n posterior: {filename_posterior} \n best-models: {filename_best}")
 
-probs = probs[::-1]
 sp.write_model_list(samples, filename_samples)
-sp.write_data_flex([probs], filename_probs) #writes reverse
+sp.write_data_flex([probs[::-1]], filename_probs) #writes reverse
 sp.write_data_flex([z_arr, E_LCDM, best_fit_model, med_model, spread], filename_posterior)
+sp.write_data_flex(best_fit_models, filename_best)
