@@ -119,12 +119,13 @@ def model_E(theta, read_out_dict):
 
     if not isinstance(background_quantities['scalar'], bool):#i.e. if there is no numerical discontinuity
         #computing whether stability conditions are satisfied
-        alphas_arr = ns.comp_alphas(read_out_dict, background_quantities)
-        background_quantities.update(alphas_arr)
+        alphas = ns.comp_alphas(read_out_dict, background_quantities)
+        background_quantities.update(alphas)
         unstable = ns.comp_stability(read_out_dict, background_quantities)[2]
-        return E, unstable
+        return E, alphas, unstable
     unstable = True
-    return E, unstable
+    alphas = False
+    return E, alphas, unstable
 
 def log_likelihood(theta, read_out_dict, E, E_err):
     """
@@ -137,7 +138,7 @@ def log_likelihood(theta, read_out_dict, E, E_err):
     Returns:
     float: The computed log-likelihood value.
     """
-    mod_E, unstable = model_E(theta, read_out_dict)
+    mod_E, alphas, unstable = model_E(theta, read_out_dict)
     if unstable:
         return -np.inf
     return -0.5*np.sum(((1-E/mod_E)/E_err)**2)
@@ -224,3 +225,26 @@ def sample_walkers(nsamples, flatchain, read_out_dict):
     spread = np.std(models,axis=0)
     med_model = np.median(models,axis=0)
     return med_model,spread
+
+def sample_alphas(nsamples, flatchain, read_out_dict):
+    """
+    Equivalent of samples walkers but for alpha functions instead of Hubble parameter.
+    """
+    alphaM_list = []
+    alphaB_list = []
+    alphaK_list = []
+    rng = np.random.default_rng()
+    draw = rng.integers(0,len(flatchain),size=nsamples)
+    thetas = flatchain[draw]
+    for i in thetas:
+        mod_E, alphas, junk = model_E(i, read_out_dict)
+        alphaM_list.append(alphas['alpha_M'])
+        alphaB_list.append(alphas['alpha_B'])
+        alphaK_list.append(alphas['alpha_K'])
+    spread_alphaM = np.std(alphaM_list,axis=0)
+    med_alphaM = np.median(alphaM_list,axis=0)
+    spread_alphaB = np.std(alphaB_list,axis=0)
+    med_alphaB = np.median(alphaB_list,axis=0)
+    spread_alphaK = np.std(alphaK_list,axis=0)
+    med_alphaK = np.median(alphaK_list,axis=0)
+    return med_alphaM, spread_alphaM, med_alphaB, spread_alphaB, med_alphaK, spread_alphaK
