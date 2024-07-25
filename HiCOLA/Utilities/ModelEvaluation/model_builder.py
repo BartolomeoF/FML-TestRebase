@@ -122,10 +122,13 @@ def model_E(theta, read_out_dict):
         alphas = ns.comp_alphas(read_out_dict, background_quantities)
         background_quantities.update(alphas)
         unstable = ns.comp_stability(read_out_dict, background_quantities)[2]
-        return E, alphas, unstable
+
+        w_phi = ns.comp_w_phi(read_out_dict, background_quantities)[0]
+        return E, alphas, w_phi, unstable
     unstable = True
     alphas = False
-    return E, alphas, unstable
+    w_phi = False
+    return E, alphas, w_phi, unstable
 
 def log_likelihood(theta, read_out_dict, E, E_err):
     """
@@ -138,7 +141,7 @@ def log_likelihood(theta, read_out_dict, E, E_err):
     Returns:
     float: The computed log-likelihood value.
     """
-    mod_E, alphas, unstable = model_E(theta, read_out_dict)
+    mod_E, alphas, w_phi, unstable = model_E(theta, read_out_dict)
     if unstable:
         return -np.inf
     return -0.5*np.sum(((1-E/mod_E)/E_err)**2)
@@ -237,7 +240,7 @@ def sample_alphas(nsamples, flatchain, read_out_dict):
     draw = rng.integers(0,len(flatchain),size=nsamples)
     thetas = flatchain[draw]
     for i in thetas:
-        mod_E, alphas, junk = model_E(i, read_out_dict)
+        mod_E, alphas, w_phi, junk = model_E(i, read_out_dict)
         alphaM_list.append(alphas['alpha_M'])
         alphaB_list.append(alphas['alpha_B'])
         alphaK_list.append(alphas['alpha_K'])

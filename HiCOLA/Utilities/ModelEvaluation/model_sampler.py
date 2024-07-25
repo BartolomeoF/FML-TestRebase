@@ -83,12 +83,17 @@ sampler, pos, prob, state = mb.main(p0, nwalkers, niter, dim, log_probability, n
 samples = sampler.flatchain
 probs = sampler.flatlnprobability
 
-#finding 25 most likely model and posterior spread
+#finding 25 most likely models
 theta_max = samples[np.argsort(probs)[:-26:-1]]
-best_fit_models = []
-for theta in theta_max[:-1]:
-    best_fit_models.append(mb.model_E(theta, read_out_dict)[0])
-best_fit_model = mb.model_E(theta_max[-1], read_out_dict)[0]
+best_fit_Es = []
+best_w_phis = []
+for theta in theta_max:
+    model = mb.model_E(theta, read_out_dict)
+    best_fit_Es.append(model[0])
+    best_w_phis.append(model[2])
+best_fit_E = best_fit_Es[0]
+
+#finding posterior spread
 med_model, spread = mb.sample_walkers(100, samples, read_out_dict)
 
 #----writing samples and probabilities to files----
@@ -108,9 +113,9 @@ while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.
 if loop_counter >= 100:
     raise Exception("Counter for file renaming loop excessively high, consider changing samples and probs output file names.")
 if loop_counter != 0:
-    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs} \n posterior: {filename_posterior} \n best-models: {filename_best}")
+    print(f"Warning: samples or probs file with same name found in \"{abs_directory}\", new filenames are \n samples: {filename_samples} \n probs:{filename_probs} \n posterior-input: {filename_posterior} \n best-models: {filename_best}")
 
 sp.write_model_list(samples, filename_samples)
 sp.write_data_flex([probs[::-1]], filename_probs) #writes reverse
-sp.write_data_flex([z_arr, E_LCDM, best_fit_model, med_model, spread], filename_posterior)
-sp.write_data_flex(best_fit_models, filename_best)
+sp.write_data_flex([z_arr, E_LCDM, best_fit_E, med_model, spread], filename_posterior)
+sp.write_data_flex(best_fit_Es+best_w_phis, filename_best)
