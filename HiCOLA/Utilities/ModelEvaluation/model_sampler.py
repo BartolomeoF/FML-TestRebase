@@ -83,10 +83,16 @@ sampler, pos, prob, state = mb.main(p0, nwalkers, niter, dim, log_probability, n
 samples = sampler.flatchain
 probs = sampler.flatlnprobability
 
-#finding 25 most likely models
-theta_max = samples[np.argsort(probs)[:-26:-1]]
+#finding 25 distinct most likely models
+descending = np.sort(np.unique(probs))[::-1]
+indices = [] #fining indices of unique sorted probs
+for value in descending[:25]:
+    index = np.where(probs == value)[0][0]
+    indices.append(index)
+theta_max = samples[indices] #parameter values corresponding to indices
 best_fit_Es = []
 best_w_phis = []
+#computing E and w_phi for selected parameter vals
 for theta in theta_max:
     model = mb.model_E(theta, read_out_dict)
     best_fit_Es.append(model[0])
@@ -104,7 +110,7 @@ filename_best = directory+f'/best-models.txt'
 
 abs_directory = os.path.abspath(directory)
 loop_counter = 0
-while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.path.exists(filename_posterior)) and loop_counter < 100:
+while (os.path.exists(filename_samples) or os.path.exists(filename_probs) or os.path.exists(filename_posterior) or os.path.exists(filename_best)) and loop_counter < 100:
     loop_counter += 1
     filename_samples = sp.renamer(filename_samples)
     filename_probs = sp.renamer(filename_probs)
