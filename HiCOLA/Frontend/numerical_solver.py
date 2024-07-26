@@ -660,15 +660,16 @@ def alpha_X3(a,  alpha_X0, q_X):
     alph_X = alpha_X0*a**q_X
     return alph_X
 
-def r_chi2(y, y_model):
+def r_chi2(y, y_model, nfit_params):
     """
     This function calculates the value of reduced chi squared between a given model and a set of data.
     """
     if (y_model==0).all():
         return 0
     else:
+        dof = len(y)-nfit_params
         chisq = np.sum(((y-y_model)**2.0)/(y_model**2.0))
-        return chisq/len(y)
+        return chisq/dof
 
 def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, alpha_K_arr):
     """
@@ -690,9 +691,9 @@ def parameterise1(a_arr, z_max, Omega_m0, Omega_r0, alpha_M_arr, alpha_B_arr, al
     alpha_B_param1_arr = alpha_X1(a_arr, alpha_B01, Omega_m0, Omega_r0)
     alpha_K_param1_arr = alpha_X1(a_arr, alpha_K01, Omega_m0, Omega_r0)
 
-    BIC_M = r_chi2(alpha_M_param1_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_B = r_chi2(alpha_B_param1_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_K = r_chi2(alpha_K_param1_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_M = r_chi2(alpha_M_param1_arr[z_arr<z_max], alpha_M_fit, 1) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param1_arr[z_arr<z_max], alpha_B_fit, 1) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param1_arr[z_arr<z_max], alpha_K_fit, 1) + np.log(len(a_fit))/len(a_fit)
 
     model_vals = (alpha_M_param1_arr, alpha_B_param1_arr, alpha_K_param1_arr)
     model_params = (alpha_M01, alpha_B01, alpha_K01)
@@ -716,9 +717,9 @@ def parameterise2(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
     alpha_B_param2_arr = alpha_X3(a_arr, alpha_B02, q)
     alpha_K_param2_arr = alpha_X3(a_arr, alpha_K02, q)
 
-    BIC_M = r_chi2(alpha_M_param2_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_B = r_chi2(alpha_B_param2_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_K = r_chi2(alpha_K_param2_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_M = r_chi2(alpha_M_param2_arr[z_arr<z_max], alpha_M_fit, 2) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param2_arr[z_arr<z_max], alpha_B_fit, 2) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param2_arr[z_arr<z_max], alpha_K_fit, 2) + np.log(len(a_fit))/len(a_fit)
 
     model_vals = (alpha_M_param2_arr, alpha_B_param2_arr, alpha_K_param2_arr)
     model_params = (alpha_M02, alpha_B02, alpha_K02, q)
@@ -743,9 +744,9 @@ def parameterise3(a_arr, z_max, alpha_M_arr, alpha_B_arr, alpha_K_arr):
     alpha_B_param3_arr = alpha_X3(a_arr, alpha_B03, q_B)
     alpha_K_param3_arr = alpha_X3(a_arr, alpha_K03, q_K)
 
-    BIC_M = r_chi2(alpha_M_param3_arr[z_arr<z_max], alpha_M_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_B = r_chi2(alpha_B_param3_arr[z_arr<z_max], alpha_B_fit) + np.log(len(a_fit))/len(a_fit)
-    BIC_K = r_chi2(alpha_K_param3_arr[z_arr<z_max], alpha_K_fit) + np.log(len(a_fit))/len(a_fit)
+    BIC_M = r_chi2(alpha_M_param3_arr[z_arr<z_max], alpha_M_fit, 2) + np.log(len(a_fit))/len(a_fit)
+    BIC_B = r_chi2(alpha_B_param3_arr[z_arr<z_max], alpha_B_fit, 2) + np.log(len(a_fit))/len(a_fit)
+    BIC_K = r_chi2(alpha_K_param3_arr[z_arr<z_max], alpha_K_fit, 2) + np.log(len(a_fit))/len(a_fit)
 
     model_vals = (alpha_M_param3_arr, alpha_B_param3_arr, alpha_K_param3_arr)
     model_params = (alpha_M03, alpha_B03, alpha_K03, q_M, q_B, q_K)
